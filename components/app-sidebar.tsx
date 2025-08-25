@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sidebar"
 
 import Link from "next/link"
-import  MataroCalendar  from "@/components/mataro-calendar"
+import MataroCalendar from "@/components/mataro-calendar"
 
 // Menu items.
 const items = [
@@ -67,10 +67,10 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
-            <hr />
-            <div className="mt-4">
-              <MataroCalendar />
-            </div>
+            <hr className="my-4" />
+
+            <MataroCalendar />
+
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
