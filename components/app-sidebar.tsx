@@ -3,6 +3,7 @@ import { BookImage, Store, Brain, Home, Map, BusFront, Settings } from "lucide-r
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -13,6 +14,7 @@ import {
 
 import Link from "next/link"
 import MataroCalendar from "@/components/mataro-calendar"
+import { NavUser } from "@/components/nav-user"
 
 // Menu items.
 const items = [
@@ -53,6 +55,12 @@ const items = [
   },
 ]
 
+const user = {
+  name: "Jorge Sánchez Águila",
+  email: "jsanchezpc@hotmail.com",
+  avatar: "https://pbs.twimg.com/profile_images/1943709541264207873/L-c-OUS7_400x400.jpg"
+}
+
 export function AppSidebar() {
   return (
     <Sidebar>
@@ -79,6 +87,9 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <NavUser user={user} />
+      </SidebarFooter>
     </Sidebar>
   )
 }

@@ -4,6 +4,7 @@ import "./globals.css";
 
 // UI Components
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { Button } from "@/components/ui/button";
 // APP Components 
 import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider"
@@ -54,6 +55,7 @@ export default function RootLayout({
                   </div>
                   <div className="flex gap-4">
                     <ModeToggle />
+                    <Button className="text-slate-100">Entrar</Button>
                   </div>
                 </div>
               </div>
