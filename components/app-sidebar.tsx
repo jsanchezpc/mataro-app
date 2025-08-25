@@ -1,4 +1,4 @@
-import { LandPlot, Home, Map, BusFront, Settings } from "lucide-react"
+import { Store, Brain, Home, Map, BusFront, Settings } from "lucide-react"
 
 import {
   Sidebar,
@@ -10,7 +10,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+
 import Link from "next/link"
+import  MataroCalendar  from "@/components/mataro-calendar"
 
 // Menu items.
 const items = [
@@ -25,9 +27,14 @@ const items = [
     icon: Map,
   },
   {
-    title: "Planes",
+    title: "Ocio y cultura",
     url: "#",
-    icon: LandPlot,
+    icon: Brain,
+  },
+  {
+    title: "Comercio local",
+    url: "#",
+    icon: Store,
   },
   {
     title: "Transporte",
@@ -60,6 +67,10 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
+            <hr />
+            <div className="mt-4">
+              <MataroCalendar />
+            </div>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
