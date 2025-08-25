@@ -1,4 +1,4 @@
-import { Store, Brain, Home, Map, BusFront, Settings } from "lucide-react"
+import { BookImage, Store, Brain, Home, Map, BusFront, Settings } from "lucide-react"
 
 import {
   Sidebar,
@@ -40,6 +40,11 @@ const items = [
     title: "Transporte",
     url: "#",
     icon: BusFront,
+  },
+  {
+    title: "Galeria",
+    url: "#",
+    icon: BookImage,
   },
   {
     title: "Ajustes",
