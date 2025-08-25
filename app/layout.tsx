@@ -2,10 +2,13 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+// UI Components
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+// APP Components 
 import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider"
 import { ModeToggle } from "@/components/theme-mode-switch";
+import { BreadcrumbWithCustomSeparator } from "@/components/breadcrumb-navigation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,6 +50,7 @@ export default function RootLayout({
                 <div className="topnavbar flex justify-between px-4 py-2">
                   <div className="flex gap-4">
                     <SidebarTrigger className="my-auto" />
+                    <BreadcrumbWithCustomSeparator />
                   </div>
                   <div className="flex gap-4">
                     <ModeToggle />
