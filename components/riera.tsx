@@ -1,3 +1,4 @@
+import { Repeat2, ThumbsUp, MessageCircle } from "lucide-react"
 import {
     Card,
     CardAction,
@@ -22,8 +23,16 @@ export default function Riera() {
             <CardContent>
                 <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio facere ab voluptatum enim. Quibusdam, ut. Architecto ex libero aperiam ratione temporibus velit corporis ducimus dolor necessitatibus odio, blanditiis illo est.</p>
             </CardContent>
-            <CardFooter>
-                <Button variant={"outline"} className="text-white cursor-pointer">Santeja-ho</Button>
+            <CardFooter className="gap-4">
+                <Button variant={"outline"} className="cursor-pointer">
+                    <MessageCircle />
+                </Button>
+                <Button variant={"outline"} className="cursor-pointer">
+                    <Repeat2 />
+                </Button>
+                <Button variant={"outline"} className="cursor-pointer">
+                    <ThumbsUp />
+                </Button>
             </CardFooter>
         </Card>
     )

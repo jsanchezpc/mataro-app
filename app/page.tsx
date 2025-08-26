@@ -6,8 +6,8 @@ import Riera from "@/components/riera";
 
 export default function Home() {
   return (
-    <div className="font-sans rounded p-8">
-      <div className="w-200 mx-auto">
+    <div className="font-sans rounded md:p-8">
+      <div className="max-w-200 mx-auto">
         <div>
           <Textarea placeholder="Dile a Mataró lo que pasa" className="resize-none min-h-20 h-auto max-h-50 w-full" />
           <div className="flex w-full justify-end mt-2">

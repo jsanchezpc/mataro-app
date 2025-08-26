@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "@/app/globals.css";
 
 // UI Components
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
@@ -10,6 +10,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider"
 import { ModeToggle } from "@/components/theme-mode-switch";
 import { BreadcrumbWithCustomSeparator } from "@/components/breadcrumb-navigation";
+import Link from "next/link";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,8 +46,7 @@ export default function RootLayout({
           <SidebarProvider>
             <AppSidebar />
 
-            <main className="rounded-md w-full">
-              {/* Top Navbar sticky */}
+            <div className="rounded-md w-full">
               <div className="sticky top-0 z-50 bg-background border-b">
                 <div className="topnavbar flex justify-between px-4 py-2">
                   <div className="flex gap-4">
@@ -55,16 +55,19 @@ export default function RootLayout({
                   </div>
                   <div className="flex gap-4">
                     <ModeToggle />
-                    <Button className="text-slate-100">Entrar</Button>
+
+                    <Link href="/login">
+                      <Button className="text-slate-100">Entrar</Button>
+                    </Link>
+
                   </div>
                 </div>
               </div>
 
-              {/* Contenido */}
-              <div className="pt-4">
+              <main>
                 {children}
-              </div>
-            </main>
+              </main>
+            </div>
           </SidebarProvider>
         </ThemeProvider>
       </body>
