@@ -44,14 +44,14 @@ const items = [
     icon: BusFront,
   },
   {
-    title: "Galeria",
-    url: "#",
-    icon: BookImage,
-  },
-  {
     title: "Trabajos",
     url: "#",
     icon: Briefcase,
+  },
+  {
+    title: "Galeria",
+    url: "#",
+    icon: BookImage,
   },
   {
     title: "Ajustes",
@@ -59,12 +59,6 @@ const items = [
     icon: Settings,
   },
 ]
-
-const user = {
-  name: "Jorge Sánchez Águila",
-  email: "jsanchezpc@hotmail.com",
-  avatar: "https://pbs.twimg.com/profile_images/1943709541264207873/L-c-OUS7_400x400.jpg"
-}
 
 export function AppSidebar() {
   return (
@@ -93,7 +87,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   )
