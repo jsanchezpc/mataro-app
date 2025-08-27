@@ -56,7 +56,7 @@ export default function RootLayout({
                       <SidebarTrigger className="my-auto" />
                       <BreadcrumbWithCustomSeparator />
                     </div>
-                    <div>
+                    <div className="flex">
                       <ModeToggle />
                       <LoginButton />
                     </div>

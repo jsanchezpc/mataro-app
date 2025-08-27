@@ -1,8 +1,26 @@
+"use client"
+
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { GalleryVerticalEnd } from "lucide-react"
 
 import { LoginForm } from "@/components/login-form"
+import { useAuth } from "@/app/context/AuthContext"
 
 export default function Login() {
+  const { user, loading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.push("/")
+    }
+  }, [user, loading, router])
+
+  if (loading) {
+    return <div className="flex justify-center items-center min-h-svh">Cargando...</div>
+  }
+
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-6 pt-0 p-6 md:p-10">
       <div className="flex w-full max-w-sm flex-col gap-6">

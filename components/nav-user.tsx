@@ -1,12 +1,13 @@
 "use client"
 
+import { useAuth } from "@/app/context/AuthContext"
+import { logOut } from "@/lib/firebase"
+
+import { Skeleton } from "@/components/ui/skeleton"
 import {
     BadgeCheck,
-    Bell,
     ChevronsUpDown,
-    CreditCard,
     LogOut,
-    Sparkles,
 } from "lucide-react"
 
 import {
@@ -29,17 +30,11 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from "@/components/ui/sidebar"
+import Link from "next/link"
 
-export function NavUser({
-    user,
-}: {
-    user: {
-        name: string
-        email: string
-        avatar: string
-    }
-}) {
+export function NavUser() {
     const { isMobile } = useSidebar()
+    const { user, loading } = useAuth()
 
     return (
         <SidebarMenu>
@@ -51,62 +46,72 @@ export function NavUser({
                             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                         >
                             <Avatar className="h-8 w-8 rounded-lg">
-                                <AvatarImage src={user.avatar} alt={user.name} />
-                                <AvatarFallback className="rounded-lg">?</AvatarFallback>
+                                {loading ? (
+                                    <Skeleton className="h-full w-full rounded-lg" />
+                                ) : user ? (
+                                    <AvatarImage
+                                        src={user?.photoURL ?? undefined}
+                                        alt={user?.displayName ?? "avatar"}
+                                    />
+                                ) : (
+                                    <AvatarFallback className="rounded-lg">?</AvatarFallback>
+                                )}
                             </Avatar>
+
                             <div className="grid flex-1 text-left text-sm leading-tight">
-                                <span className="truncate font-medium">{user.name}</span>
-                                {/* <span className="truncate text-xs">{user.email}</span> */}
+                                {loading ? (
+                                    <Skeleton className="h-4 w-24 rounded" />
+                                ) : user ? (
+                                    <span className="truncate font-medium">
+                                        {user.displayName}
+                                    </span>
+                                ) : <Link className="hover:underline" href="/login">Entrar</Link>}
                             </div>
+
                             <ChevronsUpDown className="ml-auto size-4" />
                         </SidebarMenuButton>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                        className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-                        side={isMobile ? "bottom" : "right"}
-                        align="end"
-                        sideOffset={4}
-                    >
-                        <DropdownMenuLabel className="p-0 font-normal">
-                            <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                                <Avatar className="h-8 w-8 rounded-lg">
-                                    <AvatarImage src={user.avatar} alt={user.name} />
-                                    <AvatarFallback className="rounded-lg">?</AvatarFallback>
-                                </Avatar>
-                                <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-medium">{user.name}</span>
-                                    <span className="truncate text-xs">{user.email}</span>
+
+                    {user && (
+                        <DropdownMenuContent
+                            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+                            side={isMobile ? "bottom" : "right"}
+                            align="end"
+                            sideOffset={4}
+                        >
+                            <DropdownMenuLabel className="p-0 font-normal">
+                                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                                    <Avatar className="h-8 w-8 rounded-lg">
+                                        <AvatarImage
+                                            src={user?.photoURL ?? undefined}
+                                            alt={user?.displayName ?? "avatar"}
+                                        />
+                                        <AvatarFallback className="rounded-lg">?</AvatarFallback>
+                                    </Avatar>
+                                    <div className="grid flex-1 text-left text-sm leading-tight">
+                                        <span className="truncate font-medium">
+                                            {user?.displayName}
+                                        </span>
+                                        <span className="truncate text-xs">{user?.email}</span>
+                                    </div>
                                 </div>
-                            </div>
-                        </DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        {/* <DropdownMenuGroup>
-                            <DropdownMenuItem>
-                                <Sparkles />
-                                Mejorar cuenta
+                            </DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+
+                            <DropdownMenuGroup>
+                                <DropdownMenuItem>
+                                    <BadgeCheck />
+                                    Cuenta
+                                </DropdownMenuItem>
+                            </DropdownMenuGroup>
+
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={logOut}>
+                                <LogOut />
+                                Salir
                             </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator /> */}
-                        <DropdownMenuGroup>
-                            <DropdownMenuItem>
-                                <BadgeCheck />
-                                Cuenta
-                            </DropdownMenuItem>
-                            {/* <DropdownMenuItem>
-                                <CreditCard />
-                                Billing
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <Bell />
-                                Notificationes
-                            </DropdownMenuItem> */}
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>
-                            <LogOut />
-                            Salir
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
+                        </DropdownMenuContent>
+                    )}
                 </DropdownMenu>
             </SidebarMenuItem>
         </SidebarMenu>
