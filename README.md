@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌊 Mataró App
 
-## Getting Started
+Conectamos a toda la gente de **Mataró** en una sola aplicación.  
+Una plataforma pensada para nuestra ciudad, hecha por y para nosotros.  
 
-First, run the development server:
+## 🚀 ¿Qué es Mataró App?
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Mataró App es un punto de encuentro digital para vecinos, visitantes y comercios.  
+Queremos que todo lo que pasa en la ciudad esté al alcance de tu mano:  
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- 👥 **Comunidad**: conecta con otras personas de Mataró.  
+- 💼 **Trabajo**: encuentra ofertas laborales locales.  
+- 🛍️ **Comercio**: descubre dónde comprar en la ciudad.  
+- 📸 **Galería**: comparte y disfruta fotos de Mataró.  
+- 🚌 **Transporte**: consulta horarios y rutas.  
+- 🎭 **Ocio y Cultura**: conciertos, exposiciones, actividades y más.  
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🌟 Nuestra misión
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Hacer de Mataró una ciudad más conectada, accesible y viva, reuniendo en un solo lugar todo lo que la hace especial.  
 
-## Learn More
+## 📲 Estado del proyecto
 
-To learn more about Next.js, take a look at the following resources:
+🚧 Este es un prototipo en construcción.  
+El objetivo es mostrar la **idea** y sentar las bases de lo que puede ser **la app de referencia en Mataró**.  
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🤝 Conecta con nosotros
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Este proyecto está abierto a nuevas ideas y colaboraciones.  
+Si eres desarrollador, diseñador, comerciante o simplemente quieres aportar… ¡eres bienvenido!  
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+Hecho con ❤️ desde Mataró
