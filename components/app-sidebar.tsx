@@ -1,4 +1,4 @@
-import { Briefcase, BookImage, Store, Brain, Home, Map, BusFront, Settings } from "lucide-react"
+import { Briefcase, HousePlus, Handshake, BookImage, Store, Brain, Home, Map, BusFront, Settings } from "lucide-react"
 
 import {
   Sidebar,
@@ -39,6 +39,11 @@ const items = [
     icon: Store,
   },
   {
+    title: "Rastro",
+    url: "#",
+    icon: Handshake,
+  },
+  {
     title: "Transporte",
     url: "#",
     icon: BusFront,
@@ -47,6 +52,11 @@ const items = [
     title: "Trabajos",
     url: "#",
     icon: Briefcase,
+  },
+  {
+    title: "Vivienda",
+    url: "#",
+    icon: HousePlus,
   },
   {
     title: "Galeria",
