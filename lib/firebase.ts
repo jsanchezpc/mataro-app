@@ -38,13 +38,17 @@ let appCheck: AppCheck | null = null
 
 // ✅ Inicializar AppCheck solo en cliente
 if (typeof window !== "undefined") {
+  const recaptchaKey =
+    process.env.NODE_ENV === "production"
+      ? process.env.NEXT_PUBLIC_PROD_RECAPTCHA_KEY
+      : process.env.NEXT_PUBLIC_RECAPTCHA_KEY
+
   appCheck = initializeAppCheck(app, {
-    provider: new ReCaptchaV3Provider(
-      process.env.NEXT_PUBLIC_RECAPTCHA_KEY as string
-    ),
+    provider: new ReCaptchaV3Provider(recaptchaKey as string),
     isTokenAutoRefreshEnabled: true,
   })
 }
+
 
 // 🔑 Helpers
 async function getAppCheckToken(forceRefresh = false) {
