@@ -7,43 +7,43 @@
 # que las variables de entorno.
 env:
   - variable: NEXT_PUBLIC_API_KEY
-    secret: NEXT_PUBLIC_API_KEY # Referencia al secreto llamado "NEXT_PUBLIC_API_KEY" en Secret Manager
+    secret: NEXT_PUBLIC_API_KEY
     availability:
       - BUILD
       - RUNTIME
 
   - variable: NEXT_PUBLIC_AUTH_DOMAIN
-    secret: NEXT_PUBLIC_AUTH_DOMAIN # Referencia al secreto llamado "NEXT_PUBLIC_AUTH_DOMAIN"
+    secret: NEXT_PUBLIC_AUTH_DOMAIN
     availability:
       - BUILD
       - RUNTIME
 
   - variable: NEXT_PUBLIC_PROJECT_ID
-    secret: NEXT_PUBLIC_PROJECT_ID # Referencia al secreto llamado "NEXT_PUBLIC_PROJECT_ID"
+    secret: NEXT_PUBLIC_PROJECT_ID
     availability:
       - BUILD
       - RUNTIME
 
   - variable: NEXT_PUBLIC_STORAGE_BUCKET
-    secret: NEXT_PUBLIC_STORAGE_BUCKET # Referencia al secreto llamado "NEXT_PUBLIC_STORAGE_BUCKET"
+    secret: NEXT_PUBLIC_STORAGE_BUCKET
     availability:
       - BUILD
       - RUNTIME
 
   - variable: NEXT_PUBLIC_MESSAGING_SENDER_ID
-    secret: NEXT_PUBLIC_MESSAGING_SENDER_ID # Referencia al secreto llamado "NEXT_PUBLIC_MESSAGING_SENDER_ID"
+    secret: NEXT_PUBLIC_MESSAGING_SENDER_ID
     availability:
       - BUILD
       - RUNTIME
 
   - variable: NEXT_PUBLIC_APP_ID
-    secret: NEXT_PUBLIC_APP_ID # Referencia al secreto llamado "NEXT_PUBLIC_APP_ID"
+    secret: NEXT_PUBLIC_APP_ID
     availability:
       - BUILD
       - RUNTIME
 
   - variable: NEXT_PUBLIC_MEASUREMENT_ID
-    secret: NEXT_PUBLIC_MEASUREMENT_ID # Referencia al secreto llamado "NEXT_PUBLIC_MEASUREMENT_ID"
+    secret: NEXT_PUBLIC_MEASUREMENT_ID
     availability:
       - BUILD
       - RUNTIME

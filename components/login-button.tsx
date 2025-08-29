@@ -18,7 +18,7 @@ export default function LoginButton() {
             {user ?
                 <div></div>
                 : <Link className="ml-4" href="/login">
-                    <Button className="cursor-pointer">Entrar</Button>
+                    <Button className="cursor-pointer text-amber-50">Entrar</Button>
                 </Link>}
         </div>
     )
