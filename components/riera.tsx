@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button"
 
 export default function Riera() {
     return (
-        <Card className="rounded-none">
+        <Card className="rounded-none md:rounded-4xl">
             <CardHeader>
                 <CardTitle>Jorge</CardTitle>
                 <CardDescription>@admin</CardDescription>

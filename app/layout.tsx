@@ -25,8 +25,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mataró App",
-  description: "Todo lo que necesitas de Mataró, en una sola app.",
+  title: "Mataró",
+  description: "La capital del Maresme tiene el privilegio de ser considerada, por muchos habitantes, una de las mejores ciudades catalanas donde vivir.",
 };
 
 export default function RootLayout({

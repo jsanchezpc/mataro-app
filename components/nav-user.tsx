@@ -5,7 +5,8 @@ import { logOut } from "@/lib/firebase"
 
 import { Skeleton } from "@/components/ui/skeleton"
 import {
-    BadgeCheck,
+    User,
+    Settings,
     ChevronsUpDown,
     LogOut,
 } from "lucide-react"
@@ -48,7 +49,7 @@ export function NavUser() {
                             <Avatar className="h-8 w-8 rounded-lg">
                                 {loading ? (
                                     <Skeleton className="h-full w-full rounded-lg" />
-                                ) : user ? (
+                                ) : user?.photoURL ? (
                                     <AvatarImage
                                         src={user?.photoURL ?? undefined}
                                         alt={user?.displayName ?? "avatar"}
@@ -61,11 +62,11 @@ export function NavUser() {
                             <div className="grid flex-1 text-left text-sm leading-tight">
                                 {loading ? (
                                     <Skeleton className="h-4 w-24 rounded" />
-                                ) : user ? (
+                                ) : user?.displayName ? (
                                     <span className="truncate font-medium">
                                         {user.displayName}
                                     </span>
-                                ) : <Link className="hover:underline" href="/login">Entrar</Link>}
+                                ) : user ? <div>Mataroní</div> : <Link className="hover:underline" href="/login">Entrar</Link>}
                             </div>
 
                             <ChevronsUpDown className="ml-auto size-4" />
@@ -100,8 +101,15 @@ export function NavUser() {
 
                             <DropdownMenuGroup>
                                 <DropdownMenuItem>
-                                    <BadgeCheck />
-                                    Cuenta
+                                    <User />
+                                    <Link href="/profile">Perfil</Link>
+                                </DropdownMenuItem>
+                            </DropdownMenuGroup>
+
+                            <DropdownMenuGroup>
+                                <DropdownMenuItem>
+                                    <Settings />
+                                    Ajustes
                                 </DropdownMenuItem>
                             </DropdownMenuGroup>
 

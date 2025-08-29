@@ -1,4 +1,4 @@
-import { Briefcase, HousePlus, Handshake, BookImage, Store, Brain, Home, Map, BusFront, Settings } from "lucide-react"
+import { Briefcase, HousePlus, Handshake, BookImage, Store, Brain, Home, Map, BusFront } from "lucide-react"
 
 import {
   Sidebar,
@@ -62,12 +62,7 @@ const items = [
     title: "Galeria",
     url: "#",
     icon: BookImage,
-  },
-  {
-    title: "Ajustes",
-    url: "#",
-    icon: Settings,
-  },
+  }
 ]
 
 export function AppSidebar() {

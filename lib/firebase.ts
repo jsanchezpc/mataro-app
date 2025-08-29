@@ -1,6 +1,23 @@
-import { initializeApp } from "firebase/app"
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth"
+// lib/firebase.ts
+"use client"
 
+import { initializeApp } from "firebase/app"
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from "firebase/auth"
+import {
+  initializeAppCheck,
+  ReCaptchaV3Provider,
+  getToken,
+  AppCheck,
+} from "firebase/app-check"
+
+// Configuración desde .env.local
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN,
@@ -11,18 +28,40 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_MEASUREMENT_ID,
 }
 
+// Inicializar Firebase
 const app = initializeApp(firebaseConfig)
-
-// Auth
 const auth = getAuth(app)
 const provider = new GoogleAuthProvider()
+
+// Guardar instancia de AppCheck
+let appCheck: AppCheck | null = null
+
+// ✅ Inicializar AppCheck solo en cliente
+if (typeof window !== "undefined") {
+  appCheck = initializeAppCheck(app, {
+    provider: new ReCaptchaV3Provider(
+      process.env.NEXT_PUBLIC_RECAPTCHA_KEY as string
+    ),
+    isTokenAutoRefreshEnabled: true,
+  })
+}
+
+// 🔑 Helpers
+async function getAppCheckToken(forceRefresh = false) {
+  if (!appCheck) return null
+  try {
+    const token = await getToken(appCheck, forceRefresh)
+    return token.token
+  } catch (error) {
+    console.error("Error obteniendo AppCheck token:", error)
+    return null
+  }
+}
 
 async function logInWithGoogle() {
   try {
     const result = await signInWithPopup(auth, provider)
-    const user = result.user
-    console.log("Usuario logueado:", user)
-    return user
+    return result.user
   } catch (error) {
     console.error("Error al iniciar sesión con Google:", error)
     throw error
@@ -32,10 +71,25 @@ async function logInWithGoogle() {
 async function logOut() {
   try {
     await signOut(auth)
-    console.log("Sesión cerrada")
   } catch (error) {
     console.error("Error al cerrar sesión:", error)
   }
 }
 
-export { app, auth, logInWithGoogle, logOut }
+async function logInWithEmail(email: string, password: string) {
+  return await signInWithEmailAndPassword(auth, email, password)
+}
+
+async function signUpWithEmail(email: string, password: string) {
+  return await createUserWithEmailAndPassword(auth, email, password)
+}
+
+export {
+  app,
+  auth,
+  logInWithGoogle,
+  logOut,
+  logInWithEmail,
+  signUpWithEmail,
+  getAppCheckToken,
+}
