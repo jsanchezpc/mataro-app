@@ -37,9 +37,14 @@ export function LoginForm({
         await logInWithEmail(email, password)
         console.log("✅ Login correcto")
       }
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError("Ha ocurrido un error desconocido")
+      }
+    }
+    finally {
       setLoading(false)
     }
   }
@@ -111,8 +116,8 @@ export function LoginForm({
                   {loading
                     ? "Procesando..."
                     : isRegister
-                    ? "Registrarse"
-                    : "Entrar"}
+                      ? "Registrarse"
+                      : "Entrar"}
                 </Button>
 
                 {error && (
