@@ -12,7 +12,7 @@ import {
 } from "firebase/auth"
 import {
   initializeAppCheck,
-  ReCaptchaV3Provider,
+  ReCaptchaEnterpriseProvider,
   getToken,
   AppCheck,
 } from "firebase/app-check"
@@ -44,7 +44,7 @@ if (typeof window !== "undefined") {
       : process.env.NEXT_PUBLIC_RECAPTCHA_KEY
 
   appCheck = initializeAppCheck(app, {
-    provider: new ReCaptchaV3Provider(recaptchaKey as string),
+    provider: new ReCaptchaEnterpriseProvider(recaptchaKey as string),
     isTokenAutoRefreshEnabled: true,
   })
 }
