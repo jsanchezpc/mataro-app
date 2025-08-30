@@ -48,6 +48,18 @@ env:
       - BUILD
       - RUNTIME
 
+  - variable: NEXT_PUBLIC_RECAPTCHA_KEY
+    secret: NEXT_PUBLIC_RECAPTCHA_KEY
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_PROD_RECAPTCHA_KEY
+    secret: NEXT_PUBLIC_PROD_RECAPTCHA_KEY
+    availability:
+      - BUILD
+      - RUNTIME
+
 # runConfig:
 #   minInstances: 0
 #   maxInstances: 2
