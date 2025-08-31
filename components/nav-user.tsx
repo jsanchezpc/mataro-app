@@ -100,10 +100,12 @@ export function NavUser() {
                             <DropdownMenuSeparator />
 
                             <DropdownMenuGroup>
-                                <DropdownMenuItem>
-                                    <User />
-                                    <Link href="/profile">Perfil</Link>
-                                </DropdownMenuItem>
+                                <Link href={"/profile"}>
+                                    <DropdownMenuItem>
+                                        <User />
+                                        Perfil
+                                    </DropdownMenuItem>
+                                </Link>
                             </DropdownMenuGroup>
 
                             <DropdownMenuGroup>
