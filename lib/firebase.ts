@@ -38,6 +38,10 @@ let appCheck: AppCheck | null = null
 
 // ✅ Inicializar AppCheck solo en cliente
 if (typeof window !== "undefined") {
+  if (process.env.NODE_ENV !== "production") {
+    self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+  }
+
   const recaptchaKey =
     process.env.NODE_ENV === "production"
       ? process.env.NEXT_PUBLIC_PROD_RECAPTCHA_KEY
