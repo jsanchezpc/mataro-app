@@ -78,7 +78,10 @@ export default function CreatePost({ sendPost }: CreatePostProps) {
                 </div>
 
                 <SheetFooter>
-                    <Button onClick={() => sendPost(content)} type="submit" className="text-slate-100 cursor-pointer">Postear</Button>
+                    <Button onClick={() => sendPost(postContent)} type="submit" className="text-slate-100 cursor-pointer">
+                        Postear
+                    </Button>
+
                     <SheetClose asChild>
                         <Button variant="outline">Cerrar</Button>
                     </SheetClose>
