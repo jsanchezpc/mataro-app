@@ -1,4 +1,7 @@
-import { Repeat2, ThumbsUp, MessageCircle } from "lucide-react"
+"use client"
+
+// UI components
+import { Repeat2, ThumbsUp, MessageCircle, EllipsisVertical } from "lucide-react"
 import {
     Card,
     CardAction,
@@ -10,30 +13,58 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
-export default function Riera() {
+type Post = {
+    author: string;
+    authorAt: string;
+    content: string;
+};
+
+interface RieraProps {
+    post: Post;
+    isPreview: boolean;
+}
+
+export default function Riera({ post, isPreview }: RieraProps) {
+    const { author, authorAt, content } = post;
     return (
-        <Card className="rounded-none md:rounded-4xl">
+        <Card
+            className={`${isPreview ? "rounded-2xl" : "rounded-none md:rounded-4xl"
+                }`}
+        >
             <CardHeader>
-                <CardTitle>Jorge</CardTitle>
-                <CardDescription>@admin</CardDescription>
-
-                <CardAction>Reportar</CardAction>
-
+                <CardTitle>{author}</CardTitle>
+                <CardDescription>{authorAt}</CardDescription>
+                {isPreview ? null : <CardAction className="hover:bg-accent cursor-pointer rounded-full p-1"><EllipsisVertical /></CardAction>}
             </CardHeader>
+
             <CardContent>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio facere ab voluptatum enim. Quibusdam, ut. Architecto ex libero aperiam ratione temporibus velit corporis ducimus dolor necessitatibus odio, blanditiis illo est.</p>
+                <p>{content}</p>
             </CardContent>
-            <CardFooter className="gap-4">
-                <Button variant={"outline"} className="cursor-pointer">
-                    <MessageCircle />
-                </Button>
-                <Button variant={"outline"} className="cursor-pointer">
-                    <Repeat2 />
-                </Button>
-                <Button variant={"outline"} className="cursor-pointer">
-                    <ThumbsUp />
-                </Button>
-            </CardFooter>
+
+            {isPreview ?
+                <CardFooter className="gap-4">
+                    <Button disabled variant={"outline"} className="cursor-pointer">
+                        <MessageCircle />
+                    </Button>
+                    <Button disabled variant={"outline"} className="cursor-pointer">
+                        <Repeat2 />
+                    </Button>
+                    <Button disabled variant={"outline"} className="cursor-pointer">
+                        <ThumbsUp />
+                    </Button>
+                </CardFooter> :
+                <CardFooter className="gap-4">
+                    <Button variant={"outline"} className="cursor-pointer">
+                        <MessageCircle />
+                    </Button>
+                    <Button variant={"outline"} className="cursor-pointer">
+                        <Repeat2 />
+                    </Button>
+                    <Button variant={"outline"} className="cursor-pointer">
+                        <ThumbsUp />
+                    </Button>
+                </CardFooter>
+            }
         </Card>
     )
 }
