@@ -30,9 +30,16 @@ function DropCreate() {
     )
 }
 
+type Post = {
+    author: string
+    authorAt: string
+    content: string
+}
+
 type CreatePostProps = {
-  sendPost: (texto: string) => Promise<void> | void;
-};
+    sendPost: (post: Post) => void
+}
+
 
 
 export default function CreatePost({ sendPost }: CreatePostProps) {
