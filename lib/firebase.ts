@@ -1,5 +1,10 @@
 // lib/firebase.ts
 "use client"
+declare global {
+  interface Window {
+    FIREBASE_APPCHECK_DEBUG_TOKEN?: boolean
+  }
+}
 
 import { initializeApp } from "firebase/app"
 import {
@@ -39,7 +44,7 @@ let appCheck: AppCheck | null = null
 // ✅ Inicializar AppCheck solo en cliente
 if (typeof window !== "undefined") {
   if (process.env.NODE_ENV !== "production") {
-    self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+    window.FIREBASE_APPCHECK_DEBUG_TOKEN = true
   }
 
   const recaptchaKey =
