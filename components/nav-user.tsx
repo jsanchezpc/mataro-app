@@ -37,6 +37,8 @@ export function NavUser() {
     const { isMobile } = useSidebar()
     const { user, loading } = useAuth()
 
+    console.log(user)
+
     return (
         <SidebarMenu>
             <SidebarMenuItem>
@@ -100,7 +102,7 @@ export function NavUser() {
                             <DropdownMenuSeparator />
 
                             <DropdownMenuGroup>
-                                <Link href={"/profile"}>
+                                <Link href={"/profile/" + user.uid}>
                                     <DropdownMenuItem>
                                         <User />
                                         Perfil
