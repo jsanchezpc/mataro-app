@@ -47,9 +47,7 @@ export default function ProfileView() {
                         </CardAction>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-2">
-                        <Skeleton className="w-full h-3" />
-                        <Skeleton className="w-full md:w-3/4 h-3" />
-                        <Skeleton className="w-full md:w-2/4 h-3" />
+                        <Skeleton className="w-full h-24" />
                     </CardContent>
                     <CardFooter>
                         <div className="flex flex-row gap-8">
