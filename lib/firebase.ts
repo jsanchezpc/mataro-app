@@ -14,6 +14,7 @@ import {
   signOut,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  User,
 } from "firebase/auth"
 import {
   initializeAppCheck,
@@ -21,6 +22,12 @@ import {
   getToken,
   AppCheck,
 } from "firebase/app-check"
+import {
+  getFirestore,
+  doc,
+  runTransaction,
+  serverTimestamp,
+} from "firebase/firestore"
 
 // Configuración desde .env.local
 const firebaseConfig = {
@@ -37,6 +44,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const provider = new GoogleAuthProvider()
+const db = getFirestore(app) // ✅ Firestore inicializado
 
 // Guardar instancia de AppCheck
 let appCheck: AppCheck | null = null
@@ -58,7 +66,6 @@ if (typeof window !== "undefined") {
   })
 }
 
-
 // 🔑 Helpers
 async function getAppCheckToken(forceRefresh = false) {
   if (!appCheck) return null
@@ -71,9 +78,36 @@ async function getAppCheckToken(forceRefresh = false) {
   }
 }
 
+// ✅ Crear usuario en Firestore solo si no existe (transacción)
+async function createUserIfNotExists(user: User) {
+  if (!user) return
+
+  const userRef = doc(db, "users", user.uid)
+
+  try {
+    await runTransaction(db, async (transaction) => {
+      const userDoc = await transaction.get(userRef)
+
+      if (!userDoc.exists()) {
+        transaction.set(userRef, {
+          uid: user.uid,
+          createdAt: serverTimestamp(),
+        })
+        console.log("✅ Usuario guardado")
+      } else {
+        console.log("ℹ️ Ya existe")
+      }
+    })
+  } catch (error) {
+    console.error("❌ Error en transacción al crear usuario:", error)
+  }
+}
+
+// 🚀 Métodos de auth
 async function logInWithGoogle() {
   try {
     const result = await signInWithPopup(auth, provider)
+    await createUserIfNotExists(result.user) // 👈
     return result.user
   } catch (error) {
     console.error("Error al iniciar sesión con Google:", error)
@@ -90,19 +124,25 @@ async function logOut() {
 }
 
 async function logInWithEmail(email: string, password: string) {
-  return await signInWithEmailAndPassword(auth, email, password)
+  const result = await signInWithEmailAndPassword(auth, email, password)
+  await createUserIfNotExists(result.user) // 👈
+  return result
 }
 
 async function signUpWithEmail(email: string, password: string) {
-  return await createUserWithEmailAndPassword(auth, email, password)
+  const result = await createUserWithEmailAndPassword(auth, email, password)
+  await createUserIfNotExists(result.user) // 👈
+  return result
 }
 
 export {
   app,
   auth,
+  db,
   logInWithGoogle,
   logOut,
   logInWithEmail,
   signUpWithEmail,
   getAppCheckToken,
+  createUserIfNotExists,
 }

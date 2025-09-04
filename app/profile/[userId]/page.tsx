@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/app/context/AuthContext"
 import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 
 import {
     Card,
@@ -29,63 +29,65 @@ export default function ProfileView() {
         }
     }, [loading, user, router])
 
+    const params = useParams()
+
     if (loading) {
         return (
-        <div className="font-sans h-full">
-            <div className="w-full max-w-full md:max-w-200  mx-auto h-full overflow-x-auto">
-                <Card className="rounded-none h-full bg-transparent border-none shadow-none gap-4">
-                    <CardHeader className="gap-2">
-                        <Avatar className="size-20 mb-2">
-                            <Skeleton className="rounded-full size-20" />
-                        </Avatar>
-                        <Skeleton className="w-full md:w-1/3 h-6" />
-                        <CardDescription>
-                            <Skeleton className="w-14 h-4" />
-                        </CardDescription>
-                        <CardAction>
-                            
-                        </CardAction>
-                    </CardHeader>
-                    <CardContent className="flex flex-col gap-2">
-                        <Skeleton className="w-full h-24" />
-                    </CardContent>
-                    <CardFooter>
-                        <div className="flex flex-row gap-8">
-                            <div className="flex flex-col gap-2">
-                                <div className="flex">
-                                    <Skeleton className="w-4 h-4" />
+            <div className="font-sans h-full">
+                <div className="w-full max-w-full md:max-w-200  mx-auto h-full overflow-x-auto">
+                    <Card className="rounded-none h-full bg-transparent border-none shadow-none gap-4">
+                        <CardHeader className="gap-2">
+                            <Avatar className="size-20 mb-2">
+                                <Skeleton className="rounded-full size-20" />
+                            </Avatar>
+                            <Skeleton className="w-full md:w-1/3 h-6" />
+                            <CardAction>
+
+                            </CardAction>
+                        </CardHeader>
+                        <CardContent className="flex flex-col gap-2">
+                            <Skeleton className="w-full h-4" />
+                            <Skeleton className="w-full h-4" />
+                            <Skeleton className="w-full h-4" />
+                        </CardContent>
+                        <CardFooter>
+                            <div className="flex flex-row gap-8">
+                                <div className="flex flex-col gap-2">
+                                    <div className="flex">
+                                        <Skeleton className="w-4 h-4" />
+                                    </div>
+                                    <div className="flex">
+                                        <Skeleton className="w-14 h-4" />
+                                    </div>
                                 </div>
-                                <div className="flex">
-                                    <Skeleton className="w-14 h-4" />
+                                <Separator orientation="vertical" />
+                                <div className="flex flex-col gap-2">
+                                    <div className="flex">
+                                        <Skeleton className="w-4 h-4" />
+                                    </div>
+                                    <div className="flex">
+                                        <Skeleton className="w-14 h-4" />
+                                    </div>
+                                </div>
+                                <Separator orientation="vertical" />
+                                <div className="flex flex-col gap-2">
+                                    <div className="flex">
+                                        <Skeleton className="w-4 h-4" />
+                                    </div>
+                                    <div className="flex">
+                                        <Skeleton className="w-14 h-4" />
+                                    </div>
                                 </div>
                             </div>
-                            <Separator orientation="vertical" />
-                            <div className="flex flex-col gap-2">
-                                <div className="flex">
-                                    <Skeleton className="w-4 h-4" />
-                                </div>
-                                <div className="flex">
-                                    <Skeleton className="w-14 h-4" />
-                                </div>
-                            </div>
-                            <Separator orientation="vertical" />
-                            <div className="flex flex-col gap-2">
-                                <div className="flex">
-                                    <Skeleton className="w-4 h-4" />
-                                </div>
-                                <div className="flex">
-                                    <Skeleton className="w-14 h-4" />
-                                </div>
-                            </div>
-                        </div>
-                    </CardFooter>
-                </Card>
+                        </CardFooter>
+                    </Card>
+                </div>
             </div>
-        </div>
         )
     }
 
     return (
+
         <div className="font-sans h-full">
             <div className="w-full max-w-full md:max-w-200  mx-auto h-full overflow-x-auto">
                 <Card className="rounded-none h-full bg-transparent border-none shadow-none">
@@ -94,13 +96,16 @@ export default function ProfileView() {
                             <AvatarImage src={user?.photoURL ?? undefined} />
                             <AvatarFallback>?</AvatarFallback>
                         </Avatar>
-                        <CardTitle className="text-left text-2xl">{user?.displayName ? user.displayName : "Mataroní"}</CardTitle>
-                        <CardDescription>
-                            <p className="text-left">@admin</p>
-                        </CardDescription>
+                        <CardTitle className="text-left text-2xl">{user?.displayName ? user.displayName : "Usuario"}</CardTitle>
+
                         <CardAction>
-                            <Button variant={"outline"} className="">Seguir</Button>
+                            {user?.uid && user.uid === params?.userId ? (
+                                <Button variant="outline">Editar</Button>
+                            ) : (
+                                <Button variant="outline">Seguir</Button>
+                            )}
                         </CardAction>
+
                     </CardHeader>
                     <CardContent>
                         <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Possimus consequuntur voluptatem nemo laudantium cum ratione! Explicabo eveniet laborum similique sed fuga nihil quae quod suscipit veritatis impedit culpa, fugiat tenetur?</p>
