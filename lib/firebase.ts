@@ -25,6 +25,8 @@ import {
 import {
   getFirestore,
   doc,
+  getDoc,
+  updateDoc,
   runTransaction,
   serverTimestamp,
 } from "firebase/firestore"
@@ -91,15 +93,26 @@ async function createUserIfNotExists(user: User) {
       if (!userDoc.exists()) {
         transaction.set(userRef, {
           uid: user.uid,
+          email: user.email || null,
+          displayName: user.displayName || null,
+          photoURL: user.photoURL || null,
           createdAt: serverTimestamp(),
         })
-        console.log("✅ Usuario guardado")
+        console.log("✅ Usuario creado en Firestore")
       } else {
-        console.log("ℹ️ Ya existe")
+        console.log("ℹ️ Usuario ya existe en Firestore")
       }
     })
+
+    // 👇 una vez terminada la transacción, lee siempre el doc actualizado
+    const freshDoc = await getDoc(userRef)
+    if (freshDoc.exists()) {
+      sessionStorage.setItem("user", JSON.stringify(freshDoc.data()))
+      console.log("💾 Usuario guardado en sessionStorage")
+    }
+
   } catch (error) {
-    console.error("❌ Error en transacción al crear usuario:", error)
+    console.error("❌ Error en transacción al crear/leer usuario:", error)
   }
 }
 
@@ -118,6 +131,7 @@ async function logInWithGoogle() {
 async function logOut() {
   try {
     await signOut(auth)
+    sessionStorage.clear()
   } catch (error) {
     console.error("Error al cerrar sesión:", error)
   }
@@ -135,6 +149,58 @@ async function signUpWithEmail(email: string, password: string) {
   return result
 }
 
+// ✅ Actualizar username y description de un usuario
+async function updateUserProfile(
+  uid: string,
+  data: { username: string; description: string }
+) {
+  if (!uid) return
+
+  try {
+    const userRef = doc(db, "users", uid)
+    await updateDoc(userRef, {
+      username: data.username,
+      description: data.description,
+    })
+
+    console.log("✅ Usuario actualizado en Firestore")
+
+    // Actualizar también en sessionStorage (opcional)
+    const storedUser = sessionStorage.getItem("user")
+    if (storedUser) {
+      const parsed = JSON.parse(storedUser)
+      sessionStorage.setItem(
+        "user",
+        JSON.stringify({ ...parsed, ...data })
+      )
+      console.log("💾 Usuario actualizado en sessionStorage")
+    }
+  } catch (error) {
+    console.error("❌ Error actualizando usuario:", error)
+    throw error
+  }
+}
+
+// ✅ Obtener todos los datos de un usuario por su ID
+async function getUserById(uid: string) {
+  if (!uid) return null
+
+  try {
+    const userRef = doc(db, "users", uid)
+    const userSnap = await getDoc(userRef)
+
+    if (userSnap.exists()) {
+      return { id: userSnap.id, ...userSnap.data() }
+    } else {
+      console.log("ℹ️ Usuario no encontrado en Firestore")
+      return null
+    }
+  } catch (error) {
+    console.error("❌ Error obteniendo usuario:", error)
+    throw error
+  }
+}
+
 export {
   app,
   auth,
@@ -145,4 +211,6 @@ export {
   signUpWithEmail,
   getAppCheckToken,
   createUserIfNotExists,
+  updateUserProfile,
+  getUserById
 }

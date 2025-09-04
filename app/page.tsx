@@ -1,6 +1,5 @@
 "use client"
 
-import { toast } from "sonner"
 import { Toaster } from "@/components/ui/sonner"
 // APP components
 import CreatePost from "@/components/create-post"
@@ -20,19 +19,14 @@ const postContent: Post = {
 
 const posts: Post[] = [postContent, postContent, postContent]
 
-// Función para subir el post
-function uploadPost(post: Post) {
-  toast("Post creado", {
-    description: post.content
-  })
-}
-
 export default function Home() {
   return (
     <div className="font-sans rounded md:p-8">
-      <Toaster />
+
       <div className="max-w-200 mx-auto">
-        <CreatePost sendPost={uploadPost} />
+        <Toaster position="top-center" />
+
+        <CreatePost />
 
         <div className="pt-0 pb-20 flex flex-col md:gap-4">
           {posts.map((post, index) => (

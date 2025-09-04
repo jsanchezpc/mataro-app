@@ -6,6 +6,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 // APP components
 import Riera from "@/components/riera";
 // UI components
+import { toast } from "sonner"
 import { Plus } from "lucide-react"
 import {
     Sheet,
@@ -19,6 +20,9 @@ import {
 } from "@/components/ui/sheet"
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+
+
+
 
 function DropCreate() {
     return (
@@ -36,13 +40,8 @@ type Post = {
     content: string
 }
 
-type CreatePostProps = {
-    sendPost: (post: Post) => void
-}
 
-
-
-export default function CreatePost({ sendPost }: CreatePostProps) {
+export default function CreatePost() {
     const { user, loading } = useAuth()
     const isMobile = useIsMobile()
     const [content, setContent] = useState("")
@@ -52,8 +51,15 @@ export default function CreatePost({ sendPost }: CreatePostProps) {
         content
     }
 
+    const [open, setOpen] = useState(false)
+    function uploadPost(post: Post) {
+        setOpen(false);
+        toast("Post creado")
+    }
+
+
     return (
-        <Sheet>
+        <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger>
                 <DropCreate />
             </SheetTrigger>
@@ -78,7 +84,7 @@ export default function CreatePost({ sendPost }: CreatePostProps) {
                 </div>
 
                 <SheetFooter>
-                    <Button onClick={() => sendPost(postContent)} type="submit" className="text-slate-100 cursor-pointer">
+                    <Button onClick={() => uploadPost(postContent)} type="submit" className="text-slate-100 cursor-pointer">
                         Postear
                     </Button>
 

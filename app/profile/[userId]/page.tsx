@@ -1,23 +1,32 @@
 "use client"
 
 import { useAuth } from "@/app/context/AuthContext"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import { getUserById } from "@/lib/firebase"
 import { useParams, useRouter } from "next/navigation"
 
+
+// APP components
+import ProfileAction from "@/components/profile-action-btn"
+
+// UI components
+import { toast } from "sonner"
+import { Toaster } from "@/components/ui/sonner"
 import {
     Card,
     CardAction,
     CardContent,
-    CardDescription,
+    // CardDescription,
     CardFooter,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Separator } from "@radix-ui/react-separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import CreatePost from "@/components/create-post"
+
 
 export default function ProfileView() {
     const { user, loading } = useAuth()
@@ -30,6 +39,16 @@ export default function ProfileView() {
     }, [loading, user, router])
 
     const params = useParams()
+    const [profile, setProfile] = useState<any>(null)
+
+    useEffect(() => {
+        async function fetchUser() {
+            if (!params?.userId) return
+            const data = await getUserById(params.userId as string)
+            setProfile(data)
+        }
+        fetchUser()
+    }, [params?.userId])
 
     if (loading) {
         return (
@@ -90,25 +109,24 @@ export default function ProfileView() {
 
         <div className="font-sans h-full">
             <div className="w-full max-w-full md:max-w-200  mx-auto h-full overflow-x-auto">
+                <CreatePost />
+                <Toaster position="top-center" />
+
                 <Card className="rounded-none h-full bg-transparent border-none shadow-none">
                     <CardHeader className="gap-0">
                         <Avatar className="size-20 mb-2">
                             <AvatarImage src={user?.photoURL ?? undefined} />
                             <AvatarFallback>?</AvatarFallback>
                         </Avatar>
-                        <CardTitle className="text-left text-2xl">{user?.displayName ? user.displayName : "Usuario"}</CardTitle>
+                        <CardTitle className="text-left text-2xl">{profile?.username ? profile.username : user?.displayName ? user.displayName : "Usuario"}</CardTitle>
 
                         <CardAction>
-                            {user?.uid && user.uid === params?.userId ? (
-                                <Button variant="outline">Editar</Button>
-                            ) : (
-                                <Button variant="outline">Seguir</Button>
-                            )}
+                            <ProfileAction profile={{ username: profile?.username, description: profile?.description }} />
                         </CardAction>
 
                     </CardHeader>
                     <CardContent>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Possimus consequuntur voluptatem nemo laudantium cum ratione! Explicabo eveniet laborum similique sed fuga nihil quae quod suscipit veritatis impedit culpa, fugiat tenetur?</p>
+                        <p>{profile?.description ? profile.description : ""}</p>
                     </CardContent>
                     <CardFooter>
                         <div className="flex flex-row gap-8">
@@ -144,11 +162,17 @@ export default function ProfileView() {
                 <Tabs defaultValue="posts" className=" px-6">
                     <TabsList>
                         <TabsTrigger value="posts">Posts</TabsTrigger>
-                        <TabsTrigger value="Fotos">Fotos</TabsTrigger>
+                        <TabsTrigger value="media">Fotos</TabsTrigger>
                     </TabsList>
-                    <TabsContent value="posts">Make changes to your account here.</TabsContent>
+                    <TabsContent value="posts">
+                        <p>
+                            {profile?.username ? profile.username : user?.displayName ? user.displayName : "Mataroní"} no ha publicado.
+                        </p>
+                    </TabsContent>
                     <TabsContent value="media">
-                        <p className="text-slate-100">{user?.displayName ? user.displayName : "Mataroní"} no ha subido fotos.</p>
+                        <p>
+                            {profile?.username ? profile.username : user?.displayName ? user.displayName : "Mataroní"} no ha subido fotos.
+                        </p>
                     </TabsContent>
                 </Tabs>
             </div>
