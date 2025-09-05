@@ -52,7 +52,7 @@ export default function CreatePost() {
     }
 
     const [open, setOpen] = useState(false)
-    function uploadPost(post: Post) {
+    function uploadPost() {
         setOpen(false);
         toast("Post creado")
     }
@@ -84,7 +84,7 @@ export default function CreatePost() {
                 </div>
 
                 <SheetFooter>
-                    <Button onClick={() => uploadPost(postContent)} type="submit" className="text-slate-100 cursor-pointer">
+                    <Button onClick={() => uploadPost()} type="submit" className="text-slate-100 cursor-pointer">
                         Postear
                     </Button>
 

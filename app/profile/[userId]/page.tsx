@@ -10,7 +10,6 @@ import { useParams, useRouter } from "next/navigation"
 import ProfileAction from "@/components/profile-action-btn"
 
 // UI components
-import { toast } from "sonner"
 import { Toaster } from "@/components/ui/sonner"
 import {
     Card,
@@ -39,7 +38,7 @@ export default function ProfileView() {
     }, [loading, user, router])
 
     const params = useParams()
-    const [profile, setProfile] = useState<any>(null)
+    const [profile, setProfile] = useState<{ id: string; username?: string; description?: string } | null>(null)
 
     useEffect(() => {
         async function fetchUser() {
