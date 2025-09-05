@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/app/context/AuthContext"
 import { logOut } from "@/lib/firebase"
+import { useEffect, useState } from "react"
 
 import { Skeleton } from "@/components/ui/skeleton"
 import {
@@ -36,8 +37,14 @@ import Link from "next/link"
 export function NavUser() {
     const { isMobile } = useSidebar()
     const { user, loading } = useAuth()
-    const storedUser = sessionStorage.getItem("user")
-    const profile = storedUser ? JSON.parse(storedUser) : null
+    const [profile, setProfile] = useState<any>(null)
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const storedUser = sessionStorage.getItem("user")
+            setProfile(storedUser ? JSON.parse(storedUser) : null)
+        }
+    }, [])
 
     return (
         <SidebarMenu>
@@ -64,16 +71,15 @@ export function NavUser() {
                             <div className="grid flex-1 text-left text-sm leading-tight">
                                 {loading ? (
                                     <Skeleton className="h-4 w-24 rounded" />
-                                )
-                                    : profile?.username ?
-                                        <span className="truncate font-medium">
-                                            {profile.username}
-                                        </span>
-                                        : user?.displayName ? (
-                                            <span className="truncate font-medium">
-                                                {user.displayName}
-                                            </span>
-                                        ) : user ? <div>Mataroní</div> : <Link className="hover:underline" href="/login">Entrar</Link>}
+                                ) : profile?.username ? (
+                                    <span className="truncate font-medium">{profile.username}</span>
+                                ) : user?.displayName ? (
+                                    <span className="truncate font-medium">{user.displayName}</span>
+                                ) : user ? (
+                                    <div>Mataroní</div>
+                                ) : (
+                                    <Link className="hover:underline" href="/login">Entrar</Link>
+                                )}
                             </div>
 
                             <ChevronsUpDown className="ml-auto size-4" />
@@ -98,9 +104,7 @@ export function NavUser() {
                                     </Avatar>
                                     <div className="grid flex-1 text-left text-sm leading-tight">
                                         <span className="truncate font-medium">
-                                            {
-                                               profile?.username ? profile.username : user?.displayName ? user.displayName : ""
-                                            }
+                                            {profile?.username ?? user?.displayName ?? ""}
                                         </span>
                                         <span className="truncate text-xs">{user?.email}</span>
                                     </div>
@@ -109,7 +113,7 @@ export function NavUser() {
                             <DropdownMenuSeparator />
 
                             <DropdownMenuGroup>
-                                <Link href={"/profile/" + user.uid}>
+                                <Link href={`/profile/${user.uid}`}>
                                     <DropdownMenuItem>
                                         <User />
                                         Perfil
