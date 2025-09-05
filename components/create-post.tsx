@@ -34,13 +34,6 @@ function DropCreate() {
     )
 }
 
-type Post = {
-    author: string
-    authorAt: string
-    content: string
-}
-
-
 export default function CreatePost() {
     const { user, loading } = useAuth()
     const isMobile = useIsMobile()

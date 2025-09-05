@@ -37,7 +37,7 @@ import Link from "next/link"
 export function NavUser() {
     const { isMobile } = useSidebar()
     const { user, loading } = useAuth()
-    const [profile, setProfile] = useState<any>(null)
+    const [profile, setProfile] = useState<{ id: string; username?: string; description?: string } | null>(null)
 
     useEffect(() => {
         if (typeof window !== "undefined") {
