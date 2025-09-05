@@ -163,7 +163,7 @@ async function updateUserProfile(
       description: data.description,
     })
 
-    console.log("✅ Usuario actualizado en Firestore")
+    console.log("✅ Usuario actualizado")
 
     // Actualizar también en sessionStorage (opcional)
     const storedUser = sessionStorage.getItem("user")
@@ -173,7 +173,7 @@ async function updateUserProfile(
         "user",
         JSON.stringify({ ...parsed, ...data })
       )
-      console.log("💾 Usuario actualizado en sessionStorage")
+      console.log("💾 Usuario actualizado")
     }
   } catch (error) {
     console.error("❌ Error actualizando usuario:", error)
@@ -192,7 +192,7 @@ async function getUserById(uid: string) {
     if (userSnap.exists()) {
       return { id: userSnap.id, ...userSnap.data() }
     } else {
-      console.log("ℹ️ Usuario no encontrado en Firestore")
+      console.log("ℹ️ Usuario no encontrado")
       return null
     }
   } catch (error) {
