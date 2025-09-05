@@ -46,14 +46,14 @@ type ProfileActionProps = {
         username?: string
         description?: string
     }
+    onUpdated?: () => void // 👈 nuevo prop
 }
 
-export default function ProfileAction({ profile }: ProfileActionProps) {
+export default function ProfileAction({ profile, onUpdated }: ProfileActionProps) {
     const params = useParams()
     const { user } = useAuth()
     const isMobile = useIsMobile()
     const [open, setOpen] = useState(false)
-
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -66,11 +66,12 @@ export default function ProfileAction({ profile }: ProfileActionProps) {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         if (!user?.uid) return
         await updateUserProfile(user.uid, values)
-        updateProfileAlert()
-        setOpen(false);
+        toast("Perfil actualizado")
+        setOpen(false)
+        onUpdated?.() // 👈 notifica al padre
     }
 
-    // 🔑 Resetear cuando cambien los datos del perfil
+    // Resetear cuando cambien los datos del perfil
     useEffect(() => {
         if (profile) {
             form.reset({
@@ -78,13 +79,7 @@ export default function ProfileAction({ profile }: ProfileActionProps) {
                 description: profile.description || "",
             })
         }
-
     }, [profile, form])
-
-    function updateProfileAlert() {
-        toast("Perfil actualizado")
-    }
-
 
     return (
         <>

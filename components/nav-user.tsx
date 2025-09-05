@@ -1,7 +1,7 @@
 "use client"
 
 import { useAuth } from "@/app/context/AuthContext"
-import { logOut } from "@/lib/firebase"
+import { logOut, getUserById } from "@/lib/firebase"
 import { useEffect, useState } from "react"
 
 import { Skeleton } from "@/components/ui/skeleton"
@@ -38,13 +38,26 @@ export function NavUser() {
     const { isMobile } = useSidebar()
     const { user, loading } = useAuth()
     const [profile, setProfile] = useState<{ id: string; username?: string; description?: string } | null>(null)
-
     useEffect(() => {
-        if (typeof window !== "undefined") {
-            const storedUser = sessionStorage.getItem("user")
-            setProfile(storedUser ? JSON.parse(storedUser) : null)
+        if (!user?.uid) return
+
+        // 1. Intenta con sessionStorage primero
+        const storedUser = sessionStorage.getItem("user")
+        if (storedUser) {
+            setProfile(JSON.parse(storedUser))
         }
-    }, [])
+
+        // 2. Trae la versión más reciente de la DB
+        getUserById(user.uid).then((userDb) => {
+            if (userDb) {
+                setProfile(userDb)
+                sessionStorage.setItem("user", JSON.stringify(userDb))
+            }
+        })
+    }, [user])
+
+
+
 
     return (
         <SidebarMenu>
