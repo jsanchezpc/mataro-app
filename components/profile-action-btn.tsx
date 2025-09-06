@@ -46,7 +46,7 @@ type ProfileActionProps = {
         username?: string
         description?: string
     }
-    onUpdated?: () => void // 👈 nuevo prop
+    onUpdated?: () => void 
 }
 
 export default function ProfileAction({ profile, onUpdated }: ProfileActionProps) {

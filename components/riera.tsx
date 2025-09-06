@@ -6,7 +6,6 @@ import {
     Card,
     CardAction,
     CardContent,
-    CardDescription,
     CardFooter,
     CardHeader,
     CardTitle,
@@ -15,7 +14,6 @@ import { Button } from "@/components/ui/button"
 
 type Post = {
     author: string;
-    authorAt: string;
     content: string;
 };
 
@@ -25,15 +23,14 @@ interface RieraProps {
 }
 
 export default function Riera({ post, isPreview }: RieraProps) {
-    const { author, authorAt, content } = post;
+    const { author, content } = post;
     return (
         <Card
-            className={`${isPreview ? "rounded-2xl" : "rounded-none md:rounded-4xl"
+            className={`${isPreview ? "rounded-2xl" : "rounded-none first:rounded-t-2xl last:rounded-b-2xl"
                 }`}
         >
             <CardHeader>
                 <CardTitle>{author}</CardTitle>
-                <CardDescription>{authorAt}</CardDescription>
                 {isPreview ? null : <CardAction className="hover:bg-accent cursor-pointer rounded-full p-1"><EllipsisVertical /></CardAction>}
             </CardHeader>
 

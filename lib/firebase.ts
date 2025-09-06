@@ -23,12 +23,17 @@ import {
   AppCheck,
 } from "firebase/app-check"
 import {
+  collection,
+  addDoc,
   getFirestore,
   doc,
   getDoc,
   updateDoc,
   runTransaction,
   serverTimestamp,
+  getDocs,
+  orderBy,
+  query
 } from "firebase/firestore"
 
 // Configuración desde .env.local
@@ -201,6 +206,57 @@ async function getUserById(uid: string) {
   }
 }
 
+// ✅ Crear un nuevo post en la colección "posts"
+async function createPost(
+  uid: string,
+  author: string,
+  postContent: string
+) {
+  if (!uid || !postContent) {
+    throw new Error("❌ UID y contenido del post son obligatorios")
+  }
+
+  try {
+    const postsRef = collection(db, "posts")
+    const newPost = {
+      uid,
+      author,
+      content: postContent,
+      timestamp: serverTimestamp(),
+      likes: 0,
+      comments: 0,
+      rt: 0,
+    }
+
+    const docRef = await addDoc(postsRef, newPost)
+
+    return { id: docRef.id, ...newPost }
+  } catch (error) {
+    console.error("❌ Error creando post:", error)
+    throw error
+  }
+}
+
+// ✅ Obtener todos los posts ordenados por fecha descendente
+async function getAllPosts() {
+  try {
+    const postsRef = collection(db, "posts")
+    const q = query(postsRef, orderBy("timestamp", "desc"))
+
+    const querySnapshot = await getDocs(q)
+    const posts = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }))
+
+    console.log("📥 Posts obtenidos:", posts)
+    return posts
+  } catch (error) {
+    console.error("❌ Error obteniendo posts:", error)
+    throw error
+  }
+}
+
 export {
   app,
   auth,
@@ -212,5 +268,7 @@ export {
   getAppCheckToken,
   createUserIfNotExists,
   updateUserProfile,
-  getUserById
+  getUserById,
+  createPost,
+  getAllPosts 
 }
