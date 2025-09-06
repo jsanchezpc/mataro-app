@@ -11,7 +11,7 @@ import { z } from "zod"
 import { useState, useEffect } from "react"
 
 // APP components
-import Riera from "@/components/riera"
+import Riera from "@/components/post"
 
 // UI components
 import {

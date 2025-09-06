@@ -1,7 +1,7 @@
 "use client"
 
 // UI components
-import { Repeat2, ThumbsUp, MessageCircle, EllipsisVertical } from "lucide-react"
+import { Repeat2, ThumbsUp, MessageCircle } from "lucide-react"
 import {
     Card,
     CardAction,
@@ -11,27 +11,39 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { DeletePost } from "@/components/delete-post";
+import { Timestamp } from "next/dist/server/lib/cache-handlers/types";
 
 type Post = {
+    id: string;
     author: string;
     content: string;
+    uid: string;
+    timestamp: Timestamp;
+    rt: number;
+    likes: number;
+    comments: Array<0>;
 };
+
 
 interface RieraProps {
     post: Post;
     isPreview: boolean;
 }
 
-export default function Riera({ post, isPreview }: RieraProps) {
-    const { author, content } = post;
+export default function PostComponent({ post, isPreview }: RieraProps) {
+    const { author, content, id, uid} = post;
     return (
         <Card
-            className={`${isPreview ? "rounded-2xl" : "rounded-none first:rounded-t-2xl last:rounded-b-2xl"
-                }`}
+            className={`${isPreview ? "rounded-2xl" : "rounded-none first:rounded-t-2xl last:rounded-b-2xl"}`}
         >
             <CardHeader>
                 <CardTitle>{author}</CardTitle>
-                {isPreview ? null : <CardAction className="hover:bg-accent cursor-pointer rounded-full p-1"><EllipsisVertical /></CardAction>}
+                {isPreview ? null :
+                    <CardAction className="hover:bg-accent cursor-pointer rounded-full p-1">
+                        <DeletePost postId={id} authorId={uid} />
+                    </CardAction>
+                }
             </CardHeader>
 
             <CardContent>

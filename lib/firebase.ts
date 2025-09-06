@@ -24,6 +24,7 @@ import {
 } from "firebase/app-check"
 import {
   collection,
+  deleteDoc,
   addDoc,
   getFirestore,
   doc,
@@ -33,7 +34,7 @@ import {
   serverTimestamp,
   getDocs,
   orderBy,
-  query
+  query,
 } from "firebase/firestore"
 
 // Configuración desde .env.local
@@ -257,6 +258,23 @@ async function getAllPosts() {
   }
 }
 
+/**
+ * Elimina un post dado su id
+ * @param postId - ID del post a eliminar
+ */
+const deletePostById = async (postId: string) => {
+  if (!postId) throw new Error("No se proporcionó un ID de post válido");
+
+  try {
+    const postRef = doc(db, "posts", postId); // "posts" es tu colección
+    await deleteDoc(postRef);
+    console.log(`Post ${postId} eliminado correctamente`);
+  } catch (error) {
+    console.error("Error al eliminar el post:", error);
+    throw error;
+  }
+};
+
 export {
   app,
   auth,
@@ -270,5 +288,6 @@ export {
   updateUserProfile,
   getUserById,
   createPost,
-  getAllPosts 
+  getAllPosts,
+  deletePostById
 }

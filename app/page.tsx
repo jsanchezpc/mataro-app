@@ -4,20 +4,20 @@ import { useEffect, useState } from "react"
 import { Toaster } from "@/components/ui/sonner"
 // APP components
 import CreatePost from "@/components/create-post"
-import Riera from "@/components/riera"
+import PostComponent from "@/components/post"
 // Firebase
 import { getAllPosts } from "@/lib/firebase"
-
+import { Timestamp } from "next/dist/server/lib/cache-handlers/types";
 type Post = {
-  id: string
-  uid: string,
-  author: string,
-  content: string
-  timestamp?: any
-  likes: number
-  comments: number
-  rt: number
-}
+  id: string;
+  author: string;
+  content: string;
+  uid: string;
+  timestamp: Timestamp;
+  rt: number;
+  likes: number;
+  comments: Array<0>;
+};
 
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([])
@@ -51,7 +51,7 @@ export default function Home() {
             <p className="text-center text-gray-400">No hay posts aún. ¡Sé el primero en publicar! 🚀</p>
           ) : (
             posts.map((post) => (
-              <Riera key={post.id} post={post} isPreview={false} />
+              <PostComponent key={post.id} post={post} isPreview={false} />
             ))
           )}
         </div>
