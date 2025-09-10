@@ -130,7 +130,7 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
                                             <FormLabel>Contenido</FormLabel>
                                             <FormControl>
                                                 <Textarea
-                                                    className="resize-none max-h-50"
+                                                    className="resize-none max-h-50 bg-accent"
                                                     placeholder="Escribe aquí lo que quieras compartir con Mataró"
                                                     {...field}
                                                 />

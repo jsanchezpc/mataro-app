@@ -23,7 +23,7 @@ interface DeletePostProps {
     onDeleted?: () => void
 }
 
-export function DeletePost({ postId, authorId, onDeleted }: DeletePostProps) {
+export function PostAction({ postId, authorId, onDeleted }: DeletePostProps) {
     const [open, setOpen] = React.useState(false)
     const { user } = useAuth()
 
@@ -64,12 +64,18 @@ export function DeletePost({ postId, authorId, onDeleted }: DeletePostProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-full md:w-[200px]">
                 <DropdownMenuGroup>
-                    <DropdownMenuItem
-                        className="text-red-600"
-                        onClick={handleDelete}
-                    >
-                        Eliminar
+                    <DropdownMenuItem>
+                        Reportar
                     </DropdownMenuItem>
+                    {user && user.uid === authorId && (
+                        <DropdownMenuItem
+                            className="text-red-600"
+                            onClick={handleDelete}
+                        >
+                            Eliminar
+                        </DropdownMenuItem>
+                    )}
+
                 </DropdownMenuGroup>
             </DropdownMenuContent>
         </DropdownMenu>

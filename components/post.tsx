@@ -11,7 +11,7 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { DeletePost } from "@/components/delete-post";
+import { PostAction } from "@/components/post-action";
 import { Timestamp } from "next/dist/server/lib/cache-handlers/types";
 
 type Post = {
@@ -46,7 +46,7 @@ export default function PostComponent({ post, isPreview, onDeleted }: PostCompon
                 <CardTitle>{author}</CardTitle>
                 {!isPreview && (
                     <CardAction className="hover:bg-accent cursor-pointer rounded-full p-1">
-                        <DeletePost
+                        <PostAction
                             postId={post.id}
                             authorId={post.uid}
                             onDeleted={() => onDeleted?.(post.id)}
