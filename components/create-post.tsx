@@ -11,7 +11,7 @@ import { z } from "zod"
 import { useState, useEffect } from "react"
 
 // APP components
-import Riera from "@/components/post"
+import PostComponent from "@/components/post"
 
 // UI components
 import {
@@ -50,13 +50,16 @@ const formSchema = z.object({
     postContent: z.string().min(2).max(280),
 })
 
-export default function CreatePost() {
+type CreatePostProps = {
+    onCreated?: () => void
+}
+
+export default function ({ onCreated }: CreatePostProps) {
     const { user, loading } = useAuth()
     const isMobile = useIsMobile()
     const [open, setOpen] = useState(false)
     const [profile, setProfile] = useState<{ id: string; username?: string; description?: string } | null>(null)
 
-    // Cargar perfil del usuario
     useEffect(() => {
         if (!user?.uid) return
         getUserById(user.uid).then((data) => setProfile(data)).catch(console.error)
@@ -76,10 +79,16 @@ export default function CreatePost() {
         }
 
         try {
-            await createPost(user.uid, profile?.username ?? user.displayName ?? "Mataroní", values.postContent)
+            await createPost(
+                user.uid,
+                profile?.username ?? user.displayName ?? "Mataroní",
+                values.postContent
+            )
+
             toast("✅ Post creado con éxito")
             form.reset()
             setOpen(false)
+            onCreated?.()
         } catch (error) {
             console.error("❌ Error creando post:", error)
             toast("Error al crear el post", { description: "Intenta de nuevo más tarde" })
@@ -87,8 +96,15 @@ export default function CreatePost() {
     }
 
     const postPreview = {
+        id: "preview",
+        uid: user?.uid ?? "preview",
         author: loading ? "Cargando..." : profile?.username ?? user?.displayName ?? "Mataroní",
         content: form.watch("postContent"),
+        timestamp: Date.now(),
+        rt: 0,
+        likes: 0,
+        likedBy: [],
+        comments: [],
     }
 
     return (
@@ -132,7 +148,7 @@ export default function CreatePost() {
                                     {loading ? (
                                         <p>Cargando usuario...</p>
                                     ) : (
-                                        <Riera post={postPreview} isPreview={true} />
+                                        <PostComponent post={postPreview} isPreview={true} />
                                     )}
                                 </div>
                             </div>
