@@ -54,7 +54,7 @@ type CreatePostProps = {
     onCreated?: () => void
 }
 
-export default function ({ onCreated }: CreatePostProps) {
+export default function CreatePost({ onCreated }: CreatePostProps) {
     const { user, loading } = useAuth()
     const isMobile = useIsMobile()
     const [open, setOpen] = useState(false)

@@ -1,12 +1,13 @@
 "use client"
 
 import { useAuth } from "@/app/context/AuthContext"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { getUserById } from "@/lib/firebase"
 import { useParams, useRouter } from "next/navigation"
 
 // APP components
 import ProfileAction from "@/components/profile-action-btn"
+import CreatePost from "@/components/create-post"
 
 // UI components
 import { Toaster } from "@/components/ui/sonner"
@@ -22,7 +23,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Separator } from "@radix-ui/react-separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import CreatePost from "@/components/create-post"
 
 export default function ProfileView() {
     const { user, loading } = useAuth()
@@ -36,15 +36,15 @@ export default function ProfileView() {
         }
     }, [loading, user, router])
 
-    async function fetchUser() {
+    const fetchUser = useCallback(async () => {
         if (!params?.userId) return
         const data = await getUserById(params.userId as string)
         setProfile(data)
-    }
+    }, [params?.userId])
 
     useEffect(() => {
         fetchUser()
-    }, [params?.userId])
+    }, [fetchUser])
 
     if (loading) {
         return (
@@ -109,7 +109,7 @@ export default function ProfileView() {
                                     username: profile?.username,
                                     description: profile?.description,
                                 }}
-                                onUpdated={fetchUser} // 👈 refresca perfil al actualizar
+                                onUpdated={fetchUser} // ✅ ahora funciona sin warning
                             />
                         </CardAction>
                     </CardHeader>
