@@ -12,25 +12,16 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { PostAction } from "@/components/post-action";
-import { Timestamp } from "next/dist/server/lib/cache-handlers/types";
 
-type Post = {
-    id: string;
-    author: string;
-    content: string;
-    uid: string;
-    timestamp: Timestamp;
-    rt: number;
-    likes: number;
-    comments: Array<0>;
+import { Post } from "@/types/post";
+
+
+type PostComponentProps = {
+    post: Post;
+    isPreview?: boolean;
+    onDeleted?: (id: string) => void;
 };
 
-
-interface PostComponentProps {
-    post: Post
-    isPreview: boolean
-    onDeleted?: (postId: string) => void
-}
 
 export default function PostComponent({ post, isPreview, onDeleted }: PostComponentProps) {
     const { author, content } = post
@@ -38,8 +29,8 @@ export default function PostComponent({ post, isPreview, onDeleted }: PostCompon
     return (
         <Card
             className={`${isPreview
-                    ? "rounded-2xl"
-                    : "rounded-none first:rounded-t-2xl last:rounded-b-2xl"
+                ? "rounded-2xl"
+                : "rounded-none first:rounded-t-2xl last:rounded-b-2xl"
                 }`}
         >
             <CardHeader>

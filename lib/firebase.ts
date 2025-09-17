@@ -1,4 +1,3 @@
-// lib/firebase.ts
 "use client"
 declare global {
   interface Window {

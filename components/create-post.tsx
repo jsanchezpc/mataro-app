@@ -79,11 +79,19 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
         }
 
         try {
-            await createPost(
-                user.uid,
-                profile?.username ?? user.displayName ?? "Mataroní",
-                values.postContent
-            )
+            const res = await fetch("/api/posts", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    uid: user.uid,
+                    author: profile?.username ?? user.displayName ?? "Mataroní",
+                    content: values.postContent,
+                }),
+            })
+
+            if (!res.ok) {
+                throw new Error("❌ Error al crear post")
+            }
 
             toast("✅ Post creado con éxito")
             form.reset()
@@ -94,6 +102,7 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
             toast("Error al crear el post", { description: "Intenta de nuevo más tarde" })
         }
     }
+
 
     const postPreview = {
         id: "preview",
