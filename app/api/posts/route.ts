@@ -1,14 +1,11 @@
-// app/api/posts/route.ts
 import { NextResponse } from "next/server"
-// ¡Importa las funciones desde tu archivo firebaseAdmin.ts!
-import { getAllPostsServer, createPostServer } from "@/lib/firebaseAdmin" // <-- ¡CAMBIO IMPORTANTE AQUÍ!
+import { getAllPostsServer, createPostServer } from "@/lib/firebaseAdmin" 
 
 // GET /api/posts
 export async function GET() {
   try {
     console.log("🔍 Entrando en GET /api/posts...")
-    const posts = await getAllPostsServer() // <-- Usa la función del Admin SDK
-    console.log("✅ Posts obtenidos:", posts)
+    const posts = await getAllPostsServer()
     return NextResponse.json(posts)
   } catch (error: any) {
     console.error("❌ Error en GET /api/posts:", error?.message || error)
@@ -31,10 +28,11 @@ export async function POST(req: Request) {
       )
     }
 
-    const newPost = await createPostServer(uid, author || "Anónimo", content) // <-- Usa la función del Admin SDK
+    const newPost = await createPostServer(uid, author || "Anónimo", content)
     return NextResponse.json(newPost, { status: 201 })
   } catch (error) {
     console.error("❌ Error en POST /api/posts:", error)
     return NextResponse.json({ error: "Error creando post" }, { status: 500 })
   }
 }
+

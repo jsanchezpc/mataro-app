@@ -12,13 +12,13 @@ import { Post } from "@/types/post";
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
-  
+
   useEffect(() => {
     async function loadPosts() {
-      setLoading(true); // Indica que la carga ha comenzado
+      setLoading(true);
       const fetchedPosts = await fetchPosts();
       setPosts(fetchedPosts); // Actualiza el estado con los posts obtenidos
-      setLoading(false); // Indica que la carga ha terminado
+      setLoading(false);
     }
     loadPosts();
   }, []) // El array vacío asegura que se ejecuta solo una vez al montar

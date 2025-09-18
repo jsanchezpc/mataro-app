@@ -23,46 +23,46 @@ const items = [
     url: "/",
     icon: Home,
   },
-  {
-    title: "Mapa",
-    url: "/mapa",
-    icon: Map,
-  },
-  {
-    title: "Ocio y cultura",
-    url: "#",
-    icon: Brain,
-  },
-  {
-    title: "Comercio local",
-    url: "#",
-    icon: Store,
-  },
-  {
-    title: "Rastro",
-    url: "#",
-    icon: Handshake,
-  },
-  {
-    title: "Transporte",
-    url: "#",
-    icon: BusFront,
-  },
-  {
-    title: "Trabajos",
-    url: "#",
-    icon: Briefcase,
-  },
-  {
-    title: "Vivienda",
-    url: "#",
-    icon: HousePlus,
-  },
-  {
-    title: "Galeria",
-    url: "#",
-    icon: BookImage,
-  }
+  // {
+  //   title: "Mapa",
+  //   url: "/mapa",
+  //   icon: Map,
+  // },
+  // {
+  //   title: "Ocio y cultura",
+  //   url: "#",
+  //   icon: Brain,
+  // },
+  // {
+  //   title: "Comercio local",
+  //   url: "#",
+  //   icon: Store,
+  // },
+  // {
+  //   title: "Rastro",
+  //   url: "#",
+  //   icon: Handshake,
+  // },
+  // {
+  //   title: "Transporte",
+  //   url: "#",
+  //   icon: BusFront,
+  // },
+  // {
+  //   title: "Trabajos",
+  //   url: "#",
+  //   icon: Briefcase,
+  // },
+  // {
+  //   title: "Vivienda",
+  //   url: "#",
+  //   icon: HousePlus,
+  // },
+  // {
+  //   title: "Galeria",
+  //   url: "#",
+  //   icon: BookImage,
+  // }
 ]
 
 export function AppSidebar() {
