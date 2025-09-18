@@ -17,13 +17,13 @@ export default function Home() {
     async function loadPosts() {
       setLoading(true);
       const fetchedPosts = await fetchPosts();
-      setPosts(fetchedPosts); // Actualiza el estado con los posts obtenidos
+      setPosts(fetchedPosts);
       setLoading(false);
     }
     loadPosts();
   }, []) // El array vacío asegura que se ejecuta solo una vez al montar
 
-  async function fetchPosts(): Promise<Post[]> { // Indica que devuelve un array de Post
+  async function fetchPosts(): Promise<Post[]> {
     try {
       const res = await fetch("/api/posts")
 
