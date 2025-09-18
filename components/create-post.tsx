@@ -1,7 +1,7 @@
 "use client"
 
 import { useAuth } from "@/app/context/AuthContext"
-import { createPost, getUserById } from "@/lib/firebase"
+import { getUserById } from "@/lib/firebase"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { toast } from "sonner"
 import { Plus } from "lucide-react"

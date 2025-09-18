@@ -1,4 +1,5 @@
-import { Briefcase, HousePlus, Handshake, BookImage, Store, Brain, Home, Map, BusFront } from "lucide-react"
+// import { Briefcase, HousePlus, Handshake, BookImage, Store, Brain, Home, Map, BusFront } from "lucide-react"
+import { Home} from "lucide-react"
 
 import {
   Sidebar,
