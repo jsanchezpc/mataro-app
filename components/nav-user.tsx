@@ -36,7 +36,7 @@ import Link from "next/link"
 
 export function NavUser() {
     const { isMobile } = useSidebar()
-    const { user, loading } = useAuth()
+    const { user, loadingUser } = useAuth()
     const [profile, setProfile] = useState<{ id: string; username?: string; description?: string } | null>(null)
     useEffect(() => {
         if (!user?.uid) return
@@ -69,7 +69,7 @@ export function NavUser() {
                             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                         >
                             <Avatar className="h-8 w-8 rounded-lg">
-                                {loading ? (
+                                {loadingUser ? (
                                     <Skeleton className="h-full w-full rounded-lg" />
                                 ) : user?.photoURL ? (
                                     <AvatarImage
@@ -82,7 +82,7 @@ export function NavUser() {
                             </Avatar>
 
                             <div className="grid flex-1 text-left text-sm leading-tight">
-                                {loading ? (
+                                {loadingUser ? (
                                     <Skeleton className="h-4 w-24 rounded" />
                                 ) : profile?.username ? (
                                     <span className="truncate font-medium">{profile.username}</span>
