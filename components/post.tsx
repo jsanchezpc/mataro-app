@@ -99,7 +99,7 @@ export default function PostComponent({ post, isPreview, onDeleted }: PostCompon
                     onClick={handleLike}
                 >
                     <ThumbsUp />
-                    <span>{likes}</span>
+                    <span className="text-white">{likes}</span>
                 </Button>
             </CardFooter>
         </Card>
