@@ -6,10 +6,10 @@ import { LoginForm } from "@/components/login-form"
 import { useAuth } from "@/app/context/AuthContext"
 
 export default function Login() {
-  const { user, loading } = useAuth()
+  const { user, loadingUser } = useAuth()
   const router = useRouter()
 
-  if (loading) {
+  if (loadingUser) {
     return <div className="flex justify-center items-center min-h-svh">Cargando...</div>
   }
 

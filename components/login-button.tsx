@@ -5,9 +5,9 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 export default function LoginButton() {
-    const { user, loading } = useAuth()
+    const { user, loadingUser } = useAuth()
 
-    if (loading) {
+    if (loadingUser) {
         return (
             <div></div>
         )

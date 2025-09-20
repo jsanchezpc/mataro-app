@@ -47,7 +47,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const provider = new GoogleAuthProvider()
-const db = getFirestore(app) // ✅ Firestore inicializado
+const db = getFirestore(app)
 
 // Guardar instancia de AppCheck
 let appCheck: AppCheck | null = null
@@ -62,7 +62,7 @@ if (typeof window !== "undefined") {
     process.env.NODE_ENV === "production"
       ? process.env.NEXT_PUBLIC_PROD_RECAPTCHA_KEY
       : process.env.NEXT_PUBLIC_RECAPTCHA_KEY
-
+      
   appCheck = initializeAppCheck(app, {
     provider: new ReCaptchaEnterpriseProvider(recaptchaKey as string),
     isTokenAutoRefreshEnabled: true,
@@ -121,7 +121,7 @@ async function createUserIfNotExists(user: User) {
 async function logInWithGoogle() {
   try {
     const result = await signInWithPopup(auth, provider)
-    await createUserIfNotExists(result.user) // 👈
+    await createUserIfNotExists(result.user)
     return result.user
   } catch (error) {
     console.error("Error al iniciar sesión con Google:", error)

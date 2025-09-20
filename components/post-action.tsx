@@ -34,7 +34,7 @@ export function PostAction({ postId, authorId, onDeleted }: DeletePostProps) {
     try {
       const idToken = await user.getIdToken()
 
-      const res = await fetch(`/api/posts/${postId}`, {
+      const res = await fetch(`/api/posts/${postId}/delete`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -70,8 +70,7 @@ export function PostAction({ postId, authorId, onDeleted }: DeletePostProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-full md:w-[200px]">
         <DropdownMenuGroup>
-          <DropdownMenuItem>Reportar</DropdownMenuItem>
-          {user && user.uid === authorId && (
+          {user && user.uid === authorId ? (
             <DropdownMenuItem
               className="text-red-600"
               onClick={handleDelete}
@@ -79,7 +78,7 @@ export function PostAction({ postId, authorId, onDeleted }: DeletePostProps) {
             >
               Eliminar
             </DropdownMenuItem>
-          )}
+          ) : <DropdownMenuItem>Reportar</DropdownMenuItem>}
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

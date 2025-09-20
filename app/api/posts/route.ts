@@ -4,7 +4,6 @@ import { getAllPostsServer, createPostServer } from "@/lib/firebaseAdmin"
 // GET /api/posts
 export async function GET() {
   try {
-    console.log("🔍 Entrando en GET /api/posts...")
     const posts = await getAllPostsServer()
     return NextResponse.json(posts)
   } catch (error: unknown) {

@@ -5,9 +5,9 @@ import * as admin from "firebase-admin"
 // DELETE /api/posts/[postId]
 export async function DELETE(
   req: NextRequest,
-  context: { params: Promise<{ postId: string }> } // 👈 params es una promesa
-) {
-  const { postId } = await context.params  // 👈 se resuelve con await
+  context: { params: Promise<{ postId: string }> }
+): Promise<NextResponse<{ error: string }> | NextResponse<{ message: string }>> {
+  const { postId } = await context.params
 
   if (!postId) {
     return NextResponse.json({ error: "ID de post no proporcionado" }, { status: 400 })

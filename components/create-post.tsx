@@ -55,7 +55,7 @@ type CreatePostProps = {
 }
 
 export default function CreatePost({ onCreated }: CreatePostProps) {
-    const { user, loading } = useAuth()
+    const { user, loadingUser } = useAuth()
     const isMobile = useIsMobile()
     const [open, setOpen] = useState(false)
     const [profile, setProfile] = useState<{ id: string; username?: string; description?: string } | null>(null)
@@ -107,7 +107,7 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
     const postPreview = {
         id: "preview",
         uid: user?.uid ?? "preview",
-        author: loading ? "Cargando..." : profile?.username ?? user?.displayName ?? "Mataroní",
+        author: loadingUser ? "Cargando..." : profile?.username ?? user?.displayName ?? "Mataroní",
         content: form.watch("postContent"),
         timestamp: Date.now(),
         rt: 0,
@@ -154,7 +154,7 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
 
                                 <div className="grid gap-3">
                                     <span className="font-semibold">Previsualización de tu post:</span>
-                                    {loading ? (
+                                    {loadingUser ? (
                                         <p>Cargando usuario...</p>
                                     ) : (
                                         <PostComponent post={postPreview} isPreview={true} />

@@ -53,7 +53,6 @@ export const deletePostServer = async (postId: string) => {
       commentBatch.delete(doc.ref);
     });
     await commentBatch.commit();
-    console.log(`Eliminados ${commentsSnapshot.size} comentarios asociados al post ${postId}.`);
 
     // 2. Eliminar los likes asociados (si los guardas en una colección por separado)
     const likesSnapshot = await db.collection("likes").where("postId", "==", postId).get();
@@ -62,15 +61,13 @@ export const deletePostServer = async (postId: string) => {
       likeBatch.delete(doc.ref);
     });
     await likeBatch.commit();
-    console.log(`Eliminados ${likesSnapshot.size} likes asociados al post ${postId}.`);
 
     // 3. Eliminar el propio post
     await db.collection("posts").doc(postId).delete();
-    console.log(`Post ${postId} eliminado correctamente.`);
 
     return { success: true, postId };
   } catch (error) {
-    console.error(`Error al eliminar el post ${postId} y sus asociados:`, error);
+    console.error(`Error al eliminar el post y sus asociados:`, error);
     throw error;
   }
 };
