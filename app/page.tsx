@@ -17,6 +17,7 @@ export default function Home() {
     async function loadPosts() {
       setLoading(true);
       const fetchedPosts = await fetchPosts();
+      console.log(fetchedPosts)
       setPosts(fetchedPosts);
       setLoading(false);
     }
@@ -32,7 +33,6 @@ export default function Home() {
       }
 
       const data = await res.json()
-      // console.log("Datos obtenidos:", data); 
       return data as Post[];
     } catch (err) {
       console.error("❌ Error cargando posts:", err)
@@ -44,8 +44,6 @@ export default function Home() {
     <div className="font-sans rounded md:p-8">
       <div className="max-w-200 mx-auto">
         <Toaster position="top-center" />
-
-        {/* onCreated debería volver a cargar los posts después de uno nuevo */}
         <CreatePost onCreated={async () => {
           const updatedPosts = await fetchPosts();
           setPosts(updatedPosts);

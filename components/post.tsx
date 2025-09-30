@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Repeat2, ThumbsUp, MessageCircle } from "lucide-react"
 import {
     Card,
@@ -15,6 +15,8 @@ import { PostAction } from "@/components/post-action"
 import { Post } from "@/types/post"
 import Link from "next/link"
 import { getAuth } from "firebase/auth"
+import { getUserById } from "@/lib/firebase"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 type PostComponentProps = {
     post: Post
@@ -23,9 +25,30 @@ type PostComponentProps = {
 }
 
 export default function PostComponent({ post, isPreview, onDeleted }: PostComponentProps) {
-    const { author, content } = post
+    const { id, uid, content } = post
     const [likes, setLikes] = useState<number>(post.likes ?? 0)
-    const [liked, setLiked] = useState<boolean>(false) // opcional: podrías hidratarlo con `post.likedBy.includes(uid)`
+    const [liked, setLiked] = useState<boolean>(false)
+    const [authorName, setAuthorName] = useState<string>("")
+    const [profilePic, setProfilePic] = useState<string>("")
+
+    useEffect(() => {
+        async function fetchUser() {
+            const user = await getUserById(uid)
+            if (user) {
+                setAuthorName((user as { username?: string }).username ?? "Mataroní Anonim")
+                setProfilePic((user as { photoURL?: string }).photoURL ?? "")
+            }
+        }
+        fetchUser()
+    }, [uid])
+
+    useEffect(() => {
+        const auth = getAuth()
+        const user = auth.currentUser
+        if (user && post.likedBy) {
+            setLiked(post.likedBy.includes(user.uid))
+        }
+    }, [post.likedBy])
 
     async function handleLike() {
         try {
@@ -34,12 +57,13 @@ export default function PostComponent({ post, isPreview, onDeleted }: PostCompon
             if (!user) return
 
             const token = await user.getIdToken()
+            const newLiked = !liked
 
-            // UI optimista
-            setLiked((prev) => !prev)
-            setLikes((prev) => prev + (liked ? -1 : 1))
+            // optimista
+            setLiked(newLiked)
+            setLikes((prev) => prev + (newLiked ? 1 : -1))
 
-            const res = await fetch(`/api/posts/${post.id}/like`, {
+            const res = await fetch(`/api/posts/${id}/like`, {
                 method: "POST",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -48,14 +72,14 @@ export default function PostComponent({ post, isPreview, onDeleted }: PostCompon
 
             if (!res.ok) {
                 // revertir si falla
-                setLiked((prev) => !prev)
-                setLikes((prev) => prev + (liked ? 1 : -1))
+                setLiked(!newLiked)
+                setLikes((prev) => prev + (newLiked ? -1 : 1))
             }
         } catch (err) {
             console.error("Error en like:", err)
-            // revertir si falla
+            // revertir también
             setLiked((prev) => !prev)
-            setLikes((prev) => prev + (liked ? 1 : -1))
+            setLikes((prev) => prev + (liked ? -1 : 1))
         }
     }
 
@@ -65,18 +89,19 @@ export default function PostComponent({ post, isPreview, onDeleted }: PostCompon
                 }`}
         >
             <CardHeader>
-                <CardTitle>
-                    <Link className="hover:underline" href={`/profile/${post.uid}`}>
-                        {author}
+                <CardTitle className="flex flex-row items-center gap-2">
+                    <Avatar>
+                        <AvatarImage src={profilePic} />
+                        <AvatarFallback>M</AvatarFallback>
+                    </Avatar>
+                    <Link className="hover:underline" href={`/profile/${uid}`}>
+                        {authorName}
                     </Link>
                 </CardTitle>
+
                 {!isPreview && (
                     <CardAction className="hover:bg-accent cursor-pointer rounded-full p-1">
-                        <PostAction
-                            postId={post.id}
-                            authorId={post.uid}
-                            onDeleted={() => onDeleted?.(post.id)}
-                        />
+                        <PostAction postId={id} authorId={uid} onDeleted={() => onDeleted?.(id)} />
                     </CardAction>
                 )}
             </CardHeader>
@@ -94,7 +119,7 @@ export default function PostComponent({ post, isPreview, onDeleted }: PostCompon
                 </Button>
                 <Button
                     variant={liked ? "default" : "outline"}
-                    className="cursor-pointer flex items-center gap-2"
+                    className="cursor-pointer flex items-center gap-2 bg-blue-500/10 hover:bg-blue-500/20"
                     disabled={isPreview}
                     onClick={handleLike}
                 >

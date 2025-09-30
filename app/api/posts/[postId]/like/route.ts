@@ -23,6 +23,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pos
       await likeRef.doc(existing.docs[0].id).delete()
       await admin.firestore().collection("posts").doc(postId).update({
         likes: admin.firestore.FieldValue.increment(-1),
+        likedBy: admin.firestore.FieldValue.arrayRemove(userId),
       })
       return NextResponse.json({ message: "Like eliminado" }, { status: 200 })
     }
@@ -31,6 +32,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pos
     await likeRef.add({ postId, userId, createdAt: Date.now() })
     await admin.firestore().collection("posts").doc(postId).update({
       likes: admin.firestore.FieldValue.increment(1),
+      likedBy: admin.firestore.FieldValue.arrayUnion(userId),
     })
     return NextResponse.json({ message: "Like agregado" }, { status: 200 })
   } catch (err) {
