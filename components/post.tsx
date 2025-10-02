@@ -122,7 +122,10 @@ export default function PostComponent({
         <p>{content}</p>
       </CardContent>
 
-      <CardFooter className="gap-4">
+      <CardFooter className={`${isPreview
+        ? "hidden"
+        : "flex gap-4"
+        }`}>
         <Button variant="outline" className="cursor-pointer" disabled={isPreview}>
           <MessageCircle />
           Comentarios

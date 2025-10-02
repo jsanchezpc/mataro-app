@@ -62,9 +62,22 @@ export async function createPostServer(uid: string, content: string, isPrivate: 
 
   const docRef = await db.collection("posts").add(newPost);
   const userRef = db.collection("users").doc(uid);
-    await userRef.update({
-      userPosts: admin.firestore.FieldValue.arrayUnion(docRef.id),
-    });
+
+  // Verifica si el campo userPosts existe, si no, inicialízalo como array vacío
+  const userSnap = await userRef.get();
+  if (!userSnap.exists) {
+    await userRef.set({ userPosts: [docRef.id] }, { merge: true });
+  } else {
+    const data = userSnap.data();
+    if (!data || !Array.isArray(data.userPosts)) {
+      await userRef.update({ userPosts: [docRef.id] });
+    } else {
+      await userRef.update({
+        userPosts: admin.firestore.FieldValue.arrayUnion(docRef.id),
+      });
+    }
+  }
+
   return { id: docRef.id, ...newPost };
 }
 

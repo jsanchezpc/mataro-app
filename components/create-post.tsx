@@ -86,6 +86,7 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
                     uid: user.uid,
                     author: profile?.username ?? user.displayName ?? "Mataroní",
                     content: values.postContent,
+                    isPrivate: false, // <-- Añade esto
                 }),
             })
 
