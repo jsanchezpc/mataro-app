@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { getAllPostsServer, createPostServer } from "@/lib/firebaseAdmin" 
+import { getAllPostsServer, createPostServer } from "@/lib/firebaseAdmin"
 
 // GET /api/posts
 export async function GET() {
@@ -26,16 +26,16 @@ export async function GET() {
 // POST /api/posts
 export async function POST(req: Request) {
   try {
-    const { uid, author, content, isPrivate } = await req.json()
+    const { uid, content, isPrivate } = await req.json()
 
     if (!uid || !content) {
       return NextResponse.json(
-        { error: "uid y content son obligatorios" },
+        { error: "Error al crear el post por el contenido o por tu cuenta. Posible error de la plataforma, si persiste, repórtalo creando un post jajaja" },
         { status: 400 }
       )
     }
 
-    const newPost = await createPostServer(uid, author || "Anónimo", content, isPrivate)
+    const newPost = await createPostServer(uid, content, isPrivate)
     return NextResponse.json(newPost, { status: 201 })
   } catch (error: unknown) {
     if (error instanceof Error) {
