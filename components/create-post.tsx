@@ -110,6 +110,7 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
         author: loadingUser ? "Cargando..." : profile?.username ?? user?.displayName ?? "Mataroní",
         content: form.watch("postContent"),
         timestamp: Date.now(),
+        isPrivate: false,
         rt: 0,
         likes: 0,
         likedBy: [],

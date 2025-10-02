@@ -2,14 +2,12 @@
 
 import { useAuth } from "@/app/context/AuthContext"
 import { useEffect, useState, useCallback } from "react"
-import { getUserById } from "@/lib/firebase"
 import { useParams, useRouter } from "next/navigation"
 import { Post } from "@/types/post";
+import { getUserById, getPostsByUserIdPaginated } from "@/lib/firebase"
 // APP components
 import ProfileAction from "@/components/profile-action-btn"
 import CreatePost from "@/components/create-post"
-
-// UI components
 import { Toaster } from "@/components/ui/sonner"
 import {
     Card,
@@ -21,7 +19,6 @@ import {
 } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
-// import { Separator } from "@radix-ui/react-separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import PostComponent from "@/components/post"
 
@@ -32,24 +29,10 @@ export default function ProfileView() {
     const [profile, setProfile] = useState<{ id: string; username?: string; description?: string } | null>(null)
     const [posts, setPosts] = useState<Post[]>([])
     const [loading, setLoading] = useState(true)
+    const [hasMore, setHasMore] = useState(true)
+    const [loadingMore, setLoadingMore] = useState(false)
 
-    useEffect(() => {
-        async function loadPosts() {
-            setLoading(true);
-            const fetchedPosts = await fetchPosts();
-            setPosts(fetchedPosts); // Actualiza el estado con los posts obtenidos
-            setLoading(false);
-        }
-        loadPosts();
-    }, [])
-
-
-    useEffect(() => {
-        if (!loadingUser && !user) {
-            router.push("/login")
-        }
-    }, [loadingUser, user, router])
-
+    // Cargar perfil
     const fetchUser = useCallback(async () => {
         if (!params?.userId) return
         const data = await getUserById(params.userId as string)
@@ -60,21 +43,59 @@ export default function ProfileView() {
         fetchUser()
     }, [fetchUser])
 
-    async function fetchPosts(): Promise<Post[]> { // Indica que devuelve un array de Post
-        try {
-            const res = await fetch("/api/posts")
-
-            if (!res.ok) {
-                throw new Error(`Error del servidor: ${res.status}`)
-            }
-
-            const data = await res.json()
-            // console.log("Datos obtenidos:", data); 
-            return data as Post[];
-        } catch (err) {
-            console.error("❌ Error cargando posts:", err)
-            return []
+    // Redirigir si no hay usuario
+    useEffect(() => {
+        if (!loadingUser && !user) {
+            router.push("/login")
         }
+    }, [loadingUser, user, router])
+
+    // Cargar los primeros 20 posts
+    useEffect(() => {
+        async function loadInitialPosts() {
+            setLoading(true)
+            const fetchedPosts = await getPostsByUserIdPaginated(params.userId as string, undefined, 20)
+            // Ensure fetchedPosts is of type Post[]
+            setPosts(fetchedPosts as Post[])
+            setHasMore(fetchedPosts.length === 20)
+            setLoading(false)
+        }
+        if (params?.userId) loadInitialPosts()
+    }, [params?.userId])
+
+    // Handler para cargar más posts
+    async function loadMorePosts() {
+        if (loadingMore || !hasMore || posts.length === 0) return
+        setLoadingMore(true)
+        const lastPost = posts[posts.length - 1]
+        const morePosts = await getPostsByUserIdPaginated(params.userId as string, lastPost.timestamp, 20)
+        setPosts(prev => [...prev, ...(morePosts as Post[])])
+        setHasMore(morePosts.length === 20)
+        setLoadingMore(false)
+    }
+
+    // Detectar scroll al final
+    useEffect(() => {
+        function handleScroll() {
+            if (
+                window.innerHeight + window.scrollY >= document.body.offsetHeight - 200 &&
+                hasMore &&
+                !loadingMore
+            ) {
+                loadMorePosts()
+            }
+        }
+        window.addEventListener("scroll", handleScroll)
+        return () => window.removeEventListener("scroll", handleScroll)
+    }, [posts, hasMore, loadingMore])
+
+    // Actualizar posts tras crear uno nuevo
+    async function handleCreatedPost() {
+        setLoading(true)
+        const fetchedPosts = await getPostsByUserIdPaginated(params.userId as string, undefined, posts.length || 20)
+        setPosts(fetchedPosts as Post[])
+        setHasMore(fetchedPosts.length === (posts.length || 20))
+        setLoading(false)
     }
 
     if (loadingUser) {
@@ -117,10 +138,7 @@ export default function ProfileView() {
     return (
         <div className="font-sans h-full">
             <div className="w-full max-w-full md:max-w-200 mx-auto h-full overflow-x-auto">
-                <CreatePost onCreated={async () => {
-                    const updatedPosts = await fetchPosts();
-                    setPosts(updatedPosts);
-                }} />
+                <CreatePost onCreated={handleCreatedPost} />
                 <Toaster position="top-center" />
 
                 <Card className="rounded-none h-full bg-transparent border-none shadow-none">
@@ -143,7 +161,7 @@ export default function ProfileView() {
                                     username: profile?.username,
                                     description: profile?.description,
                                 }}
-                                onUpdated={fetchUser} // ✅ ahora funciona sin warning
+                                onUpdated={fetchUser}
                             />
                         </CardAction>
                     </CardHeader>
@@ -156,23 +174,12 @@ export default function ProfileView() {
                         <div className="flex flex-row gap-8">
                             <div className="flex flex-col">
                                 <div className="flex">
-
                                     {loading ? (
                                         <Skeleton className="w-full h-4" />
                                     ) : posts.length}
                                 </div>
                                 <div className="flex">Posts</div>
                             </div>
-                            {/* <Separator orientation="vertical" />
-                            <div className="flex flex-col">
-                                <div className="flex">0</div>
-                                <div className="flex">Fotos</div>
-                            </div>
-                            <Separator orientation="vertical" />
-                            <div className="flex flex-col">
-                                <div className="flex">0</div>
-                                <div className="flex">Seguidores</div>
-                            </div> */}
                         </div>
                     </CardFooter>
                 </Card>
@@ -204,6 +211,11 @@ export default function ProfileView() {
                                     }
                                 />
                             ))
+                        )}
+                        {loadingMore && (
+                            <div className="flex justify-center py-4">
+                                <Skeleton className="w-32 h-6" />
+                            </div>
                         )}
                     </TabsContent>
                     <TabsContent value="media">

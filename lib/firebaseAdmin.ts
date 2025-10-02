@@ -11,25 +11,60 @@ if (!admin.apps.length) {
   });
 }
 
-const db = admin.firestore();
+export const db = admin.firestore();
 
 export async function getAllPostsServer() {
   const snapshot = await db.collection("posts").orderBy("timestamp", "desc").get();
   return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 }
 
-export async function createPostServer(uid: string, author: string, content: string) {
+export async function getPostsByUserServer(userId: string) {
+  if (!userId) return [];
+  try {
+    const postsRef = db.collection("posts").where("uid", "==", userId);
+    const snapshot = await postsRef.get();
+
+    const posts: any[] = [];
+
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+
+      posts.push({
+        id: doc.id,
+        content: data.content,
+        likes: data.likes ?? 0,
+        likedBy: data.likedBy ?? [],
+        commentsCount: data.commentsCount ?? 0,
+        retweetsCount: data.retweetsCount ?? 0,
+        isPrivate: data.isPrivate ?? false,
+        createdAt: data.createdAt?.toDate?.() ?? null,
+      });
+    });
+
+    return posts;
+  } catch (err) {
+    console.error("❌ Error obteniendo posts del usuario:", err);
+    return [];
+  }
+}
+
+
+export async function createPostServer(uid: string, content: string, isPrivate: boolean) {
   const newPost = {
     uid,
-    author,
+    isPrivate,
     content,
     timestamp: admin.firestore.FieldValue.serverTimestamp(),
-    likes: 0, // Inicialmente 0 likes
-    comments: 0, // Inicialmente 0 comentarios
+    likes: 0, 
+    comments: [],
     rt: 0,
   };
 
   const docRef = await db.collection("posts").add(newPost);
+  const userRef = db.collection("users").doc(uid);
+    await userRef.update({
+      userPosts: admin.firestore.FieldValue.arrayUnion(docRef.id),
+    });
   return { id: docRef.id, ...newPost };
 }
 

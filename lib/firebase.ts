@@ -29,7 +29,13 @@ import {
   updateDoc,
   runTransaction,
   serverTimestamp,
-
+  collection,
+  query,
+  where,
+  orderBy,
+  limit,
+  getDocs,
+  startAfter
 } from "firebase/firestore"
 
 // Configuración desde .env.local
@@ -189,7 +195,6 @@ async function getUserById(uid: string) {
   try {
     const userRef = doc(db, "users", uid)
     const userSnap = await getDoc(userRef)
-
     if (userSnap.exists()) {
       return { id: userSnap.id, ...userSnap.data() }
     } else {
@@ -199,6 +204,40 @@ async function getUserById(uid: string) {
   } catch (error) {
     console.error("❌ Error obteniendo usuario:", error)
     throw error
+  }
+}
+
+// Nueva función para obtener publicaciones paginadas por ID de usuario
+export async function getPostsByUserIdPaginated(userId: string, lastPostIndex?: number, pageSize = 20) {
+  if (!userId) return [];
+  try {
+    // 1. Obtener el documento del usuario
+    const userRef = doc(db, "users", userId);
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) return [];
+
+    const userPosts: string[] = userSnap.data().userPosts || [];
+    if (userPosts.length === 0) return [];
+
+    // 2. Paginar los IDs
+    const start = lastPostIndex ?? 0;
+    const end = start + pageSize;
+    const paginatedIds = userPosts.slice(start, end);
+
+    // 3. Obtener los posts por ID
+    const posts: any[] = [];
+    for (const postId of paginatedIds) {
+      const postRef = doc(db, "posts", postId);
+      const postSnap = await getDoc(postRef);
+      if (postSnap.exists()) {
+        posts.push({ id: postSnap.id, ...postSnap.data() });
+      }
+    }
+
+    return posts;
+  } catch (error) {
+    console.error("❌ Error obteniendo posts paginados por array:", error);
+    return [];
   }
 }
 

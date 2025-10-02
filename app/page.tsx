@@ -7,6 +7,7 @@ import CreatePost from "@/components/create-post"
 import PostComponent from "@/components/post"
 // const Timestamp = admin.firestore.Timestamp; // Si lo necesitas directamente, pero en el cliente, suele ser un objeto o string.
 import { Post } from "@/types/post";
+import { fetchPosts } from "@/lib/posts";
 
 
 export default function Home() {
@@ -17,28 +18,11 @@ export default function Home() {
     async function loadPosts() {
       setLoading(true);
       const fetchedPosts = await fetchPosts();
-      console.log(fetchedPosts)
       setPosts(fetchedPosts);
       setLoading(false);
     }
     loadPosts();
   }, []) // El array vacío asegura que se ejecuta solo una vez al montar
-
-  async function fetchPosts(): Promise<Post[]> {
-    try {
-      const res = await fetch("/api/posts")
-
-      if (!res.ok) {
-        throw new Error(`Error del servidor: ${res.status}`)
-      }
-
-      const data = await res.json()
-      return data as Post[];
-    } catch (err) {
-      console.error("❌ Error cargando posts:", err)
-      return [] 
-    }
-  }
 
   return (
     <div className="font-sans rounded md:p-8">

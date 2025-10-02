@@ -26,7 +26,7 @@ export async function GET() {
 // POST /api/posts
 export async function POST(req: Request) {
   try {
-    const { uid, author, content } = await req.json()
+    const { uid, author, content, isPrivate } = await req.json()
 
     if (!uid || !content) {
       return NextResponse.json(
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       )
     }
 
-    const newPost = await createPostServer(uid, author || "Anónimo", content)
+    const newPost = await createPostServer(uid, author || "Anónimo", content, isPrivate)
     return NextResponse.json(newPost, { status: 201 })
   } catch (error: unknown) {
     if (error instanceof Error) {

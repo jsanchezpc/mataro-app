@@ -4,7 +4,8 @@ export type Post = {
   id: string
   uid: string
   content: string
-  timestamp: number
+  timestamp: number,
+  isPrivate: boolean,
   rt: number
   likes: number
   likedBy: string[]
