@@ -68,7 +68,7 @@ if (typeof window !== "undefined") {
     process.env.NODE_ENV === "production"
       ? process.env.NEXT_PUBLIC_PROD_RECAPTCHA_KEY
       : process.env.NEXT_PUBLIC_RECAPTCHA_KEY
-      
+
   appCheck = initializeAppCheck(app, {
     provider: new ReCaptchaEnterpriseProvider(recaptchaKey as string),
     isTokenAutoRefreshEnabled: true,
@@ -103,6 +103,7 @@ async function createUserIfNotExists(user: User) {
           email: user.email || null,
           displayName: user.displayName || null,
           photoURL: user.photoURL || null,
+          avatarURL: null,
           createdAt: serverTimestamp(),
         })
         console.log("✅ Usuario creado en Firestore")
@@ -146,13 +147,13 @@ async function logOut() {
 
 async function logInWithEmail(email: string, password: string) {
   const result = await signInWithEmailAndPassword(auth, email, password)
-  await createUserIfNotExists(result.user) // 👈
+  await createUserIfNotExists(result.user)
   return result
 }
 
 async function signUpWithEmail(email: string, password: string) {
   const result = await createUserWithEmailAndPassword(auth, email, password)
-  await createUserIfNotExists(result.user) // 👈
+  await createUserIfNotExists(result.user)
   return result
 }
 
@@ -195,6 +196,7 @@ async function getUserById(uid: string) {
   try {
     const userRef = doc(db, "users", uid)
     const userSnap = await getDoc(userRef)
+    console.log("el usuario: ", userSnap)
     if (userSnap.exists()) {
       return { id: userSnap.id, ...userSnap.data() }
     } else {
@@ -208,38 +210,48 @@ async function getUserById(uid: string) {
 }
 
 // Nueva función para obtener publicaciones paginadas por ID de usuario
-export async function getPostsByUserIdPaginated(userId: string, lastPostIndex?: number, pageSize = 20) {
-  if (!userId) return [];
+// ✅ Obtener posts de un usuario con paginación real
+export async function getPostsByUserIdPaginated(
+  userId: string,
+  lastIndex?: number,
+  pageSize = 20
+) {
+  if (!userId) return { posts: [], lastVisible: null }
+
   try {
     // 1. Obtener el documento del usuario
-    const userRef = doc(db, "users", userId);
-    const userSnap = await getDoc(userRef);
-    if (!userSnap.exists()) return [];
+    const userRef = doc(db, "users", userId)
+    const userSnap = await getDoc(userRef)
+    if (!userSnap.exists()) return { posts: [], lastVisible: null }
 
-    const userPosts: string[] = userSnap.data().userPosts || [];
-    if (userPosts.length === 0) return [];
+    const userPosts: string[] = userSnap.data().userPosts || []
+    if (userPosts.length === 0) return { posts: [], lastVisible: null }
 
     // 2. Paginar los IDs
-    const start = lastPostIndex ?? 0;
-    const end = start + pageSize;
-    const paginatedIds = userPosts.slice(start, end);
+    const start = lastIndex ?? 0
+    const end = start + pageSize
+    const paginatedIds = userPosts.slice(start, end)
 
     // 3. Obtener los posts por ID
-    const posts: any[] = [];
+    const posts: any[] = []
     for (const postId of paginatedIds) {
-      const postRef = doc(db, "posts", postId);
-      const postSnap = await getDoc(postRef);
+      const postRef = doc(db, "posts", postId)
+      const postSnap = await getDoc(postRef)
       if (postSnap.exists()) {
-        posts.push({ id: postSnap.id, ...postSnap.data() });
+        posts.push({ id: postSnap.id, ...postSnap.data() })
       }
     }
 
-    return posts;
+    // 4. El nuevo cursor es el índice final
+    const newLastVisible = end < userPosts.length ? end : null
+
+    return { posts, lastVisible: newLastVisible }
   } catch (error) {
-    console.error("❌ Error obteniendo posts paginados por array:", error);
-    return [];
+    console.error("❌ Error obteniendo posts paginados por array:", error)
+    return { posts: [], lastVisible: null }
   }
 }
+
 
 export {
   app,

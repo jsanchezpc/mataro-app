@@ -26,10 +26,11 @@ export default function ProfileView() {
     const { user, loadingUser } = useAuth()
     const router = useRouter()
     const params = useParams()
-    const [profile, setProfile] = useState<{ id: string; username?: string; description?: string } | null>(null)
+    const [profile, setProfile] = useState<{ id: string; username?: string; description?: string, avatarURL: string } | null>(null)
     const [posts, setPosts] = useState<Post[]>([])
-    const [loading, setLoading] = useState(true)
+    const [lastVisible, setLastVisible] = useState<number | null>(null)
     const [hasMore, setHasMore] = useState(true)
+    const [loading, setLoading] = useState(true)
     const [loadingMore, setLoadingMore] = useState(false)
 
     // Cargar perfil
@@ -54,25 +55,31 @@ export default function ProfileView() {
     useEffect(() => {
         async function loadInitialPosts() {
             setLoading(true)
-            const fetchedPosts = await getPostsByUserIdPaginated(params.userId as string, undefined, 20)
-            // Ensure fetchedPosts is of type Post[]
+            const { posts: fetchedPosts, lastVisible: cursor } =
+                await getPostsByUserIdPaginated(params.userId as string, 0, 20)
+
             setPosts(fetchedPosts as Post[])
+            setLastVisible(cursor)
             setHasMore(fetchedPosts.length === 20)
             setLoading(false)
         }
         if (params?.userId) loadInitialPosts()
     }, [params?.userId])
 
-    // Handler para cargar más posts
+
     async function loadMorePosts() {
-        if (loadingMore || !hasMore || posts.length === 0) return
+        if (loadingMore || !hasMore || lastVisible === null) return
         setLoadingMore(true)
-        const lastPost = posts[posts.length - 1]
-        const morePosts = await getPostsByUserIdPaginated(params.userId as string, lastPost.timestamp, 20)
+
+        const { posts: morePosts, lastVisible: newCursor } =
+            await getPostsByUserIdPaginated(params.userId as string, lastVisible, 20)
+
         setPosts(prev => [...prev, ...(morePosts as Post[])])
+        setLastVisible(newCursor)
         setHasMore(morePosts.length === 20)
         setLoadingMore(false)
     }
+
 
     // Detectar scroll al final
     useEffect(() => {
@@ -89,14 +96,17 @@ export default function ProfileView() {
         return () => window.removeEventListener("scroll", handleScroll)
     }, [posts, hasMore, loadingMore])
 
-    // Actualizar posts tras crear uno nuevo
     async function handleCreatedPost() {
         setLoading(true)
-        const fetchedPosts = await getPostsByUserIdPaginated(params.userId as string, undefined, posts.length || 20)
+        const { posts: fetchedPosts, lastVisible: cursor } =
+            await getPostsByUserIdPaginated(params.userId as string, undefined, 20)
+
         setPosts(fetchedPosts as Post[])
-        setHasMore(fetchedPosts.length === (posts.length || 20))
+        setLastVisible(cursor)
+        setHasMore(fetchedPosts.length === 20)
         setLoading(false)
     }
+
 
     if (loadingUser) {
         return (
@@ -144,15 +154,13 @@ export default function ProfileView() {
                 <Card className="rounded-none h-full bg-transparent border-none shadow-none">
                     <CardHeader className="gap-0">
                         <Avatar className="size-20 mb-2">
-                            <AvatarImage src={user?.photoURL ?? undefined} />
+                            <AvatarImage src={profile?.avatarURL} />
                             <AvatarFallback>?</AvatarFallback>
                         </Avatar>
                         <CardTitle className="text-left text-2xl">
                             {profile?.username
                                 ? profile.username
-                                : user?.displayName
-                                    ? user.displayName
-                                    : "Usuario"}
+                                : "Mataroní/nesa"}
                         </CardTitle>
 
                         <CardAction>

@@ -136,13 +136,29 @@ export default function PostComponent({
         </Button>
         <Button
           variant={liked ? "default" : "outline"}
-          className="cursor-pointer flex items-center gap-2 bg-blue-500/10 hover:bg-blue-500/20"
+          className={`${liked
+            ? "cursor-pointer flex items-center gap-2 bg-blue-500/10 hover:bg-blue-500/20"
+            : "cursor-pointer"
+            }`}
           disabled={isPreview}
           onClick={handleLike}
         >
-          <ThumbsUp />
-          <span className="text-white">{likes} likes</span>
+          <ThumbsUp
+            className={`h-4 w-4 ${liked
+              ? "text-blue-500 dark:text-white"
+              : "text-foreground dark:text-white"
+              }`}
+          />
+          <span
+            className={`${liked
+              ? "dark:text-white text-accent-foreground"
+              : ""
+              }`}
+          >
+            {likes} likes
+          </span>
         </Button>
+
       </CardFooter>
     </Card>
   );
