@@ -209,16 +209,19 @@ export default function ProfileView() {
                                         : "Mataroní"}{" "}
                                 no ha publicado.</p>
                         ) : (
-                            posts.map((post) => (
-                                <PostComponent
-                                    key={post.id}
-                                    post={post}
-                                    isPreview={false}
-                                    onDeleted={(deletedId) =>
-                                        setPosts((prev) => prev.filter((p) => p.id !== deletedId))
-                                    }
-                                />
-                            ))
+                            // Ordena los posts por timestamp descendente antes de renderizar
+                            [...posts]
+                                .sort((a, b) => (b.timestamp ?? 0) - (a.timestamp ?? 0))
+                                .map((post) => (
+                                    <PostComponent
+                                        key={post.id}
+                                        post={post}
+                                        isPreview={false}
+                                        onDeleted={(deletedId) =>
+                                            setPosts((prev) => prev.filter((p) => p.id !== deletedId))
+                                        }
+                                    />
+                                ))
                         )}
                         {loadingMore && (
                             <div className="flex justify-center py-4">
