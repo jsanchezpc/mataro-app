@@ -196,7 +196,6 @@ async function getUserById(uid: string) {
   try {
     const userRef = doc(db, "users", uid)
     const userSnap = await getDoc(userRef)
-    console.log("el usuario: ", userSnap)
     if (userSnap.exists()) {
       return { id: userSnap.id, ...userSnap.data() }
     } else {

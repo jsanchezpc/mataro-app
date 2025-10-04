@@ -192,7 +192,7 @@ export default function ProfileView() {
                     </CardFooter>
                 </Card>
 
-                <Tabs defaultValue="posts" className="px-6">
+                <Tabs defaultValue="posts" className="">
                     <TabsList>
                         <TabsTrigger value="posts">Posts</TabsTrigger>
                         <TabsTrigger value="media">Fotos</TabsTrigger>
