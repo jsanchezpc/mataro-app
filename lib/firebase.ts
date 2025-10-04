@@ -160,7 +160,7 @@ async function signUpWithEmail(email: string, password: string) {
 // ✅ Actualizar username y description de un usuario
 async function updateUserProfile(
   uid: string,
-  data: { username: string; description: string }
+  data: { username: string; description: string; avatarURL: string }
 ) {
   if (!uid) return
 
@@ -169,6 +169,7 @@ async function updateUserProfile(
     await updateDoc(userRef, {
       username: data.username,
       description: data.description,
+      avatarURL: data.avatarURL
     })
 
     console.log("✅ Usuario actualizado")

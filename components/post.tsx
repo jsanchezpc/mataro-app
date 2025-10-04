@@ -40,9 +40,7 @@ export default function PostComponent({
     getUserById(uid).then((user) => {
       if (isMounted && user) {
         setAuthorName((user as { username?: string }).username ?? "Mataroní/nesa");
-        setProfilePic((user as { avatarURL?: string; photoURL?: string }).avatarURL
-          ?? (user as { photoURL?: string }).photoURL
-          ?? "");
+        setProfilePic((user as { avatarURL?: string }).avatarURL ?? "");
 
       }
     });

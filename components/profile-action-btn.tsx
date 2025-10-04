@@ -39,14 +39,16 @@ const formSchema = z.object({
         message: "Username must be at least 2 characters.",
     }),
     description: z.string(),
+    avatarURL: z.string()
 })
 
 type ProfileActionProps = {
     profile?: {
         username?: string
         description?: string
+        avatarURL?: string
     }
-    onUpdated?: () => void 
+    onUpdated?: () => void
 }
 
 export default function ProfileAction({ profile, onUpdated }: ProfileActionProps) {

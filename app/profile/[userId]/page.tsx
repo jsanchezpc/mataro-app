@@ -26,7 +26,7 @@ export default function ProfileView() {
     const { user, loadingUser } = useAuth()
     const router = useRouter()
     const params = useParams()
-    const [profile, setProfile] = useState<{ id: string; username?: string; description?: string, avatarURL: string } | null>(null)
+    const [profile, setProfile] = useState<{ id: string; username?: string; description?: string, avatarURL?: string } | null>(null)
     const [posts, setPosts] = useState<Post[]>([])
     const [lastVisible, setLastVisible] = useState<number | null>(null)
     const [hasMore, setHasMore] = useState(true)
