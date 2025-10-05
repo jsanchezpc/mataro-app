@@ -35,6 +35,7 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
+import { Post } from "@/types/post"
 
 function DropCreate() {
     return (
@@ -86,7 +87,7 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
                     uid: user.uid,
                     author: profile?.username ?? user.displayName ?? "Mataroní",
                     content: values.postContent,
-                    isPrivate: false, // <-- Añade esto
+                    isPrivate: false,
                 }),
             })
 
@@ -105,10 +106,9 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
     }
 
 
-    const postPreview = {
+    const postPreview: Post = {
         id: "preview",
         uid: user?.uid ?? "preview",
-        author: loadingUser ? "Cargando..." : profile?.username ?? user?.displayName ?? "Mataroní",
         content: form.watch("postContent"),
         timestamp: Date.now(),
         isPrivate: false,
@@ -116,7 +116,11 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
         likes: 0,
         likedBy: [],
         comments: [],
+        commentsCount: 0,
+        retweetsCount: 0,
     }
+
+
 
     return (
         <Sheet open={open} onOpenChange={setOpen}>
