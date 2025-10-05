@@ -67,7 +67,7 @@ export default function ProfileView() {
     }, [params?.userId])
 
 
-    async function loadMorePosts() {
+    const loadMorePosts = useCallback(async () => {
         if (loadingMore || !hasMore || lastVisible === null) return
         setLoadingMore(true)
 
@@ -78,8 +78,7 @@ export default function ProfileView() {
         setLastVisible(newCursor)
         setHasMore(morePosts.length === 20)
         setLoadingMore(false)
-    }
-
+    }, [loadingMore, hasMore, lastVisible, params.userId])
 
     // Detectar scroll al final
     useEffect(() => {
@@ -94,7 +93,7 @@ export default function ProfileView() {
         }
         window.addEventListener("scroll", handleScroll)
         return () => window.removeEventListener("scroll", handleScroll)
-    }, [posts, hasMore, loadingMore])
+    }, [posts, hasMore, loadingMore, loadMorePosts])
 
     async function handleCreatedPost() {
         setLoading(true)

@@ -1,5 +1,6 @@
 // lib/firebaseAdmin.ts
 import * as admin from "firebase-admin";
+import { Post } from "@/types/post";
 
 if (!admin.apps.length) {
   admin.initializeApp({
@@ -18,26 +19,29 @@ export async function getAllPostsServer() {
   return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 }
 
-export async function getPostsByUserServer(userId: string) {
+export async function getPostsByUserServer(userId: string): Promise<Post[]> {
   if (!userId) return [];
   try {
     const postsRef = db.collection("posts").where("uid", "==", userId);
     const snapshot = await postsRef.get();
 
-    const posts: any[] = [];
+    const posts: Post[] = [];
 
     snapshot.forEach((doc) => {
       const data = doc.data();
 
       posts.push({
         id: doc.id,
+        uid: data.uid,
         content: data.content,
         likes: data.likes ?? 0,
         likedBy: data.likedBy ?? [],
+        isPrivate: data.isPrivate ?? false,
         commentsCount: data.commentsCount ?? 0,
         retweetsCount: data.retweetsCount ?? 0,
-        isPrivate: data.isPrivate ?? false,
-        createdAt: data.createdAt?.toDate?.() ?? null,
+        timestamp: data.timestamp,
+        rt: data.rt ?? 0,
+        comments: data.comments ?? []
       });
     });
 
@@ -55,7 +59,7 @@ export async function createPostServer(uid: string, content: string, isPrivate: 
     isPrivate,
     content,
     timestamp: admin.firestore.FieldValue.serverTimestamp(),
-    likes: 0, 
+    likes: 0,
     comments: [],
     rt: 0,
   };

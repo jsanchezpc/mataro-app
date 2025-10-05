@@ -28,15 +28,9 @@ import {
   getDoc,
   updateDoc,
   runTransaction,
-  serverTimestamp,
-  collection,
-  query,
-  where,
-  orderBy,
-  limit,
-  getDocs,
-  startAfter
+  serverTimestamp
 } from "firebase/firestore"
+import { Post } from "@/types/post"
 
 // Configuración desde .env.local
 const firebaseConfig = {
@@ -215,7 +209,7 @@ export async function getPostsByUserIdPaginated(
   userId: string,
   lastIndex?: number,
   pageSize = 20
-) {
+): Promise<{ posts: Post[]; lastVisible: number | null }> {
   if (!userId) return { posts: [], lastVisible: null }
 
   try {
@@ -233,12 +227,12 @@ export async function getPostsByUserIdPaginated(
     const paginatedIds = userPosts.slice(start, end)
 
     // 3. Obtener los posts por ID
-    const posts: any[] = []
+    const posts: Post[] = []
     for (const postId of paginatedIds) {
       const postRef = doc(db, "posts", postId)
       const postSnap = await getDoc(postRef)
       if (postSnap.exists()) {
-        posts.push({ id: postSnap.id, ...postSnap.data() })
+        posts.push({ id: postSnap.id, ...postSnap.data() } as Post)
       }
     }
 
