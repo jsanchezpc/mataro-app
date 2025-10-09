@@ -37,21 +37,14 @@ import Link from "next/link"
 export function NavUser() {
     const { isMobile } = useSidebar()
     const { user, loadingUser } = useAuth()
-    const [profile, setProfile] = useState<{ id: string; username?: string; description?: string } | null>(null)
+    const [profile, setProfile] = useState<{ id: string; username?: string; description?: string, avatarURL?: string } | null>(null)
+
     useEffect(() => {
         if (!user?.uid) return
 
-        // 1. Intenta con sessionStorage primero
-        const storedUser = sessionStorage.getItem("user")
-        if (storedUser) {
-            setProfile(JSON.parse(storedUser))
-        }
-
-        // 2. Trae la versión más reciente de la DB
         getUserById(user.uid).then((userDb) => {
             if (userDb) {
                 setProfile(userDb)
-                sessionStorage.setItem("user", JSON.stringify(userDb))
             }
         })
     }, [user])
@@ -68,18 +61,15 @@ export function NavUser() {
                             size="lg"
                             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                         >
-                            <Avatar className="h-8 w-8 rounded-lg">
-                                {loadingUser ? (
-                                    <Skeleton className="h-full w-full rounded-lg" />
-                                ) : user?.photoURL ? (
-                                    <AvatarImage
-                                        src={user?.photoURL ?? undefined}
-                                        alt={user?.displayName ?? "avatar"}
-                                    />
-                                ) : (
-                                    <AvatarFallback className="rounded-lg">?</AvatarFallback>
-                                )}
+                            <Avatar className="size-8 bg-black">
+                                <AvatarImage
+                                    src={profile?.avatarURL}
+                                    className="object-contain w-full h-full"
+                                />
+                                <AvatarFallback>?</AvatarFallback>
                             </Avatar>
+
+
 
                             <div className="grid flex-1 text-left text-sm leading-tight">
                                 {loadingUser ? (
@@ -108,13 +98,14 @@ export function NavUser() {
                         >
                             <DropdownMenuLabel className="p-0 font-normal">
                                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                                    <Avatar className="h-8 w-8 rounded-lg">
+                                    <Avatar className="size-8 bg-black">
                                         <AvatarImage
-                                            src={user?.photoURL ?? undefined}
-                                            alt={user?.displayName ?? "avatar"}
+                                            src={profile?.avatarURL}
+                                            className="object-contain w-full h-full"
                                         />
-                                        <AvatarFallback className="rounded-lg">?</AvatarFallback>
+                                        <AvatarFallback>?</AvatarFallback>
                                     </Avatar>
+
                                     <div className="grid flex-1 text-left text-sm leading-tight">
                                         <span className="truncate font-medium">
                                             {profile?.username ?? user?.displayName ?? ""}

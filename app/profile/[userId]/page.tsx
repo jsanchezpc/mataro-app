@@ -152,10 +152,15 @@ export default function ProfileView() {
 
                 <Card className="rounded-none h-full bg-transparent border-none shadow-none">
                     <CardHeader className="gap-0">
-                        <Avatar className="size-20 mb-2">
-                            <AvatarImage src={profile?.avatarURL} />
+                        <Avatar className="size-20">
+                            <AvatarImage
+                                src={profile?.avatarURL}
+                                className="object-contain w-full h-full"
+                            />
                             <AvatarFallback>?</AvatarFallback>
                         </Avatar>
+
+
                         <CardTitle className="text-left text-2xl">
                             {profile?.username
                                 ? profile.username
@@ -202,8 +207,8 @@ export default function ProfileView() {
                         ) : posts.length === 0 ? (
                             <p className="text-center text-gray-400">
                                 {profile?.username
-                                ? profile.username
-                                : "Mataroní/nesa"}
+                                    ? profile.username
+                                    : "Mataroní/nesa"}
                                 no ha publicado.</p>
                         ) : (
                             // Ordena los posts por timestamp descendente antes de renderizar

@@ -107,18 +107,11 @@ async function createUserIfNotExists(user: User) {
           avatarURL: null,
           createdAt: serverTimestamp(),
         })
-        console.log("✅ Usuario creado en Firestore")
+        console.log("✅ Usuario creado")
       } else {
-        console.log("ℹ️ Usuario ya existe en Firestore")
+        console.log("ℹ️ Usuario ya existe")
       }
     })
-
-    // 👇 una vez terminada la transacción, lee siempre el doc actualizado
-    const freshDoc = await getDoc(userRef)
-    if (freshDoc.exists()) {
-      sessionStorage.setItem("user", JSON.stringify(freshDoc.data()))
-      console.log("💾 Usuario guardado en sessionStorage")
-    }
 
   } catch (error) {
     console.error("❌ Error en transacción al crear/leer usuario:", error)
@@ -140,7 +133,6 @@ async function logInWithGoogle() {
 async function logOut() {
   try {
     await signOut(auth)
-    sessionStorage.clear()
   } catch (error) {
     console.error("Error al cerrar sesión:", error)
   }
@@ -213,18 +205,8 @@ async function updateUserProfile(
 
     await updateDoc(userRef, updateData)
 
-    console.log("✅ Perfil de usuario actualizado en Firestore.")
+    console.log("✅ Perfil de usuario actualizado.")
 
-    // Actualizar también en sessionStorage (opcional)
-    const storedUser = sessionStorage.getItem("user")
-    if (storedUser) {
-      const parsed = JSON.parse(storedUser)
-      sessionStorage.setItem(
-        "user",
-        JSON.stringify({ ...parsed, ...updateData })
-      )
-      console.log("💾 Usuario actualizado en sessionStorage.")
-    }
   } catch (error) {
     console.error("❌ Error actualizando usuario:", error)
     throw error
@@ -238,7 +220,6 @@ async function getUserById(uid: string) {
   try {
     const userRef = doc(db, "users", uid)
     const userSnap = await getDoc(userRef)
-    console.log(0, userRef)
     if (userSnap.exists()) {
       return { id: userSnap.id, ...userSnap.data() }
     } else {
