@@ -205,11 +205,11 @@ export default function ProfileView() {
                         {loading ? (
                             <p className="text-center text-gray-500">Cargando posts...</p>
                         ) : posts.length === 0 ? (
-                            <p className="text-center text-gray-400">
+                            <p className="text-gray-400">
                                 {profile?.username
                                     ? profile.username
-                                    : "Mataroní/nesa"}
-                                no ha publicado.</p>
+                                    : "Mataroní/nesa"} 
+                                 no ha publicado.</p>
                         ) : (
                             // Ordena los posts por timestamp descendente antes de renderizar
                             [...posts]
@@ -231,8 +231,8 @@ export default function ProfileView() {
                             </div>
                         )}
                     </TabsContent>
-                    <TabsContent value="media">
-                        <p>
+                    <TabsContent value="media" className="py-4">
+                        <p className="text-gray-400">
                             {profile?.username
                                 ? profile.username
                                 : "Mataroní/nesa"}
