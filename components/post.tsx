@@ -13,9 +13,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { PostAction } from "@/components/post-action";
 import { Post } from "@/types/post";
-import Link from "next/link";
-import { getAuth } from "firebase/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+import Link from "next/link";
+
+import { getAuth } from "firebase/auth";
 import { getUserById } from "@/lib/firebase";
 
 type PostComponentProps = {
@@ -126,11 +128,9 @@ export default function PostComponent({
         }`}>
         <Button variant="outline" className="cursor-pointer" disabled={isPreview}>
           <MessageCircle />
-          Comentarios
         </Button>
         <Button variant="outline" className="cursor-pointer" disabled={isPreview}>
           <Repeat2 />
-          Repeticiones
         </Button>
         <Button
           variant={liked ? "default" : "outline"}
@@ -153,7 +153,7 @@ export default function PostComponent({
               : ""
               }`}
           >
-            {likes} likes
+            {likes}
           </span>
         </Button>
 

@@ -35,12 +35,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 
 const formSchema = z.object({
-    username: z.string().min(2, {
-        message: "Username must be at least 2 characters.",
-    }),
-    description: z.string(),
-    avatarURL: z.string()
+    username: z.string().optional(),
+    description: z.string().optional(),
+    avatarURL: z.string().optional()
 })
+
 
 type ProfileActionProps = {
     profile?: {
@@ -60,17 +59,23 @@ export default function ProfileAction({ profile, onUpdated }: ProfileActionProps
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            username: "",
-            description: "",
+            username: profile?.username ?? "",
+            description: profile?.description ?? "",
+            avatarURL: profile?.avatarURL ?? "",
         },
     })
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
+        console.log("jaja")
         if (!user?.uid) return
-        await updateUserProfile(user.uid, values)
+        await updateUserProfile(user.uid, {
+            username: values.username ?? "",
+            description: values.description ?? "",
+            avatarURL: values.avatarURL ?? "",
+        })
         toast("Perfil actualizado")
         setOpen(false)
-        onUpdated?.() // 👈 notifica al padre
+        onUpdated?.()
     }
 
     // Resetear cuando cambien los datos del perfil

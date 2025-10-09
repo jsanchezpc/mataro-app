@@ -154,7 +154,7 @@ async function signUpWithEmail(email: string, password: string) {
 // ✅ Actualizar username y description de un usuario
 async function updateUserProfile(
   uid: string,
-  data: { username: string; description: string; avatarURL: string }
+  data: { username?: string; description?: string; avatarURL?: string }
 ) {
   if (!uid) return
 
@@ -191,6 +191,7 @@ async function getUserById(uid: string) {
   try {
     const userRef = doc(db, "users", uid)
     const userSnap = await getDoc(userRef)
+    console.log(0, userRef)
     if (userSnap.exists()) {
       return { id: userSnap.id, ...userSnap.data() }
     } else {

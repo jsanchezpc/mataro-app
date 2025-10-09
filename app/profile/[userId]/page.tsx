@@ -202,10 +202,8 @@ export default function ProfileView() {
                         ) : posts.length === 0 ? (
                             <p className="text-center text-gray-400">
                                 {profile?.username
-                                    ? profile.username
-                                    : user?.displayName
-                                        ? user.displayName
-                                        : "Mataroní"}{" "}
+                                ? profile.username
+                                : "Mataroní/nesa"}
                                 no ha publicado.</p>
                         ) : (
                             // Ordena los posts por timestamp descendente antes de renderizar
@@ -232,9 +230,7 @@ export default function ProfileView() {
                         <p>
                             {profile?.username
                                 ? profile.username
-                                : user?.displayName
-                                    ? user.displayName
-                                    : "Mataroní"}{" "}
+                                : "Mataroní/nesa"}
                             no ha subido fotos.
                         </p>
                     </TabsContent>
