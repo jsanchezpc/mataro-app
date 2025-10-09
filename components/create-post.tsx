@@ -85,7 +85,7 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     uid: user.uid,
-                    author: profile?.username ?? user.displayName ?? "Mataroní",
+                    author: profile?.username ?? "Mataroní/nesa",
                     content: values.postContent,
                     isPrivate: false,
                 }),
@@ -131,7 +131,7 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(uploadPost)} className="flex flex-col flex-1">
                         <div className="flex-1 overflow-auto px-4 py-2 space-y-8">
-                            <SheetHeader>
+                            <SheetHeader className="p-0 pt-4">
                                 <SheetTitle>Crear post</SheetTitle>
                                 <SheetDescription>¡Comparte lo que piensas con Mataró!</SheetDescription>
                             </SheetHeader>

@@ -52,7 +52,6 @@ export async function getPostsByUserServer(userId: string): Promise<Post[]> {
   }
 }
 
-
 export async function createPostServer(uid: string, content: string, isPrivate: boolean) {
   const newPost = {
     uid,
@@ -74,8 +73,10 @@ export async function createPostServer(uid: string, content: string, isPrivate: 
   } else {
     const data = userSnap.data();
     if (!data || !Array.isArray(data.userPosts)) {
+      // Si userPosts no existe o no es un array, lo inicializa
       await userRef.update({ userPosts: [docRef.id] });
     } else {
+      // Si ya existe y es un array, añade el nuevo post al array
       await userRef.update({
         userPosts: admin.firestore.FieldValue.arrayUnion(docRef.id),
       });
@@ -86,7 +87,7 @@ export async function createPostServer(uid: string, content: string, isPrivate: 
 }
 
 /**
- * Elimina un post y todos sus comentarios y likes asociados.
+ * Elimina un post y todos sus comentarios, likes asociados, y la referencia en el perfil del usuario.
  *
  * @param postId - ID del post a eliminar.
  * @returns Un objeto indicando el éxito y el ID del post eliminado.
@@ -98,24 +99,47 @@ export const deletePostServer = async (postId: string) => {
   }
 
   try {
-    // 1. Eliminar los comentarios asociados
+    const batch = db.batch(); // Inicia un único lote para todas las operaciones
+
+    // 1. Obtener el post para conseguir el authorUID
+    const postRef = db.collection("posts").doc(postId);
+    const postDoc = await postRef.get();
+
+    if (!postDoc.exists) {
+      throw new Error("El post no existe.");
+    }
+
+    const postData = postDoc.data();
+    // Asegúrate de que el campo 'uid' en tu documento de post realmente almacena el ID del autor.
+    const authorUID = postData?.uid;
+    if (!authorUID) {
+      throw new Error("No se pudo encontrar el autor del post.");
+    }
+
+    // 2. Eliminar los comentarios asociados
     const commentsSnapshot = await db.collection("comments").where("postId", "==", postId).get();
-    const commentBatch = db.batch();
     commentsSnapshot.forEach((doc) => {
-      commentBatch.delete(doc.ref);
+      batch.delete(doc.ref);
     });
-    await commentBatch.commit();
 
-    // 2. Eliminar los likes asociados (si los guardas en una colección por separado)
+    // 3. Eliminar los likes asociados
     const likesSnapshot = await db.collection("likes").where("postId", "==", postId).get();
-    const likeBatch = db.batch();
     likesSnapshot.forEach((doc) => {
-      likeBatch.delete(doc.ref);
+      batch.delete(doc.ref);
     });
-    await likeBatch.commit();
 
-    // 3. Eliminar el propio post
-    await db.collection("posts").doc(postId).delete();
+    // 4. Eliminar el propio post
+    batch.delete(postRef); // Añade la eliminación del post al lote
+
+    // 5. Eliminar la referencia del post en el campo 'userPosts' del documento del usuario
+    // Esto asume que 'userPosts' es un array de IDs de posts en el documento del usuario.
+    const userRef = db.collection("users").doc(authorUID);
+    batch.update(userRef, {
+      userPosts: admin.firestore.FieldValue.arrayRemove(postId)
+    });
+
+    // 6. Ejecutar todas las operaciones de forma atómica
+    await batch.commit();
 
     return { success: true, postId };
   } catch (error) {
