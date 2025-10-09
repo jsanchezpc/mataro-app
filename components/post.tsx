@@ -98,10 +98,14 @@ export default function PostComponent({
     >
       <CardHeader>
         <CardTitle className="flex flex-row items-center gap-2">
-          <Avatar>
-            <AvatarImage src={profilePic} />
-            <AvatarFallback>M</AvatarFallback>
+          <Avatar className="size-8">
+            <AvatarImage
+              src={profilePic}
+              className="object-contain w-full h-full"
+            />
+            <AvatarFallback>?</AvatarFallback>
           </Avatar>
+
           <Link className="hover:underline" href={`/profile/${uid}`}>
             {authorName}
           </Link>
