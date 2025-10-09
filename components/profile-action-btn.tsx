@@ -33,13 +33,12 @@ import {
 } from "@/components/ui/form"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 const formSchema = z.object({
     username: z.string().optional(),
     description: z.string().optional(),
-    avatarURL: z.string().optional()
 })
-
 
 type ProfileActionProps = {
     profile?: {
@@ -55,27 +54,33 @@ export default function ProfileAction({ profile, onUpdated }: ProfileActionProps
     const { user } = useAuth()
     const isMobile = useIsMobile()
     const [open, setOpen] = useState(false)
+    const [avatarFile, setAvatarFile] = useState<File | null>(null)
+    const [previewURL, setPreviewURL] = useState<string | null>(null)
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             username: profile?.username ?? "",
             description: profile?.description ?? "",
-            avatarURL: profile?.avatarURL ?? "",
         },
     })
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log("jaja")
         if (!user?.uid) return
-        await updateUserProfile(user.uid, {
-            username: values.username ?? "",
-            description: values.description ?? "",
-            avatarURL: values.avatarURL ?? "",
-        })
-        toast("Perfil actualizado")
-        setOpen(false)
-        onUpdated?.()
+        try {
+            await updateUserProfile(user.uid, {
+                username: values.username ?? "",
+                description: values.description ?? "",
+                avatarFile: avatarFile ?? undefined,
+            })
+
+            toast("Perfil actualizado")
+            setOpen(false)
+            onUpdated?.()
+        } catch (err) {
+            console.error("Error al actualizar perfil:", err)
+            toast.error("Error al actualizar el perfil")
+        }
     }
 
     // Resetear cuando cambien los datos del perfil
@@ -85,6 +90,7 @@ export default function ProfileAction({ profile, onUpdated }: ProfileActionProps
                 username: profile.username || "",
                 description: profile.description || "",
             })
+            setPreviewURL(profile.avatarURL || null)
         }
     }, [profile, form])
 
@@ -108,6 +114,11 @@ export default function ProfileAction({ profile, onUpdated }: ProfileActionProps
                                     </SheetHeader>
 
                                     <div className="grid flex-1 auto-rows-min gap-6 px-4 py-2 scroll-auto">
+                                        <Avatar className="size-20 mb-2 mx-auto">
+                                            <AvatarImage src={previewURL ?? profile?.avatarURL ?? ""} />
+                                            <AvatarFallback>?</AvatarFallback>
+                                        </Avatar>
+
                                         <FormField
                                             control={form.control}
                                             name="username"
@@ -127,6 +138,23 @@ export default function ProfileAction({ profile, onUpdated }: ProfileActionProps
                                                 </FormItem>
                                             )}
                                         />
+
+                                        <FormItem>
+                                            <FormLabel>Avatar</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files?.[0] || null
+                                                        setAvatarFile(file)
+                                                        setPreviewURL(file ? URL.createObjectURL(file) : null)
+                                                    }}
+                                                />
+                                            </FormControl>
+                                            <FormDescription>Tu avatar</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
 
                                         <FormField
                                             control={form.control}

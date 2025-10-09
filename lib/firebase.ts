@@ -30,6 +30,12 @@ import {
   runTransaction,
   serverTimestamp
 } from "firebase/firestore"
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+} from "firebase/storage"
 import { Post } from "@/types/post"
 
 // Configuración desde .env.local
@@ -48,6 +54,7 @@ const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const provider = new GoogleAuthProvider()
 const db = getFirestore(app)
+const storage = getStorage(app)
 
 // Guardar instancia de AppCheck
 let appCheck: AppCheck | null = null
@@ -151,22 +158,62 @@ async function signUpWithEmail(email: string, password: string) {
   return result
 }
 
-// ✅ Actualizar username y description de un usuario
+// ✅ Función para subir un archivo de avatar
+async function uploadAvatar(uid: string, file: File): Promise<string | null> {
+  if (!uid || !file) {
+    console.error("❌ UID o archivo no proporcionados para subir avatar.")
+    return null
+  }
+
+  try {
+    // Crea una referencia al lugar donde se guardará el avatar en Storage
+    // Por ejemplo: 'avatars/UID_del_usuario.jpg'
+    const avatarRef = ref(storage, `avatars/${uid}/${file.name}`)
+
+    // Sube el archivo
+    const snapshot = await uploadBytes(avatarRef, file)
+
+    // Obtiene la URL de descarga del archivo
+    const downloadURL = await getDownloadURL(avatarRef)
+    return downloadURL
+  } catch (error) {
+    console.error("❌ Error al subir el avatar:", error)
+    throw error
+  }
+}
+
+// ✅ Actualizar username, description y avatar de un usuario
 async function updateUserProfile(
   uid: string,
-  data: { username?: string; description?: string; avatarURL?: string }
+  data: { username?: string; description?: string; avatarFile?: File } // Cambiamos avatarURL por avatarFile
 ) {
   if (!uid) return
 
+  let avatarURL: string | undefined = undefined;
+  if (data.avatarFile) {
+    try {
+      const uploaded = await uploadAvatar(uid, data.avatarFile)
+      avatarURL = uploaded ?? undefined
+    } catch (error) {
+      console.error("❌ No se pudo subir el nuevo avatar, se procederá sin actualizarlo.", error);
+    }
+  }
+
   try {
     const userRef = doc(db, "users", uid)
-    await updateDoc(userRef, {
+    const updateData: { [key: string]: any } = {
       username: data.username,
       description: data.description,
-      avatarURL: data.avatarURL
-    })
+    };
 
-    console.log("✅ Usuario actualizado")
+    if (avatarURL !== undefined) {
+      updateData.photoURL = avatarURL;
+      updateData.avatarURL = avatarURL;
+    }
+
+    await updateDoc(userRef, updateData)
+
+    console.log("✅ Perfil de usuario actualizado en Firestore.")
 
     // Actualizar también en sessionStorage (opcional)
     const storedUser = sessionStorage.getItem("user")
@@ -174,9 +221,9 @@ async function updateUserProfile(
       const parsed = JSON.parse(storedUser)
       sessionStorage.setItem(
         "user",
-        JSON.stringify({ ...parsed, ...data })
+        JSON.stringify({ ...parsed, ...updateData })
       )
-      console.log("💾 Usuario actualizado")
+      console.log("💾 Usuario actualizado en sessionStorage.")
     }
   } catch (error) {
     console.error("❌ Error actualizando usuario:", error)
@@ -252,6 +299,7 @@ export {
   app,
   auth,
   db,
+  storage,
   logInWithGoogle,
   logOut,
   logInWithEmail,
