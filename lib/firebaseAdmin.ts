@@ -132,7 +132,6 @@ export const deletePostServer = async (postId: string) => {
     batch.delete(postRef); // Añade la eliminación del post al lote
 
     // 5. Eliminar la referencia del post en el campo 'userPosts' del documento del usuario
-    // Esto asume que 'userPosts' es un array de IDs de posts en el documento del usuario.
     const userRef = db.collection("users").doc(authorUID);
     batch.update(userRef, {
       userPosts: admin.firestore.FieldValue.arrayRemove(postId)

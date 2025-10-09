@@ -114,8 +114,11 @@ export default function ProfileAction({ profile, onUpdated }: ProfileActionProps
                                     </SheetHeader>
 
                                     <div className="grid flex-1 auto-rows-min gap-6 px-4 py-2 scroll-auto">
-                                        <Avatar className="size-20 mb-2 mx-auto">
-                                            <AvatarImage src={previewURL ?? profile?.avatarURL ?? ""} />
+                                        <Avatar className="size-20 mx-auto">
+                                            <AvatarImage
+                                                src={previewURL ?? profile?.avatarURL}
+                                                className="object-contain w-full h-full"
+                                            />
                                             <AvatarFallback>?</AvatarFallback>
                                         </Avatar>
 

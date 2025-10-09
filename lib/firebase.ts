@@ -163,7 +163,7 @@ async function uploadAvatar(uid: string, file: File): Promise<string | null> {
     const avatarRef = ref(storage, `avatars/${uid}/${file.name}`)
 
     // Sube el archivo
-    const snapshot = await uploadBytes(avatarRef, file)
+    await uploadBytes(avatarRef, file)
 
     // Obtiene la URL de descarga del archivo
     const downloadURL = await getDownloadURL(avatarRef)
@@ -193,11 +193,15 @@ async function updateUserProfile(
 
   try {
     const userRef = doc(db, "users", uid)
-    const updateData: { [key: string]: any } = {
-      username: data.username,
-      description: data.description,
-    };
+    const updateData: Partial<{
+      username: string;
+      description: string;
+      photoURL: string;
+      avatarURL: string;
+    }> = {};
 
+    if (data.username !== undefined) updateData.username = data.username;
+    if (data.description !== undefined) updateData.description = data.description;
     if (avatarURL !== undefined) {
       updateData.photoURL = avatarURL;
       updateData.avatarURL = avatarURL;
