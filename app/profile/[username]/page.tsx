@@ -4,7 +4,7 @@ import { useAuth } from "@/app/context/AuthContext"
 import { useEffect, useState, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { Post } from "@/types/post";
-import { getUserById, getPostsByUserIdPaginated } from "@/lib/firebase"
+import { getUserByUsername, getPostsByUserIdPaginated } from "@/lib/firebase"
 // APP components
 import ProfileAction from "@/components/profile-action-btn"
 import CreatePost from "@/components/create-post"
@@ -35,10 +35,11 @@ export default function ProfileView() {
 
     // Cargar perfil
     const fetchUser = useCallback(async () => {
-        if (!params?.userId) return
-        const data = await getUserById(params.userId as string)
+        if (!params?.username) return
+        const data = await getUserByUsername(params.username as string)
         setProfile(data)
-    }, [params?.userId])
+        console.log(profile)
+    }, [params?.username])
 
     useEffect(() => {
         fetchUser()
@@ -54,31 +55,35 @@ export default function ProfileView() {
     // Cargar los primeros 20 posts
     useEffect(() => {
         async function loadInitialPosts() {
+            if (!profile?.id) return
             setLoading(true)
             const { posts: fetchedPosts, lastVisible: cursor } =
-                await getPostsByUserIdPaginated(params.userId as string, 0, 20)
+                await getPostsByUserIdPaginated(profile.id, 0, 20)
 
             setPosts(fetchedPosts as Post[])
             setLastVisible(cursor)
             setHasMore(fetchedPosts.length === 20)
             setLoading(false)
         }
-        if (params?.userId) loadInitialPosts()
-    }, [params?.userId])
+
+        loadInitialPosts()
+    }, [profile?.id])
+
 
 
     const loadMorePosts = useCallback(async () => {
-        if (loadingMore || !hasMore || lastVisible === null) return
+        if (loadingMore || !hasMore || lastVisible === null || !profile?.id) return
         setLoadingMore(true)
 
         const { posts: morePosts, lastVisible: newCursor } =
-            await getPostsByUserIdPaginated(params.userId as string, lastVisible, 20)
+            await getPostsByUserIdPaginated(profile.id, lastVisible, 20)
 
         setPosts(prev => [...prev, ...(morePosts as Post[])])
         setLastVisible(newCursor)
         setHasMore(morePosts.length === 20)
         setLoadingMore(false)
-    }, [loadingMore, hasMore, lastVisible, params.userId])
+    }, [loadingMore, hasMore, lastVisible, profile?.id])
+
 
     // Detectar scroll al final
     useEffect(() => {
@@ -98,7 +103,7 @@ export default function ProfileView() {
     async function handleCreatedPost() {
         setLoading(true)
         const { posts: fetchedPosts, lastVisible: cursor } =
-            await getPostsByUserIdPaginated(params.userId as string, undefined, 20)
+            await getPostsByUserIdPaginated(params.username as string, undefined, 20)
 
         setPosts(fetchedPosts as Post[])
         setLastVisible(cursor)
@@ -208,8 +213,8 @@ export default function ProfileView() {
                             <p className="text-gray-400">
                                 {profile?.username
                                     ? profile.username
-                                    : "Mataroní/nesa"} 
-                                 no ha publicado.</p>
+                                    : "Mataroní/nesa"}
+                                no ha publicado.</p>
                         ) : (
                             // Ordena los posts por timestamp descendente antes de renderizar
                             [...posts]

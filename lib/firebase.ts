@@ -28,7 +28,8 @@ import {
   getDoc,
   updateDoc,
   runTransaction,
-  serverTimestamp
+  serverTimestamp,
+  collection, query, where, getDocs, limit
 } from "firebase/firestore"
 import {
   getStorage,
@@ -88,6 +89,22 @@ async function getAppCheckToken(forceRefresh = false) {
   }
 }
 
+function generateRandomUsername() {
+  const adjectives = ["brave", "calm", "clever", "swift", "quiet", "bright", "wild", "kind"]
+  const nouns = ["fox", "wolf", "hawk", "otter", "tiger", "owl", "bear", "lynx"]
+
+  const adj = adjectives[Math.floor(Math.random() * adjectives.length)]
+  const noun = nouns[Math.floor(Math.random() * nouns.length)]
+
+  // timestamp base36: corto, único y ordenable
+  const ts = Date.now().toString(36).slice(-5)
+
+  // un toque de aleatoriedad adicional
+  const rand = Math.floor(Math.random() * 1000).toString().padStart(3, "0")
+
+  return `${adj}_${noun}_${ts}${rand}`
+}
+
 // ✅ Crear usuario en Firestore solo si no existe (transacción)
 async function createUserIfNotExists(user: User) {
   if (!user) return
@@ -99,15 +116,18 @@ async function createUserIfNotExists(user: User) {
       const userDoc = await transaction.get(userRef)
 
       if (!userDoc.exists()) {
+        const randomUsername = generateRandomUsername()
+
         transaction.set(userRef, {
           uid: user.uid,
           email: user.email || null,
           displayName: user.displayName || null,
+          username: randomUsername, // 👈 aquí se guarda
           photoURL: user.photoURL || null,
           avatarURL: null,
           createdAt: serverTimestamp(),
         })
-        console.log("✅ Usuario creado")
+        console.log(`✅ Usuario creado con username: ${randomUsername}`)
       } else {
         console.log("ℹ️ Usuario ya existe")
       }
@@ -236,6 +256,30 @@ async function getUserById(uid: string) {
   }
 }
 
+// ✅ Obtener usuario por username
+async function getUserByUsername(username: string) {
+  if (!username) return null
+
+  try {
+    const usersRef = collection(db, "users")
+    const q = query(usersRef, where("username", "==", username), limit(1))
+    const querySnapshot = await getDocs(q)
+
+    if (!querySnapshot.empty) {
+      const docSnap = querySnapshot.docs[0]
+      return { id: docSnap.id, ...docSnap.data() }
+    } else {
+      console.log("ℹ️ Usuario no encontrado por username")
+      return null
+    }
+  } catch (error) {
+    console.error("❌ Error obteniendo usuario por username:", error)
+    throw error
+  }
+}
+
+
+
 // Nueva función para obtener publicaciones paginadas por ID de usuario
 // ✅ Obtener posts de un usuario con paginación real
 export async function getPostsByUserIdPaginated(
@@ -244,7 +288,6 @@ export async function getPostsByUserIdPaginated(
   pageSize = 20
 ): Promise<{ posts: Post[]; lastVisible: number | null }> {
   if (!userId) return { posts: [], lastVisible: null }
-
   try {
     // 1. Obtener el documento del usuario
     const userRef = doc(db, "users", userId)
@@ -292,5 +335,6 @@ export {
   getAppCheckToken,
   createUserIfNotExists,
   updateUserProfile,
-  getUserById
+  getUserById,
+  getUserByUsername
 }

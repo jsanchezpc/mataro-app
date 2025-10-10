@@ -106,7 +106,7 @@ export default function PostComponent({
             <AvatarFallback>?</AvatarFallback>
           </Avatar>
 
-          <Link className="hover:underline" href={`/profile/${uid}`}>
+          <Link className="hover:underline" href={`/profile/${authorName}`}>
             {authorName}
           </Link>
         </CardTitle>

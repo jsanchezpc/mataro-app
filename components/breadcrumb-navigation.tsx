@@ -17,22 +17,20 @@ export function BreadcrumbWithCustomSeparator() {
   const pathname = usePathname()
   const segments = pathname.split("/").filter(Boolean)
 
-  // Función para capitalizar la primera letra
   const capitalize = (str: string) =>
     str.charAt(0).toUpperCase() + str.slice(1)
 
-  const { user } = useAuth()
-  const userId = user?.uid
+  // Expresión regular: posibles UID (Firebase o similares)
+  const uidRegex = /^[A-Za-z0-9_-]{20,40}$/
 
-  // Quitamos el uid de los segments
+  // Filtramos cualquier segmento que parezca un ID
   const filteredSegments = segments.filter(
-    (segment) => segment !== userId
+    (segment) => !uidRegex.test(segment)
   )
 
   return (
     <Breadcrumb className="flex content-center">
       <BreadcrumbList>
-        {/* Caso especial: solo "/" → Inicio */}
         {filteredSegments.length === 0 && (
           <BreadcrumbItem>
             <BreadcrumbPage>Inicio</BreadcrumbPage>
