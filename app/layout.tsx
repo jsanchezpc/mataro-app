@@ -12,6 +12,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { ModeToggle } from "@/components/theme-mode-switch";
 import { BreadcrumbWithCustomSeparator } from "@/components/breadcrumb-navigation";
 import LoginButton from "@/components/login-button";
+import { NotificationButton } from "@/components/notification-button";
 
 
 const geistSans = Geist({
@@ -57,6 +58,7 @@ export default function RootLayout({
                       <BreadcrumbWithCustomSeparator />
                     </div>
                     <div className="flex">
+                      <NotificationButton />
                       <ModeToggle />
                       <LoginButton />
                     </div>

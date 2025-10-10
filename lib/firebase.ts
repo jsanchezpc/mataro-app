@@ -122,7 +122,7 @@ async function createUserIfNotExists(user: User) {
           uid: user.uid,
           email: user.email || null,
           displayName: user.displayName || null,
-          username: randomUsername, // 👈 aquí se guarda
+          username: randomUsername, 
           photoURL: user.photoURL || null,
           avatarURL: null,
           createdAt: serverTimestamp(),
