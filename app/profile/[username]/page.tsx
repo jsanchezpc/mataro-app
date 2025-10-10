@@ -38,7 +38,6 @@ export default function ProfileView() {
         if (!params?.username) return
         const data = await getUserByUsername(params.username as string)
         setProfile(data)
-        console.log(profile)
     }, [params?.username])
 
     useEffect(() => {
