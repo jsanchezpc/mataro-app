@@ -96,7 +96,7 @@ export default function ProfileAction({ profile, onUpdated }: ProfileActionProps
 
     return (
         <>
-            {user?.uid === params?.userId ? (
+            {profile?.username === params?.username ? (
                 <div>
                     <Sheet open={open} onOpenChange={setOpen}>
                         <SheetTrigger asChild>
