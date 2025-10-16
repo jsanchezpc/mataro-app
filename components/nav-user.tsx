@@ -79,7 +79,7 @@ export function NavUser() {
                                 ) : user?.displayName ? (
                                     <span className="truncate font-medium">{user.displayName}</span>
                                 ) : user ? (
-                                    <div>Mataroní</div>
+                                    <div>Mataroní/nesa</div>
                                 ) : (
                                     <Link className="hover:underline" href="/login">Entrar</Link>
                                 )}
@@ -117,7 +117,7 @@ export function NavUser() {
                             <DropdownMenuSeparator />
 
                             <DropdownMenuGroup>
-                                <Link href={`/profile/${user.uid}`}>
+                                <Link href={`/profile/${profile?.username}`}>
                                     <DropdownMenuItem>
                                         <User />
                                         Perfil
