@@ -1,8 +1,11 @@
-// app/api/[postId]/like/route.ts
 import { NextRequest, NextResponse } from "next/server"
 import * as admin from "firebase-admin"
+import { getUserByIdServer } from "@/lib/firebaseAdmin";
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ postId: string }> }) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ postId: string }> }
+) {
   const { postId } = await params;
   const authorizationHeader = req.headers.get("Authorization")
   if (!authorizationHeader?.startsWith("Bearer ")) {
@@ -14,14 +17,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pos
     const decoded = await admin.auth().verifyIdToken(idToken)
     const userId = decoded.uid
 
+    const db = admin.firestore()
+
     // check si ya existe un like
-    const likeRef = admin.firestore().collection("likes")
+    const likeRef = db.collection("likes")
     const existing = await likeRef.where("postId", "==", postId).where("userId", "==", userId).get()
 
     if (!existing.empty) {
       // quitar like
       await likeRef.doc(existing.docs[0].id).delete()
-      await admin.firestore().collection("posts").doc(postId).update({
+      await db.collection("posts").doc(postId).update({
         likes: admin.firestore.FieldValue.increment(-1),
         likedBy: admin.firestore.FieldValue.arrayRemove(userId),
       })
@@ -30,10 +35,32 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pos
 
     // dar like
     await likeRef.add({ postId, userId, createdAt: Date.now() })
-    await admin.firestore().collection("posts").doc(postId).update({
+    const postRef = db.collection("posts").doc(postId)
+    await postRef.update({
       likes: admin.firestore.FieldValue.increment(1),
       likedBy: admin.firestore.FieldValue.arrayUnion(userId),
     })
+
+    const fsUser = await getUserByIdServer(userId)
+
+    // 🚀 Crear notificación
+    const postSnap = await postRef.get()
+    const postData = postSnap.data()
+
+    const likeMessage = `${fsUser?.username} le dio like a tu post`
+
+    if (postData && postData.uid && postData.uid !== userId) {
+      await db.collection("notifications").add({
+        type: "like",
+        fromUserId: userId,
+        toUserId: postData.uid,
+        postId,
+        message: likeMessage,
+        createdAt: Date.now(),
+        read: false,
+      })
+    }
+
     return NextResponse.json({ message: "Like agregado" }, { status: 200 })
   } catch (err) {
     console.error("Error en like:", err)

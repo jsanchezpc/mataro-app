@@ -146,3 +146,12 @@ export const deletePostServer = async (postId: string) => {
     throw error;
   }
 };
+
+export async function getUserByIdServer(uid: string) {
+  if (!uid) return null
+  const db = admin.firestore()
+  const userRef = db.collection("users").doc(uid)
+  const userSnap = await userRef.get()
+  if (!userSnap.exists) return null
+  return { id: userSnap.id, ...(userSnap.data() as { username: string; avatarURL?: string }) }
+}
