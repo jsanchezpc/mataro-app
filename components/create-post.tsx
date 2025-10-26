@@ -85,7 +85,7 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     uid: user.uid,
-                    author: profile?.username ?? "Mataroní/nesa",
+                    author: profile?.username,
                     content: values.postContent,
                     isPrivate: false,
                 }),

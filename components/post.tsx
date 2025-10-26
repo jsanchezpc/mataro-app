@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Repeat2, ThumbsUp, MessageCircle } from "lucide-react";
+import { Repeat2, ThumbsUp } from "lucide-react";
+import CommentButton from "@/components/comment-button";
 import {
   Card,
   CardAction,
@@ -130,9 +131,7 @@ export default function PostComponent({
         ? "hidden"
         : "flex gap-4"
         }`}>
-        <Button variant="outline" className="cursor-pointer" disabled={isPreview}>
-          <MessageCircle />
-        </Button>
+        <CommentButton />
         <Button variant="outline" className="cursor-pointer" disabled={isPreview}>
           <Repeat2 />
         </Button>
