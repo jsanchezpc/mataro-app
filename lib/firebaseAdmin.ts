@@ -41,7 +41,9 @@ export async function getPostsByUserServer(userId: string): Promise<Post[]> {
         retweetsCount: data.retweetsCount ?? 0,
         timestamp: data.timestamp,
         rt: data.rt ?? 0,
-        comments: data.comments ?? []
+        comments: data.comments ?? [],
+        isChild: data.isChild ?? false,
+        father: data.father ?? [],
       });
     });
 
@@ -52,7 +54,7 @@ export async function getPostsByUserServer(userId: string): Promise<Post[]> {
   }
 }
 
-export async function createPostServer(uid: string, content: string, isPrivate: boolean) {
+export async function createPostServer(uid: string, content: string, isPrivate: boolean, isChild: boolean, father: string) {
   const newPost = {
     uid,
     isPrivate,
@@ -61,6 +63,8 @@ export async function createPostServer(uid: string, content: string, isPrivate: 
     likes: 0,
     comments: [],
     rt: 0,
+    isChild, 
+    father
   };
 
   const docRef = await db.collection("posts").add(newPost);
@@ -154,4 +158,11 @@ export async function getUserByIdServer(uid: string) {
   const userSnap = await userRef.get()
   if (!userSnap.exists) return null
   return { id: userSnap.id, ...(userSnap.data() as { username: string; avatarURL?: string }) }
+}
+
+export async function addCommentToPostServer(postId: string, commentId: string) {
+  const postRef = db.collection("posts").doc(postId)
+  await postRef.update({
+    comments: admin.firestore.FieldValue.arrayUnion(commentId),
+  })
 }

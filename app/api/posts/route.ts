@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { getAllPostsServer, createPostServer } from "@/lib/firebaseAdmin"
+import { getAllPostsServer, createPostServer, addCommentToPostServer } from "@/lib/firebaseAdmin"
 
 // GET /api/posts
 export async function GET() {
@@ -14,7 +14,6 @@ export async function GET() {
         { status: 500 }
       )
     }
-
     console.error("❌ Error desconocido en GET /api/posts:", error)
     return NextResponse.json(
       { error: "Error obteniendo posts", details: String(error) },
@@ -26,7 +25,7 @@ export async function GET() {
 // POST /api/posts
 export async function POST(req: Request) {
   try {
-    const { uid, content, isPrivate } = await req.json()
+    const { uid, content, isPrivate, isChild, father } = await req.json()
 
     if (!uid || !content) {
       return NextResponse.json(
@@ -35,7 +34,14 @@ export async function POST(req: Request) {
       )
     }
 
-    const newPost = await createPostServer(uid, content, isPrivate)
+    // Crear el post (comentario o post normal)
+    const newPost = await createPostServer(uid, content, isPrivate, isChild, father)
+
+    // Si es un comentario, agregarlo a la lista de comments del post padre
+    if (isChild && father) {
+      await addCommentToPostServer(father, newPost.id)
+    }
+
     return NextResponse.json(newPost, { status: 201 })
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -45,7 +51,6 @@ export async function POST(req: Request) {
         { status: 500 }
       )
     }
-
     console.error("❌ Error desconocido en POST /api/posts:", error)
     return NextResponse.json(
       { error: "Error creando post", details: String(error) },

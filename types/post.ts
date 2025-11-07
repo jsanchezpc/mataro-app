@@ -11,5 +11,7 @@ export type Post = {
   likedBy: string[]
   comments: { id: string; text: string; uid: string }[]
   commentsCount: number,
-  retweetsCount: number
+  retweetsCount: number,
+  isChild: boolean,
+  father: string
 }

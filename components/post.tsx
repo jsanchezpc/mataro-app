@@ -44,7 +44,6 @@ export default function PostComponent({
       if (isMounted && user) {
         setAuthorName((user as { username?: string }).username ?? "Mataroní/nesa");
         setProfilePic((user as { avatarURL?: string }).avatarURL ?? "");
-
       }
     });
     return () => {
@@ -52,6 +51,7 @@ export default function PostComponent({
     };
   }, [uid]);
 
+  // 🔹 Estado de like
   useEffect(() => {
     const auth = getAuth();
     const user = auth.currentUser;
@@ -60,6 +60,7 @@ export default function PostComponent({
     }
   }, [post.likedBy]);
 
+  // 🔹 Acción de like
   async function handleLike() {
     try {
       const auth = getAuth();
@@ -93,8 +94,8 @@ export default function PostComponent({
   return (
     <Card
       className={`${isPreview
-        ? "rounded-2xl"
-        : "rounded-none first:rounded-t-2xl last:rounded-b-2xl"
+          ? "rounded-2xl"
+          : "rounded-none first:rounded-t-2xl last:rounded-b-2xl"
         }`}
     >
       <CardHeader>
@@ -127,39 +128,38 @@ export default function PostComponent({
         <p>{content}</p>
       </CardContent>
 
-      <CardFooter className={`${isPreview
-        ? "hidden"
-        : "flex gap-4"
-        }`}>
-        <CommentButton />
+      <CardFooter
+        className={`${isPreview ? "hidden" : "flex gap-4"}`}
+      >
+        {/* 🔹 Ahora pasas los comentarios directamente */}
+        <CommentButton key={id} postId={id} comments={post.comments} />
+
         <Button variant="outline" className="cursor-pointer" disabled={isPreview}>
           <Repeat2 />
         </Button>
+
         <Button
           variant={liked ? "default" : "outline"}
           className={`${liked
-            ? "cursor-pointer flex items-center gap-2 bg-blue-500/10 hover:bg-blue-500/20"
-            : "cursor-pointer"
+              ? "cursor-pointer flex items-center gap-2 bg-blue-500/10 hover:bg-blue-500/20"
+              : "cursor-pointer"
             }`}
           disabled={isPreview}
           onClick={handleLike}
         >
           <ThumbsUp
             className={`h-4 w-4 ${liked
-              ? "text-blue-500 dark:text-white"
-              : "text-foreground dark:text-white"
+                ? "text-blue-500 dark:text-white"
+                : "text-foreground dark:text-white"
               }`}
           />
           <span
-            className={`${liked
-              ? "dark:text-white text-accent-foreground"
-              : ""
+            className={`${liked ? "dark:text-white text-accent-foreground" : ""
               }`}
           >
             {likes}
           </span>
         </Button>
-
       </CardFooter>
     </Card>
   );

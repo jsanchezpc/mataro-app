@@ -29,7 +29,8 @@ import {
   updateDoc,
   runTransaction,
   serverTimestamp,
-  collection, query, where, getDocs, limit
+  collection, query, where, getDocs, limit,
+  orderBy
 } from "firebase/firestore"
 import {
   getStorage,
@@ -38,6 +39,7 @@ import {
   getDownloadURL,
 } from "firebase/storage"
 import { Post } from "@/types/post"
+import { PostComment } from "@/types/comment"
 
 // Configuración desde .env.local
 const firebaseConfig = {
@@ -122,7 +124,7 @@ async function createUserIfNotExists(user: User) {
           uid: user.uid,
           email: user.email || null,
           displayName: user.displayName || null,
-          username: randomUsername, 
+          username: randomUsername,
           photoURL: user.photoURL || null,
           avatarURL: null,
           createdAt: serverTimestamp(),
@@ -323,6 +325,32 @@ export async function getPostsByUserIdPaginated(
 }
 
 
+async function getCommentsByPostId(postId: string): Promise<Post[]> {
+  try {
+    const postsRef = collection(db, "posts");
+    const q = query(
+      postsRef,
+      where("father", "==", postId),
+      where("isChild", "==", true),
+      orderBy("createdAt", "desc")
+    );
+
+    const querySnapshot = await getDocs(q);
+
+    const comments: Post[] = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Post[];
+    console.log(comments)
+    return comments;
+  } catch (error) {
+    console.error("Error al obtener comentarios:", error);
+    return [];
+  }
+}
+
+
+
 export {
   app,
   auth,
@@ -336,5 +364,6 @@ export {
   createUserIfNotExists,
   updateUserProfile,
   getUserById,
-  getUserByUsername
+  getUserByUsername,
+  getCommentsByPostId
 }

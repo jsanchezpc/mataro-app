@@ -88,6 +88,8 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
                     author: profile?.username,
                     content: values.postContent,
                     isPrivate: false,
+                    isChild: false,
+                    father: "none"
                 }),
             })
 
@@ -118,6 +120,8 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
         comments: [],
         commentsCount: 0,
         retweetsCount: 0,
+        isChild: false,
+        father: []
     }
 
 
