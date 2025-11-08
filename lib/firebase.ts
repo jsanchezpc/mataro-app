@@ -22,7 +22,6 @@ import {
   AppCheck,
 } from "firebase/app-check"
 import {
-
   getFirestore,
   doc,
   getDoc,

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { useNotifications } from "@/hooks/use-notifications"
+import Link from "next/link"
 
 export function NotificationButton() {
     const { notifications, markAsRead } = useNotifications()
@@ -56,6 +57,7 @@ export function NotificationButton() {
 
                 {notifications.map(n => (
                     <DropdownMenuItem key={n.id} className="cursor-default w-full">
+                        <Link href={`/post/${n.postId}`} className="w-full">
                         <Alert className="p-3">
                             {getIcon(n.type)}
                             <div className="w-full">
@@ -72,7 +74,7 @@ export function NotificationButton() {
                                     {n.message}
                                 </AlertDescription>
                             </div>
-                        </Alert>
+                        </Alert></Link>
                     </DropdownMenuItem>
                 ))}
             </DropdownMenuContent>
