@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react";
 import { MessageCircle } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
-import { getUserById } from "@/lib/firebase";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
+import { getCommentsByPostId } from "@/lib/firebase";
 
 import {
     Sheet,
@@ -39,18 +39,66 @@ const formSchema = z.object({
 
 interface CommentButtonProps {
     postId: string;
-    comments?: Post[];  // Using Post type directly for comments
+    comments?: string[];
 }
 
 export default function CommentButton({ postId, comments }: CommentButtonProps) {
     const { user } = useAuth();
     const isMobile = useIsMobile();
     const [open, setOpen] = useState(false);
-    const [commentList, setCommentList] = useState<Post[]>(comments ?? []);
+    const [commentList, setCommentList] = useState<Post[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: { commentContent: "" },
     });
+
+    // Cargar comentarios cuando se abre el Sheet
+    useEffect(() => {
+        let mounted = true;
+
+        async function loadComments() {
+            if (!open) return;
+
+
+            // Intentar obtener de sessionStorage primero
+            const cached = sessionStorage.getItem(`comments_${postId}`);
+            if (cached) {
+                const parsedComments = JSON.parse(cached);
+                setCommentList(parsedComments.data);
+            }
+
+            // Si no hay cache o expiró, cargar de Firebase
+            setIsLoading(true);
+            try {
+                console.log("cargando posts...")
+                const loadedComments = await getCommentsByPostId(postId);
+                console.log("posts cargados: ", loadedComments)
+                if (mounted) {
+                    setCommentList(loadedComments);
+
+                    // Guardar en sessionStorage
+                    const cacheData = {
+                        timestamp: Date.now(),
+                        data: loadedComments,
+                    };
+                    sessionStorage.setItem(`comments_${postId}`, JSON.stringify(cacheData));
+                }
+            } catch (error) {
+                console.error("Error cargando comentarios:", error);
+                toast.error("Error cargando comentarios");
+            } finally {
+                if (mounted) setIsLoading(false);
+            }
+        }
+
+        loadComments();
+
+        return () => {
+            mounted = false;
+        };
+    }, [open, postId, comments]);
 
     // 🔹 Enviar nuevo comentario (como post hijo)
     async function postComment(values: z.infer<typeof formSchema>) {
@@ -80,10 +128,10 @@ export default function CommentButton({ postId, comments }: CommentButtonProps) 
             });
 
             if (!res.ok) throw new Error("Error al crear comentario");
-            
+
             const createdComment = await res.json();
-            setCommentList(prev => [...prev, createdComment]);
-            
+            setCommentList((prev) => [...prev, createdComment]);
+
             form.reset();
             toast("✅ Comentario enviado");
         } catch (err) {
@@ -97,25 +145,48 @@ export default function CommentButton({ postId, comments }: CommentButtonProps) 
             <SheetTrigger asChild>
                 <Button variant="outline" className="cursor-pointer">
                     <MessageCircle />
-                    <span>{commentList.length}</span>
+                    <span>{commentList.length || comments?.length || 0}</span>
                 </Button>
             </SheetTrigger>
 
             <SheetContent side={isMobile ? "bottom" : "right"} className="flex flex-col">
                 <SheetHeader>
-                    <SheetTitle>Comentarios ({commentList.length})</SheetTitle>
+                    <SheetTitle>
+                        Comentarios ({commentList.length || comments?.length || 0})
+                        {isLoading && " - Cargando..."}
+                    </SheetTitle>
                 </SheetHeader>
 
-                <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2">
-                    {commentList.length === 0 && (
+                <div className="flex-2 overflow-y-auto px-4 py-2 space-y-2">
+                    {isLoading ? (
+                        <p className="text-sm text-muted-foreground">Cargando comentarios...</p>
+                    ) : commentList.length === 0 ? (
                         <p className="text-sm text-muted-foreground">No hay comentarios aún</p>
+                    ) : (
+                        commentList.map((comment) => (
+                            <PostComponent
+                                key={comment.id}
+                                post={{
+                                    ...comment,
+                                    id: comment.id,
+                                    content: comment.content,
+                                }}
+                                isPreview={false}
+                                onDeleted={(deletedId) => {
+                                    setCommentList((prev) => {
+                                        const filtered = prev.filter((p) => p.id !== deletedId);
+                                        // Actualizar cache
+                                        const cacheData = {
+                                            timestamp: Date.now(),
+                                            data: filtered,
+                                        };
+                                        sessionStorage.setItem(`comments_${postId}`, JSON.stringify(cacheData));
+                                        return filtered;
+                                    });
+                                }}
+                            />
+                        ))
                     )}
-                    {commentList.map((comment) => (
-                        <PostComponent 
-                            key={comment.id} 
-                            post={comment}
-                        />
-                    ))}
                 </div>
 
                 <Form {...form}>

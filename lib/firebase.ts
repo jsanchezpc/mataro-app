@@ -324,29 +324,52 @@ export async function getPostsByUserIdPaginated(
 }
 
 
+// async function getCommentsByPostId(postId: string): Promise<Post[]> {
+//   try {
+//     const postsRef = collection(db, "posts");
+//     const q = query(
+//       postsRef,
+//       where("father", "==", postId),
+//       where("isChild", "==", true),
+//       orderBy("createdAt", "desc")
+//     );
+
+//     const querySnapshot = await getDocs(q);
+
+//     const comments: Post[] = querySnapshot.docs.map((doc) => ({
+//       id: doc.id,
+//       ...doc.data(),
+//     })) as Post[];
+//     console.log(comments)
+//     return comments;
+//   } catch (error) {
+//     console.error("Error al obtener comentarios:", error);
+//     return [];
+//   }
+// }
+
+
 async function getCommentsByPostId(postId: string): Promise<Post[]> {
   try {
     const postsRef = collection(db, "posts");
     const q = query(
       postsRef,
-      where("father", "==", postId),
       where("isChild", "==", true),
-      orderBy("createdAt", "desc")
+      where("father", "==", postId),
+      orderBy("timestamp", "desc")
     );
 
     const querySnapshot = await getDocs(q);
-
-    const comments: Post[] = querySnapshot.docs.map((doc) => ({
+    return querySnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     })) as Post[];
-    console.log(comments)
-    return comments;
   } catch (error) {
     console.error("Error al obtener comentarios:", error);
     return [];
   }
 }
+
 
 
 
