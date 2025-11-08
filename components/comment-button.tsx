@@ -157,7 +157,7 @@ export default function CommentButton({ postId, comments }: CommentButtonProps) 
                     </SheetTitle>
                 </SheetHeader>
 
-                <div className="flex-2 overflow-y-auto px-4 py-2 space-y-2">
+                <div className="flex-2 overflow-y-auto py-2">
                     {isLoading ? (
                         <p className="text-sm text-muted-foreground">Cargando comentarios...</p>
                     ) : commentList.length === 0 ? (
