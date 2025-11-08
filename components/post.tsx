@@ -94,11 +94,14 @@ export default function PostComponent({
   return (
     <Card
       className={`${isPreview
-          ? "rounded-2xl"
-          : "rounded-none first:rounded-t-2xl last:rounded-b-2xl"
+        ? "rounded-2xl"
+        : "rounded-none first:rounded-t-2xl last:rounded-b-2xl"
         }`}
     >
       <CardHeader>
+        {post.father !== "none" && !isPreview && (
+          <p className="bg-accent/80 w-fit px-2">En respuesta a <Link className="text-blue-400/80" href={`/post/${post.father}`}>este post</Link></p>
+        )}
         <CardTitle className="flex flex-row items-center gap-2">
           <Avatar className="size-8">
             <AvatarImage
@@ -141,16 +144,16 @@ export default function PostComponent({
         <Button
           variant={liked ? "default" : "outline"}
           className={`${liked
-              ? "cursor-pointer flex items-center gap-2 bg-blue-500/10 hover:bg-blue-500/20"
-              : "cursor-pointer"
+            ? "cursor-pointer flex items-center gap-2 bg-blue-500/10 hover:bg-blue-500/20"
+            : "cursor-pointer"
             }`}
           disabled={isPreview}
           onClick={handleLike}
         >
           <ThumbsUp
             className={`h-4 w-4 ${liked
-                ? "text-blue-500 dark:text-white"
-                : "text-foreground dark:text-white"
+              ? "text-blue-500 dark:text-white"
+              : "text-foreground dark:text-white"
               }`}
           />
           <span
