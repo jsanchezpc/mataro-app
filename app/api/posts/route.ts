@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
-import { getAllPostsServer, createPostServer, addCommentToPostServer } from "@/lib/firebaseAdmin"
+import * as admin from "firebase-admin"
+import { getAllPostsServer, createPostServer, addCommentToPostServer, getUserByIdServer } from "@/lib/firebaseAdmin"
 
 // GET /api/posts
 export async function GET() {
@@ -37,9 +38,30 @@ export async function POST(req: Request) {
     // Crear el post (comentario o post normal)
     const newPost = await createPostServer(uid, content, isPrivate, isChild, father)
 
+    const db = admin.firestore()
+
     // Si es un comentario, agregarlo a la lista de comments del post padre
     if (isChild && father) {
       await addCommentToPostServer(father, newPost.id)
+
+      // 🚀 Crear notificación "tal ha comentado tu post"
+      const fatherPostRef = db.collection("posts").doc(father)
+      const fatherPostSnap = await fatherPostRef.get()
+      const fatherPostData = fatherPostSnap.data()
+
+      if (fatherPostData && fatherPostData.uid && fatherPostData.uid !== uid) {
+        const user = await getUserByIdServer(uid)
+        const message = `${user?.username} ha comentado tu post`
+        await db.collection("notifications").add({
+          type: "comment",
+          fromUserId: uid,
+          toUserId: fatherPostData.uid,
+          postId: father,
+          message,
+          createdAt: Date.now(),
+          read: false,
+        })
+      }
     }
 
     return NextResponse.json(newPost, { status: 201 })
