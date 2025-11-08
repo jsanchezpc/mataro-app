@@ -9,7 +9,7 @@ export type Post = {
   rt: number
   likes: number
   likedBy: string[]
-  comments: { id: string; text: string; uid: string }[]
+  comments: string[]
   commentsCount: number,
   retweetsCount: number,
   isChild: boolean,

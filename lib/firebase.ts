@@ -39,7 +39,6 @@ import {
   getDownloadURL,
 } from "firebase/storage"
 import { Post } from "@/types/post"
-import { PostComment } from "@/types/comment"
 
 // Configuración desde .env.local
 const firebaseConfig = {
