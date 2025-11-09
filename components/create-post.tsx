@@ -114,14 +114,14 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
         content: form.watch("postContent"),
         timestamp: Date.now(),
         isPrivate: false,
-        rt: 0,
+        shares: 0,
+        sharedBy: [],
         likes: 0,
         likedBy: [],
         comments: [],
         commentsCount: 0,
-        retweetsCount: 0,
         isChild: false,
-        father: []
+        father: "none"
     }
 
 

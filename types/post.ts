@@ -6,12 +6,12 @@ export type Post = {
   content: string
   timestamp: number,
   isPrivate: boolean,
-  rt: number
+  shares: number,
+  sharedBy: string[],
   likes: number
   likedBy: string[]
   comments: string[]
   commentsCount: number,
-  retweetsCount: number,
   isChild: boolean,
   father: string
 }

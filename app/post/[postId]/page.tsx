@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
+import { redirect, useParams } from "next/navigation"
 import { Toaster } from "@/components/ui/sonner"
 import PostComponent from "@/components/post"
 import { Post } from "@/types/post"
@@ -45,8 +45,7 @@ export default function PostView() {
                             post={post}
                             isPreview={false}
                             onDeleted={() => {
-                                // Opcional: podrías redirigir a la página principal después de eliminar
-                                window.location.href = "/"
+                                redirect("/")
                             }}
                         />
                     )}

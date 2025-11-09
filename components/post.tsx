@@ -138,7 +138,7 @@ export default function PostComponent({
         <CommentButton key={id} postId={id} comments={post.comments} />
 
         <Button variant="outline" className="cursor-pointer" disabled={isPreview}>
-          <Repeat2 />
+          <Repeat2  />
         </Button>
 
         <Button
