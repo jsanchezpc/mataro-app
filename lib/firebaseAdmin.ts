@@ -156,7 +156,6 @@ export const deletePostServer = async (postId: string) => {
 
 export async function getUserByIdServer(uid: string) {
   if (!uid) return null
-  const db = admin.firestore()
   const userRef = db.collection("users").doc(uid)
   const userSnap = await userRef.get()
   if (!userSnap.exists) return null
