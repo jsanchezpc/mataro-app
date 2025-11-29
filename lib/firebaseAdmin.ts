@@ -38,9 +38,7 @@ export async function getPostsByUserServer(userId: string): Promise<Post[]> {
         likedBy: data.likedBy ?? [],
         isPrivate: data.isPrivate ?? false,
         commentsCount: data.commentsCount ?? 0,
-        retweetsCount: data.retweetsCount ?? 0,
         timestamp: data.timestamp,
-        rt: data.rt ?? 0,
         comments: data.comments ?? [],
         isChild: data.isChild ?? false,
         father: data.father ?? [],
@@ -62,7 +60,6 @@ export async function createPostServer(uid: string, content: string, isPrivate: 
     timestamp: admin.firestore.FieldValue.serverTimestamp(),
     likes: 0,
     comments: [],
-    rt: 0,
     isChild, 
     father
   };

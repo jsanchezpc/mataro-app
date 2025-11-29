@@ -19,24 +19,58 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 
 import { getAuth } from "firebase/auth";
-import { getUserById } from "@/lib/firebase";
+import { getUserById, getPostById } from "@/lib/firebase";
 
 type PostComponentProps = {
   post: Post;
   isPreview?: boolean;
   onDeleted?: (id: string) => void;
+  isEmbedded?: boolean;
 };
 
 export default function PostComponent({
   post,
   isPreview,
   onDeleted,
+  isEmbedded = false,
 }: PostComponentProps) {
   const { id, uid, content } = post;
   const [likes, setLikes] = useState<number>(post.likes ?? 0);
   const [liked, setLiked] = useState<boolean>(false);
   const [authorName, setAuthorName] = useState<string>("Mataroní/nesa");
   const [profilePic, setProfilePic] = useState<string>("");
+
+  const [parentPost, setParentPost] = useState<Post | null>(null);
+  const [showParent, setShowParent] = useState<boolean>(false);
+  const [loadingParent, setLoadingParent] = useState<boolean>(false);
+
+  const handleShowParent = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (showParent) {
+      setShowParent(false);
+      return;
+    }
+    
+    // Si ya lo tenemos, solo mostramos
+    if (parentPost) {
+      setShowParent(true);
+      return;
+    }
+
+    // Si no, cargamos
+    setLoadingParent(true);
+    setShowParent(true); // Mostrar contenedor de carga
+    try {
+      const fetched = await getPostById(post.father);
+      if (fetched) {
+        setParentPost(fetched);
+      }
+    } catch (error) {
+      console.error("Error cargando post padre:", error);
+    } finally {
+      setLoadingParent(false);
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -100,7 +134,39 @@ export default function PostComponent({
     >
       <CardHeader>
         {post.father !== "none" && !isPreview && (
-          <p className="bg-accent/80 w-fit px-2">En respuesta a <Link className="text-blue-400/80" href={`/post/${post.father}`}>este post</Link></p>
+          <div className="flex flex-col gap-2 w-full mb-2">
+            <p className="bg-accent/80 w-fit px-2 text-sm rounded-md">
+              En respuesta a{" "}
+              {isEmbedded ? (
+                <Link className="text-blue-400/80 hover:underline" href={`/post/${post.father}`}>
+                  este post
+                </Link>
+              ) : (
+                <button
+                  className="text-blue-400/80 hover:underline cursor-pointer"
+                  onClick={handleShowParent}
+                >
+                  este post
+                </button>
+              )}
+            </p>
+
+            {!isEmbedded && showParent && (
+              <div className="pl-4 border-l-2 border-accent/50 my-2">
+                {loadingParent ? (
+                  <div className="text-sm text-muted-foreground animate-pulse">
+                    Cargando post original...
+                  </div>
+                ) : parentPost ? (
+                  <PostComponent post={parentPost} isPreview={false} isEmbedded={true} />
+                ) : (
+                  <div className="text-sm text-red-400">
+                    No se pudo cargar el post original (quizás fue eliminado).
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         )}
         <CardTitle className="flex flex-row items-center gap-2">
           <Avatar className="size-8">
@@ -136,10 +202,10 @@ export default function PostComponent({
       >
         {/* 🔹 Ahora pasas los comentarios directamente */}
         <CommentButton key={id} postId={id} comments={post.comments} />
-
+{/* 
         <Button variant="outline" className="cursor-pointer" disabled={isPreview}>
           <Repeat2  />
-        </Button>
+        </Button> */}
 
         <Button
           variant={liked ? "default" : "outline"}

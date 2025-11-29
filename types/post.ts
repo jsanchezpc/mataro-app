@@ -6,8 +6,6 @@ export type Post = {
   content: string
   timestamp: number,
   isPrivate: boolean,
-  shares: number,
-  sharedBy: string[],
   likes: number
   likedBy: string[]
   comments: string[]

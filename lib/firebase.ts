@@ -370,6 +370,24 @@ async function getCommentsByPostId(postId: string): Promise<Post[]> {
 }
 
 
+// ✅ Obtener un post por ID
+async function getPostById(postId: string): Promise<Post | null> {
+  if (!postId) return null;
+  try {
+    const postRef = doc(db, "posts", postId);
+    const postSnap = await getDoc(postRef);
+    if (postSnap.exists()) {
+      return { id: postSnap.id, ...postSnap.data() } as Post;
+    } else {
+      console.log("ℹ️ Post no encontrado");
+      return null;
+    }
+  } catch (error) {
+    console.error("❌ Error obteniendo post:", error);
+    return null;
+  }
+}
+
 
 
 export {
@@ -386,5 +404,6 @@ export {
   updateUserProfile,
   getUserById,
   getUserByUsername,
-  getCommentsByPostId
+  getCommentsByPostId,
+  getPostById
 }
