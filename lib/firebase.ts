@@ -54,7 +54,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const provider = new GoogleAuthProvider()
-const db = getFirestore(app)
+const dbId = process.env.NEXT_PUBLIC_ENV === "production" ? "production" : (process.env.NEXT_PUBLIC_ENV === "dev" ? "dev1" : "(default)");
+const db = getFirestore(app, dbId)
 const storage = getStorage(app)
 
 // Guardar instancia de AppCheck
