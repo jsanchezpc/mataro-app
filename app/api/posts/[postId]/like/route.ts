@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import * as admin from "firebase-admin"
-import { getUserByIdServer } from "@/lib/firebaseAdmin";
+import { getUserByIdServer, db } from "@/lib/firebaseAdmin";
 
 export async function POST(
   req: NextRequest,
@@ -16,8 +16,6 @@ export async function POST(
     const idToken = authorizationHeader.split("Bearer ")[1]
     const decoded = await admin.auth().verifyIdToken(idToken)
     const userId = decoded.uid
-
-    const db = admin.firestore()
 
     // check si ya existe un like
     const likeRef = db.collection("likes")

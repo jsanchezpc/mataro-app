@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
-import * as admin from "firebase-admin"
-import { getAllPostsServer, createPostServer, addCommentToPostServer, getUserByIdServer } from "@/lib/firebaseAdmin"
+// import * as admin from "firebase-admin"
+import { getAllPostsServer, createPostServer, addCommentToPostServer, getUserByIdServer, db } from "@/lib/firebaseAdmin"
 
 // GET /api/posts
 export async function GET() {
@@ -37,8 +37,6 @@ export async function POST(req: Request) {
 
     // Crear el post (comentario o post normal)
     const newPost = await createPostServer(uid, content, isPrivate, isChild, father)
-
-    const db = admin.firestore()
 
     // Si es un comentario, agregarlo a la lista de comments del post padre
     if (isChild && father) {

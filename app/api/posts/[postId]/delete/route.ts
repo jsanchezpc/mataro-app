@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
-import { deletePostServer } from "@/lib/firebaseAdmin"
+import { deletePostServer, db } from "@/lib/firebaseAdmin"
 import * as admin from "firebase-admin"
 
 // DELETE /api/posts/[postId]
 export async function DELETE(
   req: NextRequest,
   context: { params: Promise<{ postId: string }> }
-): Promise<NextResponse<{ error: string }> | NextResponse<{ message: string }>> {
+) {
   const { postId } = await context.params
 
   if (!postId) {
@@ -28,8 +28,6 @@ export async function DELETE(
   } else {
     return NextResponse.json({ error: "Token de autenticación requerido" }, { status: 401 })
   }
-
-  const db = admin.firestore() // Get a reference to your Firestore database
 
   try {
     const postRef = db.collection("posts").doc(postId)
