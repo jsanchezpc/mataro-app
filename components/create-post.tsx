@@ -114,8 +114,6 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
         content: form.watch("postContent"),
         timestamp: Date.now(),
         isPrivate: false,
-        shares: 0,
-        sharedBy: [],
         likes: 0,
         likedBy: [],
         comments: [],

@@ -7,7 +7,6 @@ describe("Home con mock API", () => {
         content: "Post de prueba",
         uid: "abc123",
         timestamp: Date.now(),
-        rt: 0,
         likes: 0,
         comments: [],
       },
@@ -30,7 +29,6 @@ describe("Crear post (con sheet modal)", () => {
       author: "Tester",
       content: "Post de prueba",
       timestamp: Date.now(),
-      rt: 0,
       likes: 0,
       comments: [],
     }

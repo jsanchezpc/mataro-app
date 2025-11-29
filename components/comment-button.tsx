@@ -116,8 +116,6 @@ export default function CommentButton({ postId, comments }: CommentButtonProps) 
                 isChild: true,
                 father: postId,
                 likes: 0,
-                shares: 0,
-                sharedBy: [],
                 likedBy: [],
                 comments: [],
             };
