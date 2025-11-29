@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Repeat2, ThumbsUp } from "lucide-react";
+import { ThumbsUp } from "lucide-react";
 import CommentButton from "@/components/comment-button";
 import {
   Card,
