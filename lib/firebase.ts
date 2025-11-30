@@ -38,6 +38,7 @@ import {
   getDownloadURL,
 } from "firebase/storage"
 import { Post } from "@/types/post"
+import { getDbId } from "@/lib/db"
 
 // Configuración desde .env.local
 const firebaseConfig = {
@@ -54,7 +55,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const provider = new GoogleAuthProvider()
-const dbId = process.env.NEXT_PUBLIC_ENV === "production" ? "production" : (process.env.NEXT_PUBLIC_ENV === "dev" ? "dev1" : "(default)");
+const dbId = getDbId()
 const db = getFirestore(app, dbId)
 const storage = getStorage(app)
 

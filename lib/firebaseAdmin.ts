@@ -2,6 +2,7 @@
 import * as admin from "firebase-admin";
 import { getFirestore } from "firebase-admin/firestore";
 import { Post } from "@/types/post";
+import { getDbId } from "@/lib/db";
 
 let app;
 
@@ -17,7 +18,7 @@ if (!admin.apps.length) {
   app = admin.app();
 }
 
-const dbId = process.env.NEXT_PUBLIC_ENV === "production" ? "production" : (process.env.NEXT_PUBLIC_ENV === "dev" ? "dev1" : "(default)");
+const dbId = getDbId();
 export const db = getFirestore(app, dbId);
 
 export async function getAllPostsServer() {
