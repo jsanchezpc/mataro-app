@@ -37,6 +37,7 @@ import {
   uploadBytes,
   getDownloadURL,
 } from "firebase/storage"
+import { getAnalytics } from "firebase/analytics";
 import { Post } from "@/types/post"
 import { getDbId } from "@/lib/db"
 
@@ -53,6 +54,7 @@ const firebaseConfig = {
 
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig)
+const analytics = getAnalytics(app);
 const auth = getAuth(app)
 const provider = new GoogleAuthProvider()
 const dbId = getDbId()

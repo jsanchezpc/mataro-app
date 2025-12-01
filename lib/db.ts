@@ -3,5 +3,5 @@ export function getDbId(): string {
   if (env === "production") {
     return "production";
   }
-  return "dev1";
+  return "(default)";
 }
