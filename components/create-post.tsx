@@ -101,7 +101,7 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
             form.reset()
             setOpen(false)
             onCreated?.()
-        } catch (error) {
+        } catch {
             toast("Error al crear el post", { description: "Intenta de nuevo más tarde" })
         }
     }

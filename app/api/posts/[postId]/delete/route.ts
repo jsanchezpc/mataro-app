@@ -21,7 +21,7 @@ export async function DELETE(
     try {
       const decodedToken = await admin.auth().verifyIdToken(idToken)
       authenticatedUserUid = decodedToken.uid
-    } catch (error) {
+    } catch {
       return NextResponse.json({ error: "No autenticado o token inválido" }, { status: 401 })
     }
   } else {

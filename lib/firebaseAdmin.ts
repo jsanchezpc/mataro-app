@@ -53,7 +53,7 @@ export async function getPostsByUserServer(userId: string): Promise<Post[]> {
     });
 
     return posts;
-  } catch (err) {
+  } catch {
     return [];
   }
 }

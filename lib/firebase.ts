@@ -37,7 +37,7 @@ import {
   uploadBytes,
   getDownloadURL,
 } from "firebase/storage"
-import { getAnalytics } from "firebase/analytics";
+import { getAnalytics, isSupported } from "firebase/analytics";
 import { Post } from "@/types/post"
 import { getDbId } from "@/lib/db"
 
@@ -54,7 +54,14 @@ const firebaseConfig = {
 
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig)
-const analytics = getAnalytics(app);
+let analytics;
+if (typeof window !== "undefined") {
+  isSupported().then((supported) => {
+    if (supported) {
+      analytics = getAnalytics(app);
+    }
+  });
+}
 const auth = getAuth(app)
 const provider = new GoogleAuthProvider()
 const dbId = getDbId()
@@ -87,7 +94,7 @@ async function getAppCheckToken(forceRefresh = false) {
   try {
     const token = await getToken(appCheck, forceRefresh)
     return token.token
-  } catch (error) {
+  } catch {
     return null
   }
 }
@@ -134,7 +141,7 @@ async function createUserIfNotExists(user: User) {
       }
     })
 
-  } catch (error) {
+  } catch {
   }
 }
 
@@ -203,7 +210,7 @@ async function updateUserProfile(
     try {
       const uploaded = await uploadAvatar(uid, data.avatarFile)
       avatarURL = uploaded ?? undefined
-    } catch (error) {
+    } catch {
     }
   }
 
@@ -305,7 +312,7 @@ export async function getPostsByUserIdPaginated(
     const newLastVisible = end < userPosts.length ? end : null
 
     return { posts, lastVisible: newLastVisible }
-  } catch (error) {
+  } catch {
     return { posts: [], lastVisible: null }
   }
 }
@@ -349,7 +356,7 @@ async function getCommentsByPostId(postId: string): Promise<Post[]> {
       id: doc.id,
       ...doc.data(),
     })) as Post[];
-  } catch (error) {
+  } catch {
     return [];
   }
 }
@@ -366,7 +373,7 @@ async function getPostById(postId: string): Promise<Post | null> {
     } else {
       return null;
     }
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -388,5 +395,6 @@ export {
   getUserById,
   getUserByUsername,
   getCommentsByPostId,
-  getPostById
+  getPostById,
+  analytics
 }

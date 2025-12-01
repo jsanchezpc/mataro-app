@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
 
     const posts = await getPostsByUserServer(userId)
     return NextResponse.json(posts)
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 })
   }
 }

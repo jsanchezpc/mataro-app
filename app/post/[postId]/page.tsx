@@ -18,7 +18,7 @@ export default function PostView() {
             try {
                 const fetchedPost = await fetchPost(postId as string)
                 setPost(fetchedPost)
-            } catch (error) {
+            } catch {
             } finally {
                 setLoading(false)
             }

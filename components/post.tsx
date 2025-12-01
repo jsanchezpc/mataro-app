@@ -65,7 +65,7 @@ export default function PostComponent({
       if (fetched) {
         setParentPost(fetched);
       }
-    } catch (error) {
+    } catch {
     } finally {
       setLoadingParent(false);
     }
@@ -117,7 +117,7 @@ export default function PostComponent({
         setLiked(!newLiked);
         setLikes((prev) => prev + (newLiked ? -1 : 1));
       }
-    } catch (err) {
+    } catch {
       setLiked((prev) => !prev);
       setLikes((prev) => prev + (liked ? -1 : 1));
     }

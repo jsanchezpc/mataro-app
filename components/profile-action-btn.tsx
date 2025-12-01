@@ -77,7 +77,7 @@ export default function ProfileAction({ profile, onUpdated }: ProfileActionProps
             toast("Perfil actualizado")
             setOpen(false)
             onUpdated?.()
-        } catch (err) {
+        } catch {
             toast.error("Error al actualizar el perfil")
         }
     }

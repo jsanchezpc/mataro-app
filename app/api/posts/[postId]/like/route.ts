@@ -60,7 +60,7 @@ export async function POST(
     }
 
     return NextResponse.json({ message: "Like agregado" }, { status: 200 })
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: "Error procesando like" }, { status: 500 })
   }
 }

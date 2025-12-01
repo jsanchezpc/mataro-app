@@ -11,7 +11,7 @@ export async function fetchPosts(): Promise<Post[]> {
     const res = await fetch("/api/posts");
     if (!res.ok) throw new Error(`Error del servidor: ${res.status}`);
     return (await res.json()) as Post[];
-  } catch (err) {
+  } catch {
     return [];
   }
 }
