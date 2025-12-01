@@ -54,7 +54,6 @@ export async function getPostsByUserServer(userId: string): Promise<Post[]> {
 
     return posts;
   } catch (err) {
-    console.error("❌ Error obteniendo posts del usuario:", err);
     return [];
   }
 }
@@ -150,7 +149,6 @@ export const deletePostServer = async (postId: string) => {
 
     return { success: true, postId };
   } catch (error) {
-    console.error(`Error al eliminar el post y sus asociados:`, error);
     throw error;
   }
 };

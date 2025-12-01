@@ -22,7 +22,6 @@ export async function DELETE(
       const decodedToken = await admin.auth().verifyIdToken(idToken)
       authenticatedUserUid = decodedToken.uid
     } catch (error) {
-      console.error("❌ Token de autenticación inválido:", error)
       return NextResponse.json({ error: "No autenticado o token inválido" }, { status: 401 })
     }
   } else {
@@ -55,9 +54,7 @@ export async function DELETE(
         await fatherPostRef.update({
           comments: admin.firestore.FieldValue.arrayRemove(postId)
         })
-        console.log(`✅ ID de comentario '${postId}' eliminado de la lista de comentarios del post padre '${fatherPostId}'.`)
       } else {
-        console.warn(`⚠️ Post padre '${fatherPostId}' no encontrado para el comentario '${postId}'. No se actualizó la lista de comentarios.`)
       }
     }
 
@@ -70,14 +67,12 @@ export async function DELETE(
     )
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error(`❌ Error en DELETE /api/posts/${postId}:`, error.message)
       return NextResponse.json(
         { error: "Error eliminando post", details: error.message },
         { status: 500 }
       )
     }
 
-    console.error(`❌ Error inesperado en DELETE /api/posts/${postId}:`, error)
     return NextResponse.json(
       { error: "Error eliminando post", details: String(error) },
       { status: 500 }

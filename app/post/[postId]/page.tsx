@@ -19,7 +19,6 @@ export default function PostView() {
                 const fetchedPost = await fetchPost(postId as string)
                 setPost(fetchedPost)
             } catch (error) {
-                console.error("Error loading post:", error)
             } finally {
                 setLoading(false)
             }

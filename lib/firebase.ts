@@ -86,7 +86,6 @@ async function getAppCheckToken(forceRefresh = false) {
     const token = await getToken(appCheck, forceRefresh)
     return token.token
   } catch (error) {
-    console.error("Error obteniendo AppCheck token:", error)
     return null
   }
 }
@@ -129,14 +128,11 @@ async function createUserIfNotExists(user: User) {
           avatarURL: null,
           createdAt: serverTimestamp(),
         })
-        console.log(`✅ Usuario creado con username: ${randomUsername}`)
       } else {
-        console.log("ℹ️ Usuario ya existe")
       }
     })
 
   } catch (error) {
-    console.error("❌ Error en transacción al crear/leer usuario:", error)
   }
 }
 
@@ -147,7 +143,6 @@ async function logInWithGoogle() {
     await createUserIfNotExists(result.user)
     return result.user
   } catch (error) {
-    console.error("Error al iniciar sesión con Google:", error)
     throw error
   }
 }
@@ -156,7 +151,7 @@ async function logOut() {
   try {
     await signOut(auth)
   } catch (error) {
-    console.error("Error al cerrar sesión:", error)
+    throw error
   }
 }
 
@@ -175,7 +170,6 @@ async function signUpWithEmail(email: string, password: string) {
 // ✅ Función para subir un archivo de avatar
 async function uploadAvatar(uid: string, file: File): Promise<string | null> {
   if (!uid || !file) {
-    console.error("❌ UID o archivo no proporcionados para subir avatar.")
     return null
   }
 
@@ -191,7 +185,6 @@ async function uploadAvatar(uid: string, file: File): Promise<string | null> {
     const downloadURL = await getDownloadURL(avatarRef)
     return downloadURL
   } catch (error) {
-    console.error("❌ Error al subir el avatar:", error)
     throw error
   }
 }
@@ -209,7 +202,6 @@ async function updateUserProfile(
       const uploaded = await uploadAvatar(uid, data.avatarFile)
       avatarURL = uploaded ?? undefined
     } catch (error) {
-      console.error("❌ No se pudo subir el nuevo avatar, se procederá sin actualizarlo.", error);
     }
   }
 
@@ -231,10 +223,7 @@ async function updateUserProfile(
 
     await updateDoc(userRef, updateData)
 
-    console.log("✅ Perfil de usuario actualizado.")
-
   } catch (error) {
-    console.error("❌ Error actualizando usuario:", error)
     throw error
   }
 }
@@ -249,11 +238,9 @@ async function getUserById(uid: string) {
     if (userSnap.exists()) {
       return { id: userSnap.id, ...userSnap.data() }
     } else {
-      console.log("ℹ️ Usuario no encontrado")
       return null
     }
   } catch (error) {
-    console.error("❌ Error obteniendo usuario:", error)
     throw error
   }
 }
@@ -271,11 +258,9 @@ async function getUserByUsername(username: string) {
       const docSnap = querySnapshot.docs[0]
       return { id: docSnap.id, ...docSnap.data() }
     } else {
-      console.log("ℹ️ Usuario no encontrado por username")
       return null
     }
   } catch (error) {
-    console.error("❌ Error obteniendo usuario por username:", error)
     throw error
   }
 }
@@ -319,7 +304,6 @@ export async function getPostsByUserIdPaginated(
 
     return { posts, lastVisible: newLastVisible }
   } catch (error) {
-    console.error("❌ Error obteniendo posts paginados por array:", error)
     return { posts: [], lastVisible: null }
   }
 }
@@ -341,10 +325,8 @@ export async function getPostsByUserIdPaginated(
 //       id: doc.id,
 //       ...doc.data(),
 //     })) as Post[];
-//     console.log(comments)
 //     return comments;
 //   } catch (error) {
-//     console.error("Error al obtener comentarios:", error);
 //     return [];
 //   }
 // }
@@ -366,7 +348,6 @@ async function getCommentsByPostId(postId: string): Promise<Post[]> {
       ...doc.data(),
     })) as Post[];
   } catch (error) {
-    console.error("Error al obtener comentarios:", error);
     return [];
   }
 }
@@ -381,11 +362,9 @@ async function getPostById(postId: string): Promise<Post | null> {
     if (postSnap.exists()) {
       return { id: postSnap.id, ...postSnap.data() } as Post;
     } else {
-      console.log("ℹ️ Post no encontrado");
       return null;
     }
   } catch (error) {
-    console.error("❌ Error obteniendo post:", error);
     return null;
   }
 }

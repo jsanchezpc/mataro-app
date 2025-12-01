@@ -63,7 +63,7 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
 
     useEffect(() => {
         if (!user?.uid) return
-        getUserById(user.uid).then((data) => setProfile(data)).catch(console.error)
+        getUserById(user.uid).then((data) => setProfile(data)).catch(() => toast("Error al obtener perfil"))
     }, [user])
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -102,7 +102,6 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
             setOpen(false)
             onCreated?.()
         } catch (error) {
-            console.error("❌ Error creando post:", error)
             toast("Error al crear el post", { description: "Intenta de nuevo más tarde" })
         }
     }

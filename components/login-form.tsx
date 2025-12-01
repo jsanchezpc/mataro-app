@@ -32,10 +32,8 @@ export function LoginForm({
     try {
       if (isRegister) {
         await signUpWithEmail(email, password)
-        console.log("✅ Registro correcto")
       } else {
         await logInWithEmail(email, password)
-        console.log("✅ Login correcto")
       }
     } catch (err: unknown) {
       if (err instanceof Error) {

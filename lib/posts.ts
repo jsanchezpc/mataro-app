@@ -12,7 +12,6 @@ export async function fetchPosts(): Promise<Post[]> {
     if (!res.ok) throw new Error(`Error del servidor: ${res.status}`);
     return (await res.json()) as Post[];
   } catch (err) {
-    console.error("❌ Error cargando posts:", err);
     return [];
   }
 }
@@ -25,7 +24,6 @@ export async function fetchPost(postId: string): Promise<Post | null> {
     }
     return null;
   } catch (error) {
-    console.error("Error fetching post:", error);
     throw error;
   }
 }

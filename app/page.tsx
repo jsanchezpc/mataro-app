@@ -13,7 +13,6 @@ import { fetchPosts } from "@/lib/posts";
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
-  console.log("environment: ", process.env.NEXT_PUBLIC_ENV)
 
   useEffect(() => {
     async function loadPosts() {

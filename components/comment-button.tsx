@@ -72,9 +72,7 @@ export default function CommentButton({ postId, comments }: CommentButtonProps) 
             // Si no hay cache o expiró, cargar de Firebase
             setIsLoading(true);
             try {
-                console.log("cargando posts...")
                 const loadedComments = await getCommentsByPostId(postId);
-                console.log("posts cargados: ", loadedComments)
                 if (mounted) {
                     setCommentList(loadedComments);
 
@@ -86,7 +84,6 @@ export default function CommentButton({ postId, comments }: CommentButtonProps) 
                     sessionStorage.setItem(`comments_${postId}`, JSON.stringify(cacheData));
                 }
             } catch (error) {
-                console.error("Error cargando comentarios:", error);
                 toast.error("Error cargando comentarios");
             } finally {
                 if (mounted) setIsLoading(false);
@@ -134,7 +131,6 @@ export default function CommentButton({ postId, comments }: CommentButtonProps) 
             form.reset();
             toast("✅ Comentario enviado");
         } catch (err) {
-            console.error("Error enviando comentario:", err);
             toast("Error enviando comentario", { description: "Intenta de nuevo más tarde" });
         }
     }

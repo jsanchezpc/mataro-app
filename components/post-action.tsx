@@ -52,10 +52,8 @@ export function PostAction({ postId, authorId, onDeleted }: DeletePostProps) {
       onDeleted?.()
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.error("❌ Error al eliminar el post:", error.message)
         toast.error(error.message)
       } else {
-        console.error("❌ Error inesperado al eliminar el post:", error)
         toast.error("No se pudo eliminar el post. Inténtalo de nuevo.")
       }
     }

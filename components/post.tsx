@@ -66,7 +66,6 @@ export default function PostComponent({
         setParentPost(fetched);
       }
     } catch (error) {
-      console.error("Error cargando post padre:", error);
     } finally {
       setLoadingParent(false);
     }
@@ -119,7 +118,6 @@ export default function PostComponent({
         setLikes((prev) => prev + (newLiked ? -1 : 1));
       }
     } catch (err) {
-      console.error("Error en like:", err);
       setLiked((prev) => !prev);
       setLikes((prev) => prev + (liked ? -1 : 1));
     }
