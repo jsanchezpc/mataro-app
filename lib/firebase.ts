@@ -380,6 +380,102 @@ async function getPostById(postId: string): Promise<Post | null> {
 
 
 
+
+// ✅ Seguir a un usuario
+async function followUser(currentUserId: string, targetUserId: string) {
+  if (!currentUserId || !targetUserId || currentUserId === targetUserId) return
+
+  const currentUserRef = doc(db, "users", currentUserId)
+  const targetUserRef = doc(db, "users", targetUserId)
+
+  try {
+    await runTransaction(db, async (transaction) => {
+      const currentUserDoc = await transaction.get(currentUserRef)
+      const targetUserDoc = await transaction.get(targetUserRef)
+
+      if (!currentUserDoc.exists() || !targetUserDoc.exists()) {
+        throw new Error("User does not exist!")
+      }
+
+      const currentUserData = currentUserDoc.data()
+      const targetUserData = targetUserDoc.data()
+
+      const currentFollowing = currentUserData.following || []
+      const targetFollowers = targetUserData.followers || []
+
+      if (!currentFollowing.includes(targetUserId)) {
+        transaction.update(currentUserRef, {
+          following: [...currentFollowing, targetUserId]
+        })
+        transaction.update(targetUserRef, {
+          followers: [...targetFollowers, currentUserId]
+        })
+      }
+    })
+  } catch (e) {
+    console.error("Error following user: ", e)
+    throw e
+  }
+}
+
+// ✅ Dejar de seguir a un usuario
+async function unfollowUser(currentUserId: string, targetUserId: string) {
+  if (!currentUserId || !targetUserId || currentUserId === targetUserId) return
+
+  const currentUserRef = doc(db, "users", currentUserId)
+  const targetUserRef = doc(db, "users", targetUserId)
+
+  try {
+    await runTransaction(db, async (transaction) => {
+      const currentUserDoc = await transaction.get(currentUserRef)
+      const targetUserDoc = await transaction.get(targetUserRef)
+
+      if (!currentUserDoc.exists() || !targetUserDoc.exists()) {
+        throw new Error("User does not exist!")
+      }
+
+      const currentUserData = currentUserDoc.data()
+      const targetUserData = targetUserDoc.data()
+
+      const currentFollowing = currentUserData.following || []
+      const targetFollowers = targetUserData.followers || []
+
+      if (currentFollowing.includes(targetUserId)) {
+        transaction.update(currentUserRef, {
+          following: currentFollowing.filter((id: string) => id !== targetUserId)
+        })
+        transaction.update(targetUserRef, {
+          followers: targetFollowers.filter((id: string) => id !== currentUserId)
+        })
+      }
+    })
+  } catch (e) {
+    console.error("Error unfollowing user: ", e)
+    throw e
+  }
+}
+
+// ✅ Comprobar si sigue al usuario
+async function checkIsFollowing(currentUserId: string, targetUserId: string): Promise<boolean> {
+  if (!currentUserId || !targetUserId) return false
+
+  try {
+    const currentUserRef = doc(db, "users", currentUserId)
+    const currentUserSnap = await getDoc(currentUserRef)
+
+    if (currentUserSnap.exists()) {
+      const following = currentUserSnap.data().following || []
+      return following.includes(targetUserId)
+    }
+    return false
+  } catch {
+    return false
+  }
+}
+
+
+
+
 export {
   app,
   auth,
@@ -396,5 +492,8 @@ export {
   getUserByUsername,
   getCommentsByPostId,
   getPostById,
-  analytics
+  analytics,
+  followUser,
+  unfollowUser,
+  checkIsFollowing
 }

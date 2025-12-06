@@ -26,7 +26,7 @@ export default function ProfileView() {
     const { user, loadingUser } = useAuth()
     const router = useRouter()
     const params = useParams()
-    const [profile, setProfile] = useState<{ id: string; username?: string; description?: string, avatarURL?: string } | null>(null)
+    const [profile, setProfile] = useState<{ id: string; username?: string; description?: string, avatarURL?: string; followers?: string[]; following?: string[] } | null>(null)
     const [posts, setPosts] = useState<Post[]>([])
     const [lastVisible, setLastVisible] = useState<number | null>(null)
     const [hasMore, setHasMore] = useState(true)
@@ -100,9 +100,11 @@ export default function ProfileView() {
     }, [posts, hasMore, loadingMore, loadMorePosts])
 
     async function handleCreatedPost() {
+        if (!profile?.id) return
         setLoading(true)
+        // Usar profile.id en lugar de params.username
         const { posts: fetchedPosts, lastVisible: cursor } =
-            await getPostsByUserIdPaginated(params.username as string, undefined, 20)
+            await getPostsByUserIdPaginated(profile.id, undefined, 20)
 
         setPosts(fetchedPosts as Post[])
         setLastVisible(cursor)
@@ -174,8 +176,10 @@ export default function ProfileView() {
                         <CardAction>
                             <ProfileAction
                                 profile={{
+                                    id: profile?.id,
                                     username: profile?.username,
                                     description: profile?.description,
+                                    avatarURL: profile?.avatarURL,
                                 }}
                                 onUpdated={fetchUser}
                             />
@@ -189,12 +193,24 @@ export default function ProfileView() {
                     <CardFooter>
                         <div className="flex flex-row gap-8">
                             <div className="flex flex-col">
-                                <div className="flex">
+                                <div className="flex font-bold">
                                     {loading ? (
                                         <Skeleton className="w-full h-4" />
                                     ) : posts.length}
                                 </div>
-                                <div className="flex">Posts</div>
+                                <div className="flex text-muted-foreground text-sm">Posts</div>
+                            </div>
+                            <div className="flex flex-col">
+                                <div className="flex font-bold">
+                                    {profile?.followers?.length || 0}
+                                </div>
+                                <div className="flex text-muted-foreground text-sm">Seguidores</div>
+                            </div>
+                            <div className="flex flex-col">
+                                <div className="flex font-bold">
+                                    {profile?.following?.length || 0}
+                                </div>
+                                <div className="flex text-muted-foreground text-sm">Seguidos</div>
                             </div>
                         </div>
                     </CardFooter>

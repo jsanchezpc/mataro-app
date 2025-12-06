@@ -29,8 +29,10 @@ export default function Home() {
       <div className="max-w-200 mx-auto">
         <Toaster position="top-center" />
         <CreatePost onCreated={async () => {
+          setLoading(true)
           const updatedPosts = await fetchPosts();
           setPosts(updatedPosts);
+          setLoading(false)
         }} />
 
         <div className="pt-0 pb-20 flex flex-col">

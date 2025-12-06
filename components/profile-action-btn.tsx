@@ -1,6 +1,6 @@
 "use client"
 
-import { updateUserProfile } from "@/lib/firebase"
+import { updateUserProfile, followUser, unfollowUser, checkIsFollowing } from "@/lib/firebase"
 import { useAuth } from "@/app/context/AuthContext"
 import { useParams } from "next/navigation"
 import { useIsMobile } from "@/hooks/use-mobile"
@@ -42,6 +42,7 @@ const formSchema = z.object({
 
 type ProfileActionProps = {
     profile?: {
+        id?: string
         username?: string
         description?: string
         avatarURL?: string
@@ -56,6 +57,10 @@ export default function ProfileAction({ profile, onUpdated }: ProfileActionProps
     const [open, setOpen] = useState(false)
     const [avatarFile, setAvatarFile] = useState<File | null>(null)
     const [previewURL, setPreviewURL] = useState<string | null>(null)
+    
+    // Estado para follow
+    const [isFollowing, setIsFollowing] = useState(false)
+    const [loadingFollow, setLoadingFollow] = useState(false)
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -64,6 +69,42 @@ export default function ProfileAction({ profile, onUpdated }: ProfileActionProps
             description: profile?.description ?? "",
         },
     })
+
+    // Chequear si ya sigue al usuario
+    useEffect(() => {
+        if (!user?.uid || !profile?.id) return
+        
+        // Si es el mismo usuario, no hacemos nada
+        if (user.uid === profile.id) return
+
+        checkIsFollowing(user.uid, profile.id).then((val) => {
+            setIsFollowing(val)
+        })
+    }, [user?.uid, profile?.id])
+
+    async function handleFollowToggle() {
+        if (!user?.uid || !profile?.id) {
+            toast.error("Debes iniciar sesión para seguir a usuarios")
+            return
+        }
+        setLoadingFollow(true)
+        try {
+            if (isFollowing) {
+                await unfollowUser(user.uid, profile.id)
+                setIsFollowing(false)
+                toast.success(`Dejaste de seguir a ${profile.username}`)
+            } else {
+                await followUser(user.uid, profile.id)
+                setIsFollowing(true)
+                toast.success(`Ahora sigues a ${profile.username}`)
+            }
+            onUpdated?.() // Para actualizar contadores si los hubiera
+        } catch {
+            toast.error("Error al actualizar seguimiento")
+        } finally {
+            setLoadingFollow(false)
+        }
+    }
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         if (!user?.uid) return
@@ -93,9 +134,11 @@ export default function ProfileAction({ profile, onUpdated }: ProfileActionProps
         }
     }, [profile, form])
 
+    const isOwner = user?.uid === profile?.id;
+
     return (
         <>
-            {profile?.username === params?.username ? (
+            {isOwner ? (
                 <div>
                     <Sheet open={open} onOpenChange={setOpen}>
                         <SheetTrigger asChild>
@@ -194,7 +237,13 @@ export default function ProfileAction({ profile, onUpdated }: ProfileActionProps
                     </Sheet>
                 </div>
             ) : (
-                <Button variant="outline">Seguir</Button>
+                <Button 
+                    variant={isFollowing ? "secondary" : "default"} 
+                    onClick={handleFollowToggle}
+                    disabled={loadingFollow}
+                >
+                    {loadingFollow ? "Cargando..." : isFollowing ? "Siguiendo" : "Seguir"}
+                </Button>
             )}
         </>
     )
