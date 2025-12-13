@@ -1,5 +1,5 @@
 // import { Briefcase, HousePlus, Handshake, BookImage, Store, Brain, Home, Map, BusFront } from "lucide-react"
-import { Home, Briefcase, Handshake } from "lucide-react"
+import { Home, Briefcase, Handshake, Newspaper } from "lucide-react"
 
 import {
   Sidebar,
@@ -40,20 +40,26 @@ const items = [
   //   icon: Store,
   // },
   {
+    title: "Artículos",
+    url: "/market",
+    icon: Newspaper,
+  },
+  {
     title: "Rastro",
     url: "/market",
     icon: Handshake,
+  },
+  {
+    title: "Trabajos",
+    url: "#",
+    icon: Briefcase,
   },
   // {
   //   title: "Transporte",
   //   url: "#",
   //   icon: BusFront,
   // },
-  {
-    title: "Trabajos",
-    url: "#",
-    icon: Briefcase,
-  },
+
   // {
   //   title: "Vivienda",
   //   url: "#",

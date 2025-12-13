@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { formatDistanceToNow } from "date-fns";
+import { es } from "date-fns/locale";
 import { ThumbsUp } from "lucide-react";
 import CommentButton from "@/components/comment-button";
 import {
@@ -129,6 +131,17 @@ export default function PostComponent({
     }
   }
 
+  // 🔹 Helper para normalizar fecha
+  const normalizeTimestamp = (timestamp: number | Date | { seconds: number } | null | undefined): Date | null => {
+    if (!timestamp) return null;
+    if (typeof timestamp === 'number') return new Date(timestamp);
+    if (timestamp instanceof Date) return timestamp;
+    if ('seconds' in timestamp) return new Date(timestamp.seconds * 1000);
+    return null; // Formato desconocido
+  };
+
+  const dateObj = normalizeTimestamp(post.timestamp);
+
   return (
     <Card
       className={`${isPreview
@@ -181,9 +194,14 @@ export default function PostComponent({
             <AvatarFallback>?</AvatarFallback>
           </Avatar>
 
-          <Link className="hover:underline" href={`/profile/${authorName}`}>
-            {authorName}
-          </Link>
+          <div className="flex flex-col">
+            <Link className="hover:underline text-sm font-semibold" href={`/profile/${authorName}`}>
+              {authorName}
+            </Link>
+            <span className="text-xs text-muted-foreground font-normal">
+              {dateObj ? formatDistanceToNow(dateObj, { addSuffix: true, locale: es }) : ""}
+            </span>
+          </div>
         </CardTitle>
 
         {!isPreview && (

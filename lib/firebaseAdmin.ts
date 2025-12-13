@@ -23,7 +23,14 @@ export const db = getFirestore(app, dbId);
 
 export async function getAllPostsServer() {
   const snapshot = await db.collection("posts").orderBy("timestamp", "desc").get();
-  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  return snapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      ...data,
+      timestamp: data.timestamp?.toMillis?.() || data.timestamp?.seconds * 1000 || Date.now(), // Asegurar number
+    };
+  });
 }
 
 export async function getPostsByUserServer(userId: string): Promise<Post[]> {
@@ -45,7 +52,7 @@ export async function getPostsByUserServer(userId: string): Promise<Post[]> {
         likedBy: data.likedBy ?? [],
         isPrivate: data.isPrivate ?? false,
         commentsCount: data.commentsCount ?? 0,
-        timestamp: data.timestamp,
+        timestamp: data.timestamp?.toMillis?.() || data.timestamp?.seconds * 1000 || Date.now(),
         comments: data.comments ?? [],
         isChild: data.isChild ?? false,
         father: data.father ?? [],
