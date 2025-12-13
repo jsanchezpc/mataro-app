@@ -1,8 +1,7 @@
 "use client"
 
 import { useAuth } from "@/app/context/AuthContext"
-import { logOut, getUserById } from "@/lib/firebase"
-import { useEffect, useState } from "react"
+import { logOut } from "@/lib/firebase"
 
 import { Skeleton } from "@/components/ui/skeleton"
 import {
@@ -36,18 +35,8 @@ import Link from "next/link"
 
 export function NavUser() {
     const { isMobile } = useSidebar()
-    const { user, loadingUser } = useAuth()
-    const [profile, setProfile] = useState<{ id: string; username?: string; description?: string, avatarURL?: string } | null>(null)
-
-    useEffect(() => {
-        if (!user?.uid) return
-
-        getUserById(user.uid).then((userDb) => {
-            if (userDb) {
-                setProfile(userDb)
-            }
-        })
-    }, [user])
+    const { user, loadingUser, profile } = useAuth()
+    // Ya no necesitamos estado local ni useEffect para fetch
 
 
 

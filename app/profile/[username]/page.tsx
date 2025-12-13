@@ -4,7 +4,7 @@ import { useAuth } from "@/app/context/AuthContext"
 import { useEffect, useState, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { Post } from "@/types/post";
-import { getUserByUsername, getPostsByUserIdPaginated } from "@/lib/firebase"
+import { getUserByUsername, getPostsByUserIdPaginated, getUserById } from "@/lib/firebase"
 // APP components
 import ProfileAction from "@/components/profile-action-btn"
 import CreatePost from "@/components/create-post"
@@ -21,9 +21,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import PostComponent from "@/components/post"
+import { Button } from "@/components/ui/button";
 
 export default function ProfileView() {
-    const { user, loadingUser } = useAuth()
+    const { user, loadingUser, refetchProfile } = useAuth()
     const router = useRouter()
     const params = useParams()
     const [profile, setProfile] = useState<{ id: string; username?: string; description?: string, avatarURL?: string; followers?: string[]; following?: string[] } | null>(null)
@@ -32,19 +33,27 @@ export default function ProfileView() {
     const [hasMore, setHasMore] = useState(true)
     const [loading, setLoading] = useState(true)
     const [loadingMore, setLoadingMore] = useState(false)
+    const [notFound, setNotFound] = useState(false)
 
     // Cargar perfil
     const fetchUser = useCallback(async () => {
         if (!params?.username) return
-        const data = await getUserByUsername(params.username as string)
-        setProfile(data)
+        setNotFound(false)
+        const decodedUsername = decodeURIComponent(params.username as string)
+        const data = await getUserByUsername(decodedUsername)
+        if (!data) {
+            setNotFound(true)
+            setProfile(null)
+        } else {
+            setProfile(data)
+        }
     }, [params?.username])
 
     useEffect(() => {
         fetchUser()
     }, [fetchUser])
 
-    // Redirigir si no hay usuario
+    // Redirigir si no hay usuario (autenticación)
     useEffect(() => {
         if (!loadingUser && !user) {
             router.push("/login")
@@ -112,6 +121,25 @@ export default function ProfileView() {
         setLoading(false)
     }
 
+    const handleProfileUpdate = async () => {
+        // Actualizamos estado global primero
+        await refetchProfile()
+
+        // Si el usuario logueado es el dueño del perfil, verificamos si cambió el username
+        if (user && user.uid === profile?.id) {
+            const updatedProfile = await getUserById(user.uid) as { username?: string } | null
+            if (updatedProfile && updatedProfile.username && updatedProfile.username !== params?.username) {
+                // Redirigir al nuevo username
+                router.push(`/profile/${encodeURIComponent(updatedProfile.username)}`)
+            } else {
+                fetchUser() 
+            }
+        } else {
+            // Si es otro usuario (ej: follow/unfollow), recargamos normalmente
+            fetchUser()
+        }
+    }
+
 
     if (loadingUser) {
         return (
@@ -150,6 +178,20 @@ export default function ProfileView() {
         )
     }
 
+    if (notFound) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full gap-4 pt-20">
+                <h1 className="text-2xl font-bold">Usuario no encontrado</h1>
+                <p className="text-muted-foreground">
+                    El usuario @{params?.username} no existe.
+                </p>
+                <Button className="dark:text-white" onClick={() => router.push("/")}>
+                    Volver al inicio
+                </Button>
+            </div>
+        )
+    }
+
     return (
         <div className="font-sans h-full">
             <div className="w-full max-w-full md:max-w-200 mx-auto h-full overflow-x-auto">
@@ -181,7 +223,7 @@ export default function ProfileView() {
                                     description: profile?.description,
                                     avatarURL: profile?.avatarURL,
                                 }}
-                                onUpdated={fetchUser}
+                                onUpdated={handleProfileUpdate}
                             />
                         </CardAction>
                     </CardHeader>
