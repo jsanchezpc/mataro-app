@@ -12,4 +12,5 @@ export type Post = {
   commentsCount: number,
   isChild: boolean,
   father: string
+  imageURL?: string
 }

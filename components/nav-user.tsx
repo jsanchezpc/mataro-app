@@ -36,7 +36,6 @@ import Link from "next/link"
 export function NavUser() {
     const { isMobile } = useSidebar()
     const { user, loadingUser, profile } = useAuth()
-    // Ya no necesitamos estado local ni useEffect para fetch
 
 
 

@@ -24,17 +24,23 @@ export async function GET() {
 // POST /api/posts
 export async function POST(req: Request) {
   try {
-    const { uid, content, isPrivate, isChild, father } = await req.json()
+    const { uid, content, isPrivate, isChild, father, imageURL } = await req.json()
 
-    if (!uid || !content) {
-      return NextResponse.json(
-        { error: "Error al crear el post por el contenido o por tu cuenta. Posible error de la plataforma, si persiste, repórtalo creando un post jajaja" },
+    if (!uid || (!content && !imageURL)) { // Permitir post solo con imagen si se quisiera, o mantener restricción
+       // Mantenemos restricción de que debe haber content O podemos relajarlo. 
+       // El error original dice "por el contenido". 
+    }
+    
+    // Si queremos obligar texto O imagen:
+    if (!uid || (!content && !imageURL)) {
+         return NextResponse.json(
+        { error: "El post debe tener texto o imagen" },
         { status: 400 }
       )
     }
 
     // Crear el post (comentario o post normal)
-    const newPost = await createPostServer(uid, content, isPrivate, isChild, father)
+    const newPost = await createPostServer(uid, content || "", isPrivate, isChild, father, imageURL)
 
     // Si es un comentario, agregarlo a la lista de comments del post padre
     if (isChild && father) {

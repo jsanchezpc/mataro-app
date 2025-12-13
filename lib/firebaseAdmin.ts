@@ -49,6 +49,7 @@ export async function getPostsByUserServer(userId: string): Promise<Post[]> {
         comments: data.comments ?? [],
         isChild: data.isChild ?? false,
         father: data.father ?? [],
+        imageURL: data.imageURL ?? null
       });
     });
 
@@ -58,7 +59,7 @@ export async function getPostsByUserServer(userId: string): Promise<Post[]> {
   }
 }
 
-export async function createPostServer(uid: string, content: string, isPrivate: boolean, isChild: boolean, father: string) {
+export async function createPostServer(uid: string, content: string, isPrivate: boolean, isChild: boolean, father: string, imageURL?: string) {
   const newPost = {
     uid,
     isPrivate,
@@ -67,7 +68,8 @@ export async function createPostServer(uid: string, content: string, isPrivate: 
     likes: 0,
     comments: [],
     isChild, 
-    father
+    father,
+    imageURL: imageURL || null
   };
 
   const docRef = await db.collection("posts").add(newPost);

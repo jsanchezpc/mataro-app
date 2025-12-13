@@ -11,6 +11,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { PostAction } from "@/components/post-action";
 import { Post } from "@/types/post";
@@ -192,7 +198,32 @@ export default function PostComponent({
       </CardHeader>
 
       <CardContent>
-        <p>{content}</p>
+        <p className="whitespace-pre-wrap leading-relaxed">{content}</p>
+        
+        {post.imageURL && (
+            <div className="mt-3 relative w-full overflow-hidden rounded-xl border bg-muted/30">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <img
+                        src={post.imageURL}
+                        alt="Post image"
+                        className="w-full h-auto max-h-[500px] object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                        loading="lazy"
+                    />
+                  </DialogTrigger>
+                  <DialogContent className="max-w-[90vw] md:max-w-7xl w-full p-0 overflow-hidden bg-transparent border-none shadow-none text-center">
+                    <DialogTitle className="sr-only">Imagen del post</DialogTitle>
+                    <div className="relative w-full  flex items-center justify-center">
+                      <img
+                        src={post.imageURL}
+                        alt="Post image full size"
+                        className="max-w-full max-h-full object-contain rounded-md"
+                      />
+                    </div>
+                  </DialogContent>
+                </Dialog>
+            </div>
+        )}
       </CardContent>
 
       <CardFooter

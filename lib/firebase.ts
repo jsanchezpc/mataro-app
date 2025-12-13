@@ -198,6 +198,25 @@ async function uploadAvatar(uid: string, file: File): Promise<string | null> {
   }
 }
 
+// ✅ Función para subir una imagen de post
+async function uploadPostImage(file: File): Promise<string | null> {
+  if (!file) return null
+
+  try {
+    const timestamp = Date.now()
+    const random = Math.floor(Math.random() * 1000)
+    // Guardar en images/posts con nombre único
+    const imageRef = ref(storage, `images/posts/${timestamp}_${random}_${file.name}`)
+
+    await uploadBytes(imageRef, file)
+    const downloadURL = await getDownloadURL(imageRef)
+    return downloadURL
+  } catch (error) {
+    console.error("Error uploading post image:", error)
+    return null
+  }
+}
+
 // ✅ Actualizar username, description y avatar de un usuario
 async function updateUserProfile(
   uid: string,
@@ -495,5 +514,6 @@ export {
   analytics,
   followUser,
   unfollowUser,
-  checkIsFollowing
+  checkIsFollowing,
+  uploadPostImage
 }
