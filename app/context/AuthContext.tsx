@@ -9,6 +9,7 @@ export type UserProfile = {
   username?: string
   description?: string
   avatarURL?: string
+  hiddenPosts?: string[]
 }
 
 type AuthContextType = {

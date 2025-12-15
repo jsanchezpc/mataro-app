@@ -13,4 +13,5 @@ export type Post = {
   isChild: boolean,
   father: string
   imageURL?: string
+  reportedBy?: string[]
 }

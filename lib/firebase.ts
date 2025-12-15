@@ -30,7 +30,9 @@ import {
   serverTimestamp,
   collection, query, where, getDocs, limit,
   orderBy,
-  startAfter
+  startAfter,
+  addDoc,
+  arrayUnion
 } from "firebase/firestore"
 import {
   getStorage,
@@ -297,9 +299,10 @@ async function getUserByUsername(username: string) {
 
 
 // ✅ Obtener TODOS los posts paginados (feed principal)
-export async function getAllPostsPaginated(
+async function getAllPostsPaginated(
   lastSnapshot?: any,
-  pageSize = 5
+  pageSize = 5,
+  currentUserId?: string
 ): Promise<{ posts: Post[]; lastVisible: any | null }> {
   try {
     const postsRef = collection(db, "posts")
@@ -307,7 +310,7 @@ export async function getAllPostsPaginated(
         postsRef, 
         where("isChild", "==", false), // Solo posts principales
         orderBy("timestamp", "desc"), 
-        limit(pageSize)
+        limit(pageSize) // Fetch extra to compensate for filtering? No, simple filter for now.
     )
 
     if (lastSnapshot) {
@@ -324,7 +327,13 @@ export async function getAllPostsPaginated(
     const posts: Post[] = []
     
     querySnapshot.forEach((doc) => {
-        posts.push({ id: doc.id, ...doc.data() } as Post)
+        const postData = doc.data() as Post
+        // Filter if reported by current user
+        if (currentUserId && postData.reportedBy?.includes(currentUserId)) {
+            return
+        }
+        
+        posts.push({ id: doc.id, ...postData } as Post)
     })
 
     const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null
@@ -338,7 +347,7 @@ export async function getAllPostsPaginated(
 
 // Nueva función para obtener publicaciones paginadas por ID de usuario
 // ✅ Obtener posts de un usuario con paginación real
-export async function getPostsByUserIdPaginated(
+async function getPostsByUserIdPaginated(
   userId: string,
   lastIndex?: number,
   pageSize = 20
@@ -534,6 +543,56 @@ async function checkIsFollowing(currentUserId: string, targetUserId: string): Pr
 }
 
 
+// ✅ Reportar un post
+async function reportPost(postId: string, reportedBy: string, reason: string) {
+  if (!postId || !reportedBy || !reason) return
+
+  try {
+    // 1. Crear el reporte
+    await addDoc(collection(db, "reports"), {
+      postId,
+      reportedBy,
+      reason,
+      createdAt: serverTimestamp(),
+      status: "pending"
+    })
+
+    // 2. Actualizar el post para añadir al usuario que reportó
+    const postRef = doc(db, "posts", postId)
+    await updateDoc(postRef, {
+        reportedBy: arrayUnion(reportedBy)
+    })
+
+  } catch (e) {
+    console.error("Error reporting post: ", e)
+    throw e
+  }
+}
+
+// ✅ Ocultar un post para un usuario
+async function hidePost(userId: string, postId: string) {
+    if (!userId || !postId) return
+
+    const userRef = doc(db, "users", userId)
+    try {
+        await runTransaction(db, async (transaction) => {
+            const userDoc = await transaction.get(userRef)
+            if (!userDoc.exists()) return
+
+            const currentHidden = userDoc.data().hiddenPosts || []
+            if (!currentHidden.includes(postId)) {
+                transaction.update(userRef, {
+                    hiddenPosts: [...currentHidden, postId]
+                })
+            }
+        })
+    } catch (e) {
+        console.error("Error hiding post: ", e)
+        throw e
+    }
+}
+
+
 
 
 export {
@@ -556,5 +615,9 @@ export {
   followUser,
   unfollowUser,
   checkIsFollowing,
-  uploadPostImage
+  uploadPostImage,
+  getPostsByUserIdPaginated,
+  getAllPostsPaginated,
+  reportPost
 }
+

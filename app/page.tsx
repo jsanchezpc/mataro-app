@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useAuth } from "@/app/context/AuthContext"
 import { Toaster } from "@/components/ui/sonner"
 // APP components
 import CreatePost from "@/components/create-post"
@@ -10,6 +11,7 @@ import { Post } from "@/types/post";
 import { getAllPostsPaginated } from "@/lib/firebase";
 
 export default function Home() {
+  const { user, loadingUser } = useAuth()
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [lastVisible, setLastVisible] = useState<any | null>(null)
@@ -20,21 +22,23 @@ export default function Home() {
   useEffect(() => {
     async function loadInitialPosts() {
       setLoading(true)
-      const { posts: fetchedPosts, lastVisible: cursor } = await getAllPostsPaginated(undefined, 5) // Carga 5 posts
+      const { posts: fetchedPosts, lastVisible: cursor } = await getAllPostsPaginated(undefined, 5, user?.uid) // Carga 5 posts
       setPosts(fetchedPosts)
       setLastVisible(cursor)
       setHasMore(fetchedPosts.length === 5)
       setLoading(false)
     }
-    loadInitialPosts()
-  }, [])
+    if (!loadingUser) {
+        loadInitialPosts()
+    }
+  }, [user, loadingUser])
 
   // Cargar más posts
   async function loadMorePosts() {
      if (loadingMore || !hasMore || !lastVisible) return
      setLoadingMore(true)
      try {
-        const { posts: newPosts, lastVisible: newCursor } = await getAllPostsPaginated(lastVisible, 5)
+        const { posts: newPosts, lastVisible: newCursor } = await getAllPostsPaginated(lastVisible, 5, user?.uid)
         
         if (newPosts.length < 5) {
             setHasMore(false)
