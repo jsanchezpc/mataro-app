@@ -333,7 +333,7 @@ async function getAllPostsPaginated(
             return
         }
         
-        posts.push({ id: doc.id, ...postData } as Post)
+        posts.push({ ...postData, id: doc.id } as Post)
     })
 
     const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null
