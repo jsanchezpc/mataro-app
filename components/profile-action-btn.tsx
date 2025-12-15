@@ -36,7 +36,9 @@ import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 const formSchema = z.object({
-    username: z.string().optional(),
+    username: z.string().optional().refine((val) => !val || /^[a-zA-Z0-9._-]+$/.test(val), {
+        message: "El nombre de usuario solo puede contener letras, números, puntos, guiones y guiones bajos, y sin espacios.",
+    }),
     description: z.string().optional(),
 })
 

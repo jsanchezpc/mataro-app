@@ -29,7 +29,8 @@ import {
   runTransaction,
   serverTimestamp,
   collection, query, where, getDocs, limit,
-  orderBy
+  orderBy,
+  startAfter
 } from "firebase/firestore"
 import {
   getStorage,
@@ -294,6 +295,46 @@ async function getUserByUsername(username: string) {
 }
 
 
+
+// ✅ Obtener TODOS los posts paginados (feed principal)
+export async function getAllPostsPaginated(
+  lastSnapshot?: any,
+  pageSize = 5
+): Promise<{ posts: Post[]; lastVisible: any | null }> {
+  try {
+    const postsRef = collection(db, "posts")
+    let q = query(
+        postsRef, 
+        where("isChild", "==", false), // Solo posts principales
+        orderBy("timestamp", "desc"), 
+        limit(pageSize)
+    )
+
+    if (lastSnapshot) {
+      q = query(
+            postsRef, 
+            where("isChild", "==", false),
+            orderBy("timestamp", "desc"), 
+            startAfter(lastSnapshot), 
+            limit(pageSize)
+        )
+    }
+
+    const querySnapshot = await getDocs(q)
+    const posts: Post[] = []
+    
+    querySnapshot.forEach((doc) => {
+        posts.push({ id: doc.id, ...doc.data() } as Post)
+    })
+
+    const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null
+
+    return { posts, lastVisible }
+  } catch (e) {
+    console.error("Error fetching paginated posts:", e)
+    return { posts: [], lastVisible: null }
+  }
+}
 
 // Nueva función para obtener publicaciones paginadas por ID de usuario
 // ✅ Obtener posts de un usuario con paginación real

@@ -7,31 +7,81 @@ import CreatePost from "@/components/create-post"
 import PostComponent from "@/components/post"
 // const Timestamp = admin.firestore.Timestamp; // Si lo necesitas directamente, pero en el cliente, suele ser un objeto o string.
 import { Post } from "@/types/post";
-import { fetchPosts } from "@/lib/posts";
-
+import { getAllPostsPaginated } from "@/lib/firebase";
 
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
+  const [lastVisible, setLastVisible] = useState<any | null>(null)
+  const [hasMore, setHasMore] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
 
+  // Carga inicial
   useEffect(() => {
-    async function loadPosts() {
-      setLoading(true);
-      const fetchedPosts = await fetchPosts();
-      setPosts(fetchedPosts);
-      setLoading(false);
+    async function loadInitialPosts() {
+      setLoading(true)
+      const { posts: fetchedPosts, lastVisible: cursor } = await getAllPostsPaginated(undefined, 5) // Carga 5 posts
+      setPosts(fetchedPosts)
+      setLastVisible(cursor)
+      setHasMore(fetchedPosts.length === 5)
+      setLoading(false)
     }
-    loadPosts();
-  }, []) // El array vacío asegura que se ejecuta solo una vez al montar
+    loadInitialPosts()
+  }, [])
+
+  // Cargar más posts
+  async function loadMorePosts() {
+     if (loadingMore || !hasMore || !lastVisible) return
+     setLoadingMore(true)
+     try {
+        const { posts: newPosts, lastVisible: newCursor } = await getAllPostsPaginated(lastVisible, 5)
+        
+        if (newPosts.length < 5) {
+            setHasMore(false)
+        }
+
+        // Evitar duplicados
+        setPosts(prev => {
+            const existingIds = new Set(prev.map(p => p.id))
+            const uniqueNewPosts = newPosts.filter(p => !existingIds.has(p.id))
+            return [...prev, ...uniqueNewPosts]
+        })
+        
+        setLastVisible(newCursor)
+     } catch (error) {
+         console.error("Error loading more posts", error)
+     } finally {
+        setLoadingMore(false)
+     }
+  }
+
+  // Scroll listener
+  useEffect(() => {
+      function handleScroll() {
+          if (
+              window.innerHeight + window.scrollY >= document.body.offsetHeight - 200 &&
+              hasMore &&
+              !loadingMore // Note: This relies on loadingMore being up to date in the closure
+          ) {
+              loadMorePosts()
+          }
+      }
+      window.addEventListener("scroll", handleScroll)
+      return () => window.removeEventListener("scroll", handleScroll)
+  }, [hasMore, loadingMore, lastVisible]) // Dependencies ensure listener is recreated when loadingMore changes
 
   return (
     <div className="font-sans rounded md:p-8">
       <div className="max-w-200 mx-auto">
         <Toaster position="top-center" />
         <CreatePost onCreated={async () => {
+          // Al crear, simplemente recargamos todo para ver el nuevo arriba, 
+          // O podríamos prependearlo. Recargar es más seguro para consistencia.
           setLoading(true)
-          const updatedPosts = await fetchPosts();
-          setPosts(updatedPosts);
+          const { posts: fetchedPosts, lastVisible: cursor } = await getAllPostsPaginated(undefined, 5)
+          setPosts(fetchedPosts)
+          setLastVisible(cursor)
+          setHasMore(fetchedPosts.length === 5)
           setLoading(false)
         }} />
 
@@ -51,6 +101,10 @@ export default function Home() {
                 }
               />
             ))
+          )}
+          
+          {loadingMore && (
+              <div className="text-center py-4 text-gray-500">Cargando más...</div>
           )}
         </div>
       </div>
