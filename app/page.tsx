@@ -22,10 +22,10 @@ export default function Home() {
   useEffect(() => {
     async function loadInitialPosts() {
       setLoading(true)
-      const { posts: fetchedPosts, lastVisible: cursor } = await getAllPostsPaginated(undefined, 5, user?.uid) // Carga 5 posts
+      const { posts: fetchedPosts, lastVisible: cursor, snapshotSize } = await getAllPostsPaginated(undefined, 5, user?.uid) // Carga 5 posts
       setPosts(fetchedPosts)
       setLastVisible(cursor)
-      setHasMore(fetchedPosts.length === 5)
+      setHasMore(snapshotSize === 5)
       setLoading(false)
     }
     if (!loadingUser) {
@@ -38,9 +38,9 @@ export default function Home() {
      if (loadingMore || !hasMore || !lastVisible) return
      setLoadingMore(true)
      try {
-        const { posts: newPosts, lastVisible: newCursor } = await getAllPostsPaginated(lastVisible, 5, user?.uid)
+        const { posts: newPosts, lastVisible: newCursor, snapshotSize } = await getAllPostsPaginated(lastVisible, 5, user?.uid)
         
-        if (newPosts.length < 5) {
+        if (snapshotSize < 5) {
             setHasMore(false)
         }
 

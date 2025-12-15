@@ -303,7 +303,7 @@ async function getAllPostsPaginated(
   lastSnapshot?: any,
   pageSize = 5,
   currentUserId?: string
-): Promise<{ posts: Post[]; lastVisible: any | null }> {
+): Promise<{ posts: Post[]; lastVisible: any | null; snapshotSize: number }> {
   try {
     const postsRef = collection(db, "posts")
     let q = query(
@@ -338,10 +338,10 @@ async function getAllPostsPaginated(
 
     const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null
 
-    return { posts, lastVisible }
+    return { posts, lastVisible, snapshotSize: querySnapshot.size }
   } catch (e) {
     console.error("Error fetching paginated posts:", e)
-    return { posts: [], lastVisible: null }
+    return { posts: [], lastVisible: null, snapshotSize: 0 }
   }
 }
 
