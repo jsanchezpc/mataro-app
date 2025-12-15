@@ -20,6 +20,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import Spinner from "@/components/ui/spinner"
 import { PostAction } from "@/components/post-action";
 import { Post } from "@/types/post";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -47,6 +48,7 @@ export default function PostComponent({
   const [liked, setLiked] = useState<boolean>(false);
   const [authorName, setAuthorName] = useState<string>("Mataroní/nesa");
   const [profilePic, setProfilePic] = useState<string>("");
+  const [imageLoading, setImageLoading] = useState<boolean>(true);
 
   const [parentPost, setParentPost] = useState<Post | null>(null);
   const [showParent, setShowParent] = useState<boolean>(false);
@@ -219,14 +221,20 @@ export default function PostComponent({
         <p className="whitespace-pre-wrap leading-relaxed">{content}</p>
         
         {post.imageURL && (
-            <div className="mt-3 relative w-full overflow-hidden rounded-xl border bg-muted/30">
+            <div className="mt-3 relative w-full overflow-hidden rounded-xl border bg-muted/30 min-h-[200px] flex items-center justify-center">
+                {imageLoading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-muted/30 z-10">
+                    <Spinner />
+                  </div>
+                )}
                 <Dialog>
                   <DialogTrigger asChild>
                     <img
                         src={post.imageURL}
                         alt="Post image"
-                        className="w-full h-auto max-h-[500px] object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                        className={`w-full h-auto max-h-[500px] object-cover cursor-pointer hover:opacity-95 transition-opacity ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
                         loading="lazy"
+                        onLoad={() => setImageLoading(false)}
                     />
                   </DialogTrigger>
                   <DialogContent className="max-w-[90vw] md:max-w-7xl w-full p-0 overflow-hidden bg-transparent border-none shadow-none text-center">
