@@ -308,15 +308,13 @@ async function getAllPostsPaginated(
     const postsRef = collection(db, "posts")
     let q = query(
         postsRef, 
-        where("isChild", "==", false), // Solo posts principales
         orderBy("timestamp", "desc"), 
-        limit(pageSize) // Fetch extra to compensate for filtering? No, simple filter for now.
+        limit(pageSize)
     )
 
     if (lastSnapshot) {
       q = query(
-            postsRef, 
-            where("isChild", "==", false),
+            postsRef,
             orderBy("timestamp", "desc"), 
             startAfter(lastSnapshot), 
             limit(pageSize)
@@ -543,6 +541,67 @@ async function checkIsFollowing(currentUserId: string, targetUserId: string): Pr
 }
 
 
+// ✅ Obtener posts de las cuentas que sigo
+async function getFollowingPostsPaginated(
+  currentUserId: string,
+  lastSnapshot?: any,
+  pageSize = 5
+): Promise<{ posts: Post[]; lastVisible: any | null; snapshotSize: number }> {
+  if (!currentUserId) return { posts: [], lastVisible: null, snapshotSize: 0 }
+
+  try {
+    // 1. Get following list
+    const userRef = doc(db, "users", currentUserId)
+    const userSnap = await getDoc(userRef)
+    if (!userSnap.exists()) return { posts: [], lastVisible: null, snapshotSize: 0 }
+
+    const following = userSnap.data().following || []
+    if (following.length === 0) return { posts: [], lastVisible: null, snapshotSize: 0 }
+    
+    // Firestore 'in' limit is 30. We'll take the first 30 for now.
+    const limitedFollowing = following.slice(0, 30);
+
+    const postsRef = collection(db, "posts")
+    let q = query(
+        postsRef,
+        where("uid", "in", limitedFollowing),
+        orderBy("timestamp", "desc"),
+        limit(pageSize)
+    )
+
+    if (lastSnapshot) {
+       q = query(
+            postsRef,
+            where("uid", "in", limitedFollowing),
+            orderBy("timestamp", "desc"),
+            startAfter(lastSnapshot),
+            limit(pageSize)
+       )
+    }
+
+    const querySnapshot = await getDocs(q)
+    const posts: Post[] = []
+    
+    querySnapshot.forEach((doc) => {
+        const postData = doc.data() as Post
+        // Filter if reported by current user
+        if (postData.reportedBy?.includes(currentUserId)) {
+            return
+        }
+        
+        posts.push({ ...postData, id: doc.id } as Post)
+    })
+
+    const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null
+
+    return { posts, lastVisible, snapshotSize: querySnapshot.size }
+
+  } catch (e) {
+    console.error("Error fetching following posts:", e)
+    return { posts: [], lastVisible: null, snapshotSize: 0 }
+  }
+}
+
 // ✅ Reportar un post
 async function reportPost(postId: string, reportedBy: string, reason: string) {
   if (!postId || !reportedBy || !reason) return
@@ -618,6 +677,7 @@ export {
   uploadPostImage,
   getPostsByUserIdPaginated,
   getAllPostsPaginated,
+  getFollowingPostsPaginated,
   reportPost
 }
 

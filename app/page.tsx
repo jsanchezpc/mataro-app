@@ -3,114 +3,215 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "@/app/context/AuthContext"
 import { Toaster } from "@/components/ui/sonner"
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs"
 // APP components
 import CreatePost from "@/components/create-post"
 import PostComponent from "@/components/post"
-// const Timestamp = admin.firestore.Timestamp; // Si lo necesitas directamente, pero en el cliente, suele ser un objeto o string.
 import { Post } from "@/types/post";
-import { getAllPostsPaginated } from "@/lib/firebase";
+import { getAllPostsPaginated, getFollowingPostsPaginated } from "@/lib/firebase";
 
 export default function Home() {
   const { user, loadingUser } = useAuth()
+  
+  // State for All Posts
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [lastVisible, setLastVisible] = useState<any | null>(null)
   const [hasMore, setHasMore] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
 
-  // Carga inicial
+  // State for Following Posts
+  const [followingPosts, setFollowingPosts] = useState<Post[]>([])
+  const [loadingFollowing, setLoadingFollowing] = useState(true)
+  const [lastVisibleFollowing, setLastVisibleFollowing] = useState<any | null>(null)
+  const [hasMoreFollowing, setHasMoreFollowing] = useState(true)
+  const [loadingMoreFollowing, setLoadingMoreFollowing] = useState(false)
+
+  const [activeTab, setActiveTab] = useState("mataro")
+
+  // Initial load for All Posts
   useEffect(() => {
     async function loadInitialPosts() {
       setLoading(true)
-      const { posts: fetchedPosts, lastVisible: cursor, snapshotSize } = await getAllPostsPaginated(undefined, 5, user?.uid) // Carga 5 posts
+      const { posts: fetchedPosts, lastVisible: cursor, snapshotSize } = await getAllPostsPaginated(undefined, 5, user?.uid)
       setPosts(fetchedPosts)
       setLastVisible(cursor)
       setHasMore(snapshotSize === 5)
       setLoading(false)
     }
     if (!loadingUser) {
-        loadInitialPosts()
+      loadInitialPosts()
     }
   }, [user, loadingUser])
 
-  // Cargar más posts
-  async function loadMorePosts() {
-     if (loadingMore || !hasMore || !lastVisible) return
-     setLoadingMore(true)
-     try {
-        const { posts: newPosts, lastVisible: newCursor, snapshotSize } = await getAllPostsPaginated(lastVisible, 5, user?.uid)
-        
-        if (snapshotSize < 5) {
-            setHasMore(false)
-        }
+  // Initial load for Following Posts
+  useEffect(() => {
+    async function loadInitialFollowing() {
+      if (!user?.uid) {
+        setLoadingFollowing(false)
+        return
+      }
+      setLoadingFollowing(true)
+      const { posts: fetchedPosts, lastVisible: cursor, snapshotSize } = await getFollowingPostsPaginated(user.uid, undefined, 5)
+      setFollowingPosts(fetchedPosts)
+      setLastVisibleFollowing(cursor)
+      setHasMoreFollowing(snapshotSize === 5)
+      setLoadingFollowing(false)
+    }
 
-        // Evitar duplicados
-        setPosts(prev => {
-            const existingIds = new Set(prev.map(p => p.id))
-            const uniqueNewPosts = newPosts.filter(p => !existingIds.has(p.id))
-            return [...prev, ...uniqueNewPosts]
-        })
-        
-        setLastVisible(newCursor)
-     } catch (error) {
-         console.error("Error loading more posts", error)
-     } finally {
-        setLoadingMore(false)
-     }
+    if (!loadingUser && activeTab === "following" && followingPosts.length === 0) {
+      loadInitialFollowing()
+    }
+  }, [user, loadingUser, activeTab]) 
+
+  // Load More: All Posts
+  async function loadMorePosts() {
+    if (loadingMore || !hasMore || !lastVisible) return
+    setLoadingMore(true)
+    try {
+      const { posts: newPosts, lastVisible: newCursor, snapshotSize } = await getAllPostsPaginated(lastVisible, 5, user?.uid)
+      if (snapshotSize < 5) setHasMore(false)
+      setPosts(prev => {
+        const existingIds = new Set(prev.map(p => p.id))
+        const uniqueNewPosts = newPosts.filter(p => !existingIds.has(p.id))
+        return [...prev, ...uniqueNewPosts]
+      })
+      setLastVisible(newCursor)
+    } catch (error) {
+      console.error("Error loading more posts", error)
+    } finally {
+      setLoadingMore(false)
+    }
   }
 
-  // Scroll listener
+  // Load More: Following Posts
+  async function loadMoreFollowingPosts() {
+    if (loadingMoreFollowing || !hasMoreFollowing || !lastVisibleFollowing || !user?.uid) return
+    setLoadingMoreFollowing(true)
+    try {
+      const { posts: newPosts, lastVisible: newCursor, snapshotSize } = await getFollowingPostsPaginated(user.uid, lastVisibleFollowing, 5)
+      if (snapshotSize < 5) setHasMoreFollowing(false)
+      setFollowingPosts(prev => {
+        const existingIds = new Set(prev.map(p => p.id))
+        const uniqueNewPosts = newPosts.filter(p => !existingIds.has(p.id))
+        return [...prev, ...uniqueNewPosts]
+      })
+      setLastVisibleFollowing(newCursor)
+    } catch (error) {
+      console.error("Error loading more following posts", error)
+    } finally {
+      setLoadingMoreFollowing(false)
+    }
+  }
+
+  // Scroll Listener
   useEffect(() => {
-      function handleScroll() {
-          if (
-              window.innerHeight + window.scrollY >= document.body.offsetHeight - 200 &&
-              hasMore &&
-              !loadingMore // Note: This relies on loadingMore being up to date in the closure
-          ) {
-              loadMorePosts()
-          }
+    function handleScroll() {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+        if (activeTab === "mataro") {
+            if (hasMore && !loadingMore && !loading) loadMorePosts()
+        } else if (activeTab === "following") {
+            if (hasMoreFollowing && !loadingMoreFollowing && !loadingFollowing) loadMoreFollowingPosts()
+        }
       }
-      window.addEventListener("scroll", handleScroll)
-      return () => window.removeEventListener("scroll", handleScroll)
-  }, [hasMore, loadingMore, lastVisible]) // Dependencies ensure listener is recreated when loadingMore changes
+    }
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [
+      activeTab, 
+      hasMore, loadingMore, loading, lastVisible,
+      hasMoreFollowing, loadingMoreFollowing, loadingFollowing, lastVisibleFollowing
+  ])
+
+  // Handle Post Created
+  const handlePostCreated = async () => {
+    // Reload active tab
+    if (activeTab === "mataro") {
+      setLoading(true)
+      const { posts: fetchedPosts, lastVisible: cursor } = await getAllPostsPaginated(undefined, 5, user?.uid)
+      setPosts(fetchedPosts)
+      setLastVisible(cursor)
+      setHasMore(fetchedPosts.length === 5)
+      setLoading(false)
+    } else if (activeTab === "following" && user?.uid) {
+      setLoadingFollowing(true)
+      const { posts: fetchedPosts, lastVisible: cursor } = await getFollowingPostsPaginated(user.uid, undefined, 5)
+      setFollowingPosts(fetchedPosts)
+      setLastVisibleFollowing(cursor)
+      setHasMoreFollowing(fetchedPosts.length === 5)
+      setLoadingFollowing(false)
+    }
+  }
 
   return (
-    <div className="font-sans rounded md:p-8">
+    <div className="font-sans rounded md:p-4">
       <div className="max-w-200 mx-auto">
         <Toaster position="top-center" />
-        <CreatePost onCreated={async () => {
-          // Al crear, simplemente recargamos todo para ver el nuevo arriba, 
-          // O podríamos prependearlo. Recargar es más seguro para consistencia.
-          setLoading(true)
-          const { posts: fetchedPosts, lastVisible: cursor } = await getAllPostsPaginated(undefined, 5)
-          setPosts(fetchedPosts)
-          setLastVisible(cursor)
-          setHasMore(fetchedPosts.length === 5)
-          setLoading(false)
-        }} />
-
-        <div className="pt-0 pb-20 flex flex-col">
-          {loading ? (
-            <p className="text-center text-gray-500">Cargando posts...</p>
-          ) : posts.length === 0 ? (
-            <p className="text-center text-gray-400">No hay posts aún. ¡Sé el primero en publicar! 🚀</p>
-          ) : (
-            posts.map((post) => (
-              <PostComponent
-                key={post.id}
-                post={post}
-                isPreview={false}
-                onDeleted={(deletedId) =>
-                  setPosts((prev) => prev.filter((p) => p.id !== deletedId))
-                }
-              />
-            ))
-          )}
+        <CreatePost onCreated={handlePostCreated} />
+        <Tabs defaultValue="mataro" onValueChange={setActiveTab} value={activeTab}>
+          <TabsList className="mx-auto mb-8">
+            <TabsTrigger value="mataro">Mataró</TabsTrigger>
+            <TabsTrigger value="following">Siguiendo</TabsTrigger>
+          </TabsList>
           
-          {loadingMore && (
-              <div className="text-center py-4 text-gray-500">Cargando más...</div>
-          )}
-        </div>
+          <TabsContent value="mataro">
+            <div className="pt-0 pb-20 flex flex-col">
+              {loading ? (
+                <p className="text-center text-gray-500">Cargando posts...</p>
+              ) : posts.length === 0 ? (
+                <p className="text-center text-gray-400">No hay posts aún. ¡Sé el primero en publicar! 🚀</p>
+              ) : (
+                posts.map((post) => (
+                  <PostComponent
+                    key={post.id}
+                    post={post}
+                    isPreview={false}
+                    onDeleted={(deletedId) =>
+                      setPosts((prev) => prev.filter((p) => p.id !== deletedId))
+                    }
+                  />
+                ))
+              )}
+
+              {loadingMore && (
+                <div className="text-center py-4 text-gray-500">Cargando más...</div>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="following">
+             <div className="pt-0 pb-20 flex flex-col">
+              {loadingFollowing ? (
+                <p className="text-center text-gray-500">Cargando posts de gente que sigues...</p>
+              ) : followingPosts.length === 0 ? (
+                <div className="text-center pt-10">
+                    <h1 className="text-3xl font-light text-gray-500/50 mb-4">Aun no sigues a nadie</h1>
+                    <p className="text-gray-400">¡Sigue a usuarios para ver sus posts aquí!</p>
+                </div>
+              ) : (
+                followingPosts.map((post) => (
+                  <PostComponent
+                    key={post.id}
+                    post={post}
+                    isPreview={false}
+                    onDeleted={(deletedId) =>
+                      setFollowingPosts((prev) => prev.filter((p) => p.id !== deletedId))
+                    }
+                  />
+                ))
+              )}
+
+              {loadingMoreFollowing && (
+                <div className="text-center py-4 text-gray-500">Cargando más...</div>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   )

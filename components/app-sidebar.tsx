@@ -29,11 +29,11 @@ const items = [
   //   url: "/newspaper",
   //   icon: Newspaper,
   // },
-  // {
-  //   title: "Rastro",
-  //   url: "/market",
-  //   icon: Handshake,
-  // },
+  {
+    title: "Rastro",
+    url: "/market",
+    icon: Handshake,
+  },
   // {
   //   title: "Trabajos",
   //   url: "/jobs",
