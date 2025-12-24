@@ -97,7 +97,7 @@ export default function ProfileView() {
                 else if (p.imageURL) photos.push(p.imageURL)
             })
             // From market items
-            items.forEach((item: any) => {
+            items.forEach((item) => {
                  if (item.images && item.images.length > 0) photos.push(...item.images)
             })
             // Unique and non-empty
@@ -377,8 +377,7 @@ export default function ProfileView() {
                         ) : (
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                 {marketItems.map(item => (
-                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                    <MarketItem key={item.id} item={item as any} /> 
+                                    <MarketItem key={item.id} item={item} /> 
                                 ))}
                             </div>
                         )}

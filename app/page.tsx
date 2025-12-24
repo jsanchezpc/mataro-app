@@ -21,14 +21,14 @@ export default function Home() {
   // State for All Posts
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
-  const [lastVisible, setLastVisible] = useState<any | null>(null)
+  const [lastVisible, setLastVisible] = useState<unknown | null>(null)
   const [hasMore, setHasMore] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
 
   // State for Following Posts
   const [followingPosts, setFollowingPosts] = useState<Post[]>([])
   const [loadingFollowing, setLoadingFollowing] = useState(true)
-  const [lastVisibleFollowing, setLastVisibleFollowing] = useState<any | null>(null)
+  const [lastVisibleFollowing, setLastVisibleFollowing] = useState<unknown | null>(null)
   const [hasMoreFollowing, setHasMoreFollowing] = useState(true)
   const [loadingMoreFollowing, setLoadingMoreFollowing] = useState(false)
 

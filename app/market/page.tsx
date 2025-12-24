@@ -44,7 +44,7 @@ export default async function MarketPage() {
              ) : (
                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {items.map((item, index) => (
-                        <MarketItem key={item.id} item={item as any} priority={index < 4} /> 
+                        <MarketItem key={item.id} item={item} priority={index < 4} /> 
                     ))}
                  </div>
              )}

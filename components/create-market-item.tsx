@@ -4,7 +4,7 @@ import { useAuth } from "@/app/context/AuthContext"
 import { getUserById, uploadPostImage } from "@/lib/firebase"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { toast } from "sonner"
-import { Plus, Image as ImageIcon, X, ShoppingBag } from "lucide-react"
+import { Image as ImageIcon, X, ShoppingBag } from "lucide-react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -14,7 +14,6 @@ import Image from "next/image"
 // UI components
 import {
     Sheet,
-    SheetClose,
     SheetContent,
     SheetDescription,
     SheetFooter,
@@ -35,7 +34,6 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 // import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
 
 const formSchema = z.object({
     title: z.string().min(3, "El título es muy corto").max(50),
@@ -52,7 +50,7 @@ type CreateMarketItemProps = {
 }
 
 export default function CreateMarketItem({ onCreated, children }: CreateMarketItemProps) {
-    const { user, loadingUser } = useAuth()
+    const { user } = useAuth()
     const isMobile = useIsMobile()
     const [open, setOpen] = useState(false)
     const [profile, setProfile] = useState<{ id: string; username?: string; description?: string } | null>(null)
@@ -66,7 +64,8 @@ export default function CreateMarketItem({ onCreated, children }: CreateMarketIt
         getUserById(user.uid).then((data) => setProfile(data)).catch(() => toast("Error al obtener perfil"))
     }, [user])
 
-    const form = useForm<any>({
+    const form = useForm({
+    // @ts-ignore
         resolver: zodResolver(formSchema),
         defaultValues: {
             title: "",
@@ -195,7 +194,7 @@ export default function CreateMarketItem({ onCreated, children }: CreateMarketIt
                                 <FormItem>
                                     <FormLabel>Precio (€)</FormLabel>
                                     <FormControl>
-                                        <Input type="number" placeholder="Ej: 50" {...field} />
+                                        <Input type="number" placeholder="Ej: 50" {...field} value={field.value as number || ""} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

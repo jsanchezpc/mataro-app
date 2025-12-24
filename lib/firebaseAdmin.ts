@@ -1,6 +1,7 @@
 // lib/firebaseAdmin.ts
 import * as admin from "firebase-admin";
 import { getFirestore } from "firebase-admin/firestore";
+import { MarketItem } from "@/types/market-item";
 import { Post } from "@/types/post";
 import { getDbId } from "@/lib/db";
 
@@ -181,7 +182,7 @@ export async function addCommentToPostServer(postId: string, commentId: string) 
 }
 
 // ✅ Market Functions
-export async function getAllMarketItemsServer() {
+export async function getAllMarketItemsServer(): Promise<MarketItem[]> {
   const snapshot = await db.collection("market_items").orderBy("createdAt", "desc").get();
   return snapshot.docs.map((doc) => {
     const data = doc.data();
@@ -189,7 +190,7 @@ export async function getAllMarketItemsServer() {
       id: doc.id,
       ...data,
       createdAt: data.createdAt?.toMillis?.() || data.createdAt?.seconds * 1000 || Date.now(),
-    };
+    } as MarketItem;
   });
 }
 

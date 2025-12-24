@@ -26,6 +26,7 @@ import { Post } from "@/types/post";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import Link from "next/link";
+import Image from "next/image";
 
 import { getAuth } from "firebase/auth";
 import { getUserById, getPostById } from "@/lib/firebase";
@@ -227,20 +228,24 @@ export default function PostComponent({
                          <div key={idx} className="flex-none w-full sm:w-[85%] snap-center relative aspect-video rounded-md overflow-hidden bg-black/5">
                              <Dialog>
                                 <DialogTrigger asChild>
-                                    <img
-                                        src={imgUrl}
-                                        alt={`Post image ${idx + 1}`}
-                                        className="w-full h-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
-                                        loading="lazy"
-                                    />
+                                    <div className="relative w-full h-full"> 
+                                        <Image
+                                            src={imgUrl}
+                                            alt={`Post image ${idx + 1}`}
+                                            fill
+                                            className="object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                                            sizes="(max-width: 640px) 90vw, 500px"
+                                        />
+                                    </div>
                                 </DialogTrigger>
                                 <DialogContent className="max-w-[90vw] md:max-w-7xl w-full p-0 overflow-hidden bg-transparent border-none shadow-none text-center">
                                     <DialogTitle className="sr-only">Imagen del post</DialogTitle>
-                                    <div className="relative w-full flex items-center justify-center">
-                                    <img
+                                    <div className="relative w-full h-[90vh] flex items-center justify-center">
+                                    <Image
                                         src={imgUrl}
                                         alt={`Post image ${idx + 1}`}
-                                        className="max-w-full max-h-[90vh] object-contain rounded-md"
+                                        fill
+                                        className="object-contain"
                                     />
                                     </div>
                                 </DialogContent>
@@ -263,21 +268,26 @@ export default function PostComponent({
                 )}
                 <Dialog>
                   <DialogTrigger asChild>
-                    <img
-                        src={post.imageURL}
-                        alt="Post image"
-                        className={`w-full h-auto max-h-[500px] object-cover cursor-pointer hover:opacity-95 transition-opacity ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
-                        loading="lazy"
-                        onLoad={() => setImageLoading(false)}
-                    />
+                    <div className="relative w-full h-[300px] sm:h-[400px]">
+                        <Image
+                            src={post.imageURL}
+                            alt="Post image"
+                            fill
+                            className={`object-cover rounded-md cursor-pointer hover:opacity-95 transition-opacity ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
+                            sizes="(max-width: 768px) 100vw, 800px"
+                            onLoad={() => setImageLoading(false)}
+                            priority
+                        />
+                    </div>
                   </DialogTrigger>
                   <DialogContent className="max-w-[90vw] md:max-w-7xl w-full p-0 overflow-hidden bg-transparent border-none shadow-none text-center">
                     <DialogTitle className="sr-only">Imagen del post</DialogTitle>
-                    <div className="relative w-full  flex items-center justify-center">
-                      <img
+                    <div className="relative w-full h-[90vh] flex items-center justify-center">
+                      <Image
                         src={post.imageURL}
                         alt="Post image full size"
-                        className="max-w-full max-h-full object-contain rounded-md"
+                        fill
+                        className="object-contain"
                       />
                     </div>
                   </DialogContent>

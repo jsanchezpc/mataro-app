@@ -42,6 +42,7 @@ import {
 } from "firebase/storage"
 import { getAnalytics, isSupported } from "firebase/analytics";
 import { Post } from "@/types/post"
+import { MarketItem } from "@/types/market-item"
 import { getDbId } from "@/lib/db"
 
 // Configuración desde .env.local
@@ -300,10 +301,10 @@ async function getUserByUsername(username: string) {
 
 // ✅ Obtener TODOS los posts paginados (feed principal)
 async function getAllPostsPaginated(
-  lastSnapshot?: any,
+  lastSnapshot?: unknown,
   pageSize = 5,
   currentUserId?: string
-): Promise<{ posts: Post[]; lastVisible: any | null; snapshotSize: number }> {
+): Promise<{ posts: Post[]; lastVisible: unknown | null; snapshotSize: number }> {
   try {
     const postsRef = collection(db, "posts")
     let q = query(
@@ -394,9 +395,9 @@ async function getPostsByUserIdPaginated(
 //       where("isChild", "==", true),
 //       orderBy("createdAt", "desc")
 //     );
-
+// 
 //     const querySnapshot = await getDocs(q);
-
+// 
 //     const comments: Post[] = querySnapshot.docs.map((doc) => ({
 //       id: doc.id,
 //       ...doc.data(),
@@ -544,9 +545,9 @@ async function checkIsFollowing(currentUserId: string, targetUserId: string): Pr
 // ✅ Obtener posts de las cuentas que sigo
 async function getFollowingPostsPaginated(
   currentUserId: string,
-  lastSnapshot?: any,
+  lastSnapshot?: unknown,
   pageSize = 5
-): Promise<{ posts: Post[]; lastVisible: any | null; snapshotSize: number }> {
+): Promise<{ posts: Post[]; lastVisible: unknown | null; snapshotSize: number }> {
   if (!currentUserId) return { posts: [], lastVisible: null, snapshotSize: 0 }
 
   try {
@@ -653,13 +654,13 @@ async function hidePost(userId: string, postId: string) {
 
 
 
-async function getUserMarketItems(userId: string) {
+async function getUserMarketItems(userId: string): Promise<MarketItem[]> {
     if (!userId) return []
     try {
         const itemsRef = collection(db, "market_items")
         const q = query(itemsRef, where("sellerId", "==", userId), orderBy("createdAt", "desc"))
         const snapshot = await getDocs(q)
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MarketItem))
     } catch (e) {
         console.error("Error getting user market items:", e)
         return []
