@@ -65,7 +65,6 @@ export default function CreateMarketItem({ onCreated, children }: CreateMarketIt
     }, [user])
 
     const form = useForm({
-    // @ts-ignore
         resolver: zodResolver(formSchema),
         defaultValues: {
             title: "",
@@ -74,8 +73,6 @@ export default function CreateMarketItem({ onCreated, children }: CreateMarketIt
             createPost: false
         },
     })
-    
-    // ... rest of the component
 
 
     const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {

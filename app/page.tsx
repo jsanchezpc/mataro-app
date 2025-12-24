@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useAuth } from "@/app/context/AuthContext"
 import { Toaster } from "@/components/ui/sonner"
 import {
@@ -67,10 +67,10 @@ export default function Home() {
     if (!loadingUser && activeTab === "following" && followingPosts.length === 0) {
       loadInitialFollowing()
     }
-  }, [user, loadingUser, activeTab]) 
+  }, [user, loadingUser, activeTab, followingPosts.length]) 
 
   // Load More: All Posts
-  async function loadMorePosts() {
+  const loadMorePosts = useCallback(async () => {
     if (loadingMore || !hasMore || !lastVisible) return
     setLoadingMore(true)
     try {
@@ -87,10 +87,10 @@ export default function Home() {
     } finally {
       setLoadingMore(false)
     }
-  }
+  }, [loadingMore, hasMore, lastVisible, user])
 
   // Load More: Following Posts
-  async function loadMoreFollowingPosts() {
+  const loadMoreFollowingPosts = useCallback(async () => {
     if (loadingMoreFollowing || !hasMoreFollowing || !lastVisibleFollowing || !user?.uid) return
     setLoadingMoreFollowing(true)
     try {
@@ -107,7 +107,7 @@ export default function Home() {
     } finally {
       setLoadingMoreFollowing(false)
     }
-  }
+  }, [loadingMoreFollowing, hasMoreFollowing, lastVisibleFollowing, user])
 
   // Scroll Listener
   useEffect(() => {
@@ -124,8 +124,8 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [
       activeTab, 
-      hasMore, loadingMore, loading, lastVisible,
-      hasMoreFollowing, loadingMoreFollowing, loadingFollowing, lastVisibleFollowing
+      hasMore, loadingMore, loading, loadMorePosts,
+      hasMoreFollowing, loadingMoreFollowing, loadingFollowing, loadMoreFollowingPosts
   ])
 
   // Handle Post Created

@@ -3,9 +3,7 @@ import {
     Item,
     ItemContent,
     ItemDescription,
-    ItemHeader,
     ItemTitle,
-    ItemActions
 } from "@/components/ui/item"
 import {
     Dialog,

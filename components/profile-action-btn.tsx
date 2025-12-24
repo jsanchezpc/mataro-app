@@ -2,7 +2,7 @@
 
 import { updateUserProfile, followUser, unfollowUser, checkIsFollowing } from "@/lib/firebase"
 import { useAuth } from "@/app/context/AuthContext"
-import { useParams } from "next/navigation"
+// import { useParams } from "next/navigation"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -53,7 +53,7 @@ type ProfileActionProps = {
 }
 
 export default function ProfileAction({ profile, onUpdated }: ProfileActionProps) {
-    const params = useParams()
+    // const params = useParams()
     const { user } = useAuth()
     const isMobile = useIsMobile()
     const [open, setOpen] = useState(false)
