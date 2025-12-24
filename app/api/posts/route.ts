@@ -24,7 +24,7 @@ export async function GET() {
 // POST /api/posts
 export async function POST(req: Request) {
   try {
-    const { uid, content, isPrivate, isChild, father, imageURL } = await req.json()
+    const { uid, content, isPrivate, isChild, father, imageURL, images } = await req.json()
 
     if (!uid || (!content && !imageURL)) { // Permitir post solo con imagen si se quisiera, o mantener restricción
        // Mantenemos restricción de que debe haber content O podemos relajarlo. 
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     }
     
     // Si queremos obligar texto O imagen:
-    if (!uid || (!content && !imageURL)) {
+    if (!uid || (!content && !imageURL && (!images || images.length === 0))) {
          return NextResponse.json(
         { error: "El post debe tener texto o imagen" },
         { status: 400 }
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     }
 
     // Crear el post (comentario o post normal)
-    const newPost = await createPostServer(uid, content || "", isPrivate, isChild, father, imageURL)
+    const newPost = await createPostServer(uid, content || "", isPrivate, isChild, father, imageURL, images)
 
     // Si es un comentario, agregarlo a la lista de comments del post padre
     if (isChild && father) {

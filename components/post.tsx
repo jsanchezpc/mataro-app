@@ -220,7 +220,41 @@ export default function PostComponent({
       <CardContent>
         <p className="whitespace-pre-wrap leading-relaxed">{content}</p>
         
-        {post.imageURL && (
+        {(post.images && post.images.length > 0) ? (
+             <div className="mt-3 relative w-full overflow-hidden rounded-xl border bg-muted/30">
+                <div className="flex overflow-x-auto snap-x snap-mandatory gap-2 p-2 scrollbar-hide">
+                    {post.images.map((imgUrl, idx) => (
+                         <div key={idx} className="flex-none w-full sm:w-[85%] snap-center relative aspect-video rounded-md overflow-hidden bg-black/5">
+                             <Dialog>
+                                <DialogTrigger asChild>
+                                    <img
+                                        src={imgUrl}
+                                        alt={`Post image ${idx + 1}`}
+                                        className="w-full h-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                                        loading="lazy"
+                                    />
+                                </DialogTrigger>
+                                <DialogContent className="max-w-[90vw] md:max-w-7xl w-full p-0 overflow-hidden bg-transparent border-none shadow-none text-center">
+                                    <DialogTitle className="sr-only">Imagen del post</DialogTitle>
+                                    <div className="relative w-full flex items-center justify-center">
+                                    <img
+                                        src={imgUrl}
+                                        alt={`Post image ${idx + 1}`}
+                                        className="max-w-full max-h-[90vh] object-contain rounded-md"
+                                    />
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
+                         </div>
+                    ))}
+                </div>
+                {post.images.length > 1 && (
+                     <div className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+                         1 / {post.images.length}
+                     </div>
+                )}
+             </div>
+        ) : post.imageURL && (
             <div className="mt-3 relative w-full overflow-hidden rounded-xl border bg-muted/30 min-h-[200px] flex items-center justify-center">
                 {imageLoading && (
                   <div className="absolute inset-0 flex items-center justify-center bg-muted/30 z-10">

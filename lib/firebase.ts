@@ -628,7 +628,6 @@ async function reportPost(postId: string, reportedBy: string, reason: string) {
   }
 }
 
-// ✅ Ocultar un post para un usuario
 async function hidePost(userId: string, postId: string) {
     if (!userId || !postId) return
 
@@ -654,6 +653,19 @@ async function hidePost(userId: string, postId: string) {
 
 
 
+async function getUserMarketItems(userId: string) {
+    if (!userId) return []
+    try {
+        const itemsRef = collection(db, "market_items")
+        const q = query(itemsRef, where("sellerId", "==", userId), orderBy("createdAt", "desc"))
+        const snapshot = await getDocs(q)
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+    } catch (e) {
+        console.error("Error getting user market items:", e)
+        return []
+    }
+}
+
 export {
   app,
   auth,
@@ -678,6 +690,8 @@ export {
   getPostsByUserIdPaginated,
   getAllPostsPaginated,
   getFollowingPostsPaginated,
-  reportPost
+  reportPost,
+  hidePost,
+  getUserMarketItems
 }
 

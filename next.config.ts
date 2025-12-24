@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
               img-src 'self' data: https://*.googleusercontent.com https://firebasestorage.googleapis.com https://www.google.com https://www.gstatic.com;
               font-src 'self' data: https://fonts.gstatic.com;
-              connect-src 'self' https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://www.google-analytics.com https://region1.google-analytics.com https://firebase.googleapis.com https://content-firebaseappcheck.googleapis.com https://firebasestorage.googleapis.com;
+              connect-src 'self' https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://www.google-analytics.com https://region1.google-analytics.com https://firebase.googleapis.com https://content-firebaseappcheck.googleapis.com https://firebasestorage.googleapis.com https://firebaseinstallations.googleapis.com;
               frame-src 'self' https://matarostaging.firebaseapp.com https://www.google.com https://www.google.com/recaptcha/;
             `.replace(/\s{2,}/g, ' ').trim()
           }
@@ -28,6 +28,10 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'firebasestorage.googleapis.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'firebaseinstallations.googleapis.com',
       },
       {
         protocol: 'http',

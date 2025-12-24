@@ -22,6 +22,15 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import PostComponent from "@/components/post"
 import { Button } from "@/components/ui/button";
+import MarketItem from "@/components/market-item"
+import { getUserMarketItems } from "@/lib/firebase"
+import Image from "next/image"
+import {
+    Dialog,
+    DialogContent,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import { MarketItem as MarketItemType } from "@/types/market-item"
 
 export default function ProfileView() {
     const { user, loadingUser, refetchProfile } = useAuth()
@@ -31,6 +40,8 @@ export default function ProfileView() {
     const [posts, setPosts] = useState<Post[]>([])
     const [lastVisible, setLastVisible] = useState<number | null>(null)
     const [hasMore, setHasMore] = useState(true)
+    const [marketItems, setMarketItems] = useState<MarketItemType[]>([])
+    const [userPhotos, setUserPhotos] = useState<string[]>([])
     const [loading, setLoading] = useState(true)
     const [loadingMore, setLoadingMore] = useState(false)
     const [notFound, setNotFound] = useState(false)
@@ -60,21 +71,42 @@ export default function ProfileView() {
         }
     }, [loadingUser, user, router])
 
-    // Cargar los primeros 20 posts
+    // Cargar los primeros 20 posts y datos adicionales
     useEffect(() => {
-        async function loadInitialPosts() {
+        async function loadInitialData() {
             if (!profile?.id) return
             setLoading(true)
+            
+            // 1. Fetch Posts
             const { posts: fetchedPosts, lastVisible: cursor } =
                 await getPostsByUserIdPaginated(profile.id, 0, 20)
 
             setPosts(fetchedPosts as Post[])
             setLastVisible(cursor)
             setHasMore(fetchedPosts.length === 20)
+
+            // 2. Fetch Market Items
+            const items = await getUserMarketItems(profile.id)
+            setMarketItems(items as MarketItemType[])
+
+            // 3. Aggregate Photos
+            const photos: string[] = []
+            // From posts
+            fetchedPosts.forEach((p) => {
+                if (p.images && p.images.length > 0) photos.push(...p.images)
+                else if (p.imageURL) photos.push(p.imageURL)
+            })
+            // From market items
+            items.forEach((item: any) => {
+                 if (item.images && item.images.length > 0) photos.push(...item.images)
+            })
+            // Unique and non-empty
+            setUserPhotos([...new Set(photos)].filter(Boolean))
+
             setLoading(false)
         }
 
-        loadInitialPosts()
+        loadInitialData()
     }, [profile?.id])
 
 
@@ -262,6 +294,7 @@ export default function ProfileView() {
                     <TabsList>
                         <TabsTrigger value="posts">Posts</TabsTrigger>
                         <TabsTrigger value="media">Fotos</TabsTrigger>
+                        <TabsTrigger value="market">En Venta</TabsTrigger>
                     </TabsList>
                     <TabsContent value="posts" className="py-4">
                         {loading ? (
@@ -293,13 +326,62 @@ export default function ProfileView() {
                             </div>
                         )}
                     </TabsContent>
+                    
                     <TabsContent value="media" className="py-4">
-                        <p className="text-gray-400">
-                            {profile?.username
-                                ? profile.username
-                                : "Mataroní/nesa"}
-                            no ha subido fotos.
-                        </p>
+                        {userPhotos.length === 0 ? (
+                            <p className="text-gray-400">
+                                {profile?.username
+                                    ? profile.username
+                                    : "Mataroní/nesa"}
+                                no ha subido fotos.
+                            </p>
+                        ) : (
+                            <div className="grid grid-cols-3 gap-1">
+                                {userPhotos.map((photo, idx) => (
+                                    <Dialog key={idx}>
+                                        <DialogTrigger asChild>
+                                           <div className="relative aspect-square bg-muted cursor-pointer hover:opacity-90 transition-opacity">
+                                                <Image 
+                                                    src={photo} 
+                                                    alt={`User photo ${idx}`} 
+                                                    fill 
+                                                    className="object-cover"
+                                                    sizes="(max-width: 768px) 33vw, 20vw"
+                                                />
+                                           </div>
+                                        </DialogTrigger>
+                                        <DialogContent className="max-w-4xl p-0 overflow-hidden bg-transparent border-none shadow-none">
+                                            <div className="relative w-full h-[80vh]">
+                                                <Image 
+                                                    src={photo}
+                                                    alt="Full size"
+                                                    fill
+                                                    className="object-contain"
+                                                />
+                                            </div>
+                                        </DialogContent>
+                                    </Dialog>
+                                ))}
+                            </div>
+                        )}
+                    </TabsContent>
+
+                    <TabsContent value="market" className="py-4">
+                        {marketItems.length === 0 ? (
+                             <p className="text-gray-400">
+                                {profile?.username
+                                    ? profile.username
+                                    : "Mataroní/nesa"}
+                                no tiene artículos en venta.
+                            </p>
+                        ) : (
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                {marketItems.map(item => (
+                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                    <MarketItem key={item.id} item={item as any} /> 
+                                ))}
+                            </div>
+                        )}
                     </TabsContent>
                 </Tabs>
             </div>

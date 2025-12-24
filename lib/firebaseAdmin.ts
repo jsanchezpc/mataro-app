@@ -28,7 +28,8 @@ export async function getAllPostsServer() {
     return {
       id: doc.id,
       ...data,
-      timestamp: data.timestamp?.toMillis?.() || data.timestamp?.seconds * 1000 || Date.now(), // Asegurar number
+      timestamp: data.timestamp?.toMillis?.() || data.timestamp?.seconds * 1000 || Date.now(),
+      images: data.images ?? [] // Asegurar number
     };
   });
 }
@@ -56,7 +57,8 @@ export async function getPostsByUserServer(userId: string): Promise<Post[]> {
         comments: data.comments ?? [],
         isChild: data.isChild ?? false,
         father: data.father ?? [],
-        imageURL: data.imageURL ?? null
+        imageURL: data.imageURL ?? null,
+        images: data.images ?? []
       });
     });
 
@@ -66,7 +68,7 @@ export async function getPostsByUserServer(userId: string): Promise<Post[]> {
   }
 }
 
-export async function createPostServer(uid: string, content: string, isPrivate: boolean, isChild: boolean, father: string, imageURL?: string) {
+export async function createPostServer(uid: string, content: string, isPrivate: boolean, isChild: boolean, father: string, imageURL?: string, images?: string[]) {
   const newPost = {
     uid,
     isPrivate,
@@ -76,7 +78,8 @@ export async function createPostServer(uid: string, content: string, isPrivate: 
     comments: [],
     isChild, 
     father,
-    imageURL: imageURL || null
+    imageURL: imageURL || null,
+    images: images || []
   };
 
   const docRef = await db.collection("posts").add(newPost);
@@ -175,4 +178,35 @@ export async function addCommentToPostServer(postId: string, commentId: string) 
   await postRef.update({
     comments: admin.firestore.FieldValue.arrayUnion(commentId),
   })
+}
+
+// ✅ Market Functions
+export async function getAllMarketItemsServer() {
+  const snapshot = await db.collection("market_items").orderBy("createdAt", "desc").get();
+  return snapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      ...data,
+      createdAt: data.createdAt?.toMillis?.() || data.createdAt?.seconds * 1000 || Date.now(),
+    };
+  });
+}
+
+export async function createMarketItemServer(data: {
+    title: string,
+    description: string,
+    price: number,
+    images: string[],
+    sellerId: string,
+    sellerName?: string
+}) {
+    const newItem = {
+        ...data,
+        status: 'available',
+        createdAt: admin.firestore.FieldValue.serverTimestamp()
+    }
+    
+    const docRef = await db.collection("market_items").add(newItem);
+    return { id: docRef.id, ...newItem };
 }

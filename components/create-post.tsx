@@ -61,8 +61,8 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
     const isMobile = useIsMobile()
     const [open, setOpen] = useState(false)
     const [profile, setProfile] = useState<{ id: string; username?: string; description?: string } | null>(null)
-    const [selectedImage, setSelectedImage] = useState<File | null>(null)
-    const [imagePreview, setImagePreview] = useState<string | null>(null)
+    const [selectedImages, setSelectedImages] = useState<File[]>([])
+    const [imagePreviews, setImagePreviews] = useState<string[]>([])
     const [isUploading, setIsUploading] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -79,20 +79,29 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
     })
 
     const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (file) {
-            setSelectedImage(file)
-            const reader = new FileReader()
-            reader.onloadend = () => {
-                setImagePreview(reader.result as string)
+        const files = e.target.files
+        if (files) {
+            const newFiles = Array.from(files)
+            if (selectedImages.length + newFiles.length > 4) {
+                toast("Máximo 4 imágenes")
+                return
             }
-            reader.readAsDataURL(file)
+            
+            setSelectedImages(prev => [...prev, ...newFiles])
+            
+            newFiles.forEach(file => {
+                const reader = new FileReader()
+                reader.onloadend = () => {
+                    setImagePreviews(prev => [...prev, reader.result as string])
+                }
+                reader.readAsDataURL(file)
+            })
         }
     }
 
-    const removeImage = () => {
-        setSelectedImage(null)
-        setImagePreview(null)
+    const removeImage = (index: number) => {
+        setSelectedImages(prev => prev.filter((_, i) => i !== index))
+        setImagePreviews(prev => prev.filter((_, i) => i !== index))
         if (fileInputRef.current) {
             fileInputRef.current.value = ""
         }
@@ -104,7 +113,7 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
             return
         }
 
-        if (!values.postContent && !selectedImage) {
+        if (!values.postContent && selectedImages.length === 0) {
             toast("Error", { description: "Debes escribir algo o subir una imagen" })
             return
         }
@@ -112,10 +121,10 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
         setIsUploading(true)
 
         try {
-            let imageURL = null
-            if (selectedImage) {
-                imageURL = await uploadPostImage(selectedImage)
-            }
+            const uploadedUrls = await Promise.all(
+                selectedImages.map(img => uploadPostImage(img))
+            )
+            const validUrls = uploadedUrls.filter((url): url is string => url !== null)
 
             const res = await fetch("/api/posts", {
                 method: "POST",
@@ -127,7 +136,8 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
                     isPrivate: false,
                     isChild: false,
                     father: "none",
-                    imageURL
+                    imageURL: validUrls[0] || null, // Backward compatibility
+                    images: validUrls
                 }),
             })
 
@@ -137,7 +147,8 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
 
             toast("✅ Post creado con éxito")
             form.reset()
-            removeImage()
+            setSelectedImages([])
+            setImagePreviews([])
             setOpen(false)
             onCreated?.()
         } catch {
@@ -160,7 +171,8 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
         commentsCount: 0,
         isChild: false,
         father: "none",
-        imageURL: imagePreview || undefined
+        imageURL: imagePreviews[0] || undefined,
+        images: imagePreviews
     }
 
 
@@ -194,6 +206,7 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
                                                 <input
                                                     type="file"
                                                     accept="image/*"
+                                                    multiple
                                                     className="hidden"
                                                     ref={fileInputRef}
                                                     onChange={handleImageSelect}
@@ -214,25 +227,27 @@ export default function CreatePost({ onCreated }: CreatePostProps) {
                                 )}
                             />
 
-                            {imagePreview && (
-                                <div className="relative rounded-xl overflow-hidden border bg-muted/30">
-                                    <div className="relative aspect-video w-full">
-                                        <Image
-                                            src={imagePreview}
-                                            alt="Preview"
-                                            fill
-                                            className="object-cover"
-                                        />
-                                    </div>
-                                    <Button
-                                        type="button"
-                                        variant="destructive"
-                                        size="icon"
-                                        className="absolute top-2 right-2 h-8 w-8 rounded-full opacity-90 hover:opacity-100"
-                                        onClick={removeImage}
-                                    >
-                                        <X className="h-4 w-4" />
-                                    </Button>
+                            {imagePreviews.length > 0 && (
+                                <div className="grid grid-cols-2 gap-2">
+                                    {imagePreviews.map((preview, index) => (
+                                        <div key={index} className="relative rounded-xl overflow-hidden border bg-muted/30 aspect-video">
+                                            <Image
+                                                src={preview}
+                                                alt={`Preview ${index}`}
+                                                fill
+                                                className="object-cover"
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="destructive"
+                                                size="icon"
+                                                className="absolute top-2 right-2 h-6 w-6 rounded-full opacity-90 hover:opacity-100"
+                                                onClick={() => removeImage(index)}
+                                            >
+                                                <X className="h-3 w-3" />
+                                            </Button>
+                                        </div>
+                                    ))}
                                 </div>
                             )}
 
