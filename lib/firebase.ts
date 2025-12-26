@@ -9,7 +9,8 @@ import { initializeApp } from "firebase/app"
 import {
   getAuth,
   GoogleAuthProvider,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -152,12 +153,23 @@ async function createUserIfNotExists(user: User) {
 // 🚀 Métodos de auth
 async function logInWithGoogle() {
   try {
-    const result = await signInWithPopup(auth, provider)
-    await createUserIfNotExists(result.user)
-    return result.user
+    await signInWithRedirect(auth, provider)
   } catch (error) {
     throw error
   }
+}
+
+// Manejar el resultado del redireccionamiento cuando la página carga
+if (typeof window !== "undefined") {
+  getRedirectResult(auth)
+    .then(async (result) => {
+      if (result) {
+        await createUserIfNotExists(result.user)
+      }
+    })
+    .catch((error) => {
+      console.error("Error en getRedirectResult:", error)
+    })
 }
 
 async function logOut() {
