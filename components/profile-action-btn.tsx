@@ -239,7 +239,7 @@ export default function ProfileAction({ profile, onUpdated }: ProfileActionProps
                     </Sheet>
                 </div>
             ) : (
-                <Button 
+                <Button className="dark:text-white" 
                     variant={isFollowing ? "secondary" : "default"} 
                     onClick={handleFollowToggle}
                     disabled={loadingFollow}
