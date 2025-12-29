@@ -1,4 +1,5 @@
 "use client"
+import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { GalleryVerticalEnd } from "lucide-react"
 
@@ -9,12 +10,14 @@ export default function Login() {
   const { user, loadingUser } = useAuth()
   const router = useRouter()
 
+  useEffect(() => {
+    if (!loadingUser && user) {
+      router.push("/")
+    }
+  }, [user, loadingUser, router])
+
   if (loadingUser) {
     return <div className="flex justify-center items-center min-h-svh">Cargando...</div>
-  }
-
-  if (user) {
-    router.push("/")
   }
 
   return (
@@ -31,3 +34,4 @@ export default function Login() {
     </div>
   )
 }
+

@@ -37,6 +37,9 @@ yarn-error.log*
 firestore.rules
 storage.rules
 
+# agent
+.agent
+
 # vercel
 .vercel
 

@@ -9,7 +9,7 @@ import { initializeApp } from "firebase/app"
 import {
   getAuth,
   GoogleAuthProvider,
-  signInWithRedirect,
+  signInWithPopup,
   getRedirectResult,
   signOut,
   signInWithEmailAndPassword,
@@ -153,23 +153,13 @@ async function createUserIfNotExists(user: User) {
 // 🚀 Métodos de auth
 async function logInWithGoogle() {
   try {
-    await signInWithRedirect(auth, provider)
+    const result = await signInWithPopup(auth, provider)
+    await createUserIfNotExists(result.user)
+    return result.user
+
   } catch (error) {
     throw error
   }
-}
-
-// Manejar el resultado del redireccionamiento cuando la página carga
-if (typeof window !== "undefined") {
-  getRedirectResult(auth)
-    .then(async (result) => {
-      if (result) {
-        await createUserIfNotExists(result.user)
-      }
-    })
-    .catch((error) => {
-      console.error("Error en getRedirectResult:", error)
-    })
 }
 
 async function logOut() {
@@ -320,31 +310,31 @@ async function getAllPostsPaginated(
   try {
     const postsRef = collection(db, "posts")
     let q = query(
-        postsRef, 
-        orderBy("timestamp", "desc"), 
-        limit(pageSize)
+      postsRef,
+      orderBy("timestamp", "desc"),
+      limit(pageSize)
     )
 
     if (lastSnapshot) {
       q = query(
-            postsRef,
-            orderBy("timestamp", "desc"), 
-            startAfter(lastSnapshot), 
-            limit(pageSize)
-        )
+        postsRef,
+        orderBy("timestamp", "desc"),
+        startAfter(lastSnapshot),
+        limit(pageSize)
+      )
     }
 
     const querySnapshot = await getDocs(q)
     const posts: Post[] = []
-    
+
     querySnapshot.forEach((doc) => {
-        const postData = doc.data() as Post
-        // Filter if reported by current user
-        if (currentUserId && postData.reportedBy?.includes(currentUserId)) {
-            return
-        }
-        
-        posts.push({ ...postData, id: doc.id } as Post)
+      const postData = doc.data() as Post
+      // Filter if reported by current user
+      if (currentUserId && postData.reportedBy?.includes(currentUserId)) {
+        return
+      }
+
+      posts.push({ ...postData, id: doc.id } as Post)
     })
 
     const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null
@@ -570,39 +560,39 @@ async function getFollowingPostsPaginated(
 
     const following = userSnap.data().following || []
     if (following.length === 0) return { posts: [], lastVisible: null, snapshotSize: 0 }
-    
+
     // Firestore 'in' limit is 30. We'll take the first 30 for now.
     const limitedFollowing = following.slice(0, 30);
 
     const postsRef = collection(db, "posts")
     let q = query(
-        postsRef,
-        where("uid", "in", limitedFollowing),
-        orderBy("timestamp", "desc"),
-        limit(pageSize)
+      postsRef,
+      where("uid", "in", limitedFollowing),
+      orderBy("timestamp", "desc"),
+      limit(pageSize)
     )
 
     if (lastSnapshot) {
-       q = query(
-            postsRef,
-            where("uid", "in", limitedFollowing),
-            orderBy("timestamp", "desc"),
-            startAfter(lastSnapshot),
-            limit(pageSize)
-       )
+      q = query(
+        postsRef,
+        where("uid", "in", limitedFollowing),
+        orderBy("timestamp", "desc"),
+        startAfter(lastSnapshot),
+        limit(pageSize)
+      )
     }
 
     const querySnapshot = await getDocs(q)
     const posts: Post[] = []
-    
+
     querySnapshot.forEach((doc) => {
-        const postData = doc.data() as Post
-        // Filter if reported by current user
-        if (postData.reportedBy?.includes(currentUserId)) {
-            return
-        }
-        
-        posts.push({ ...postData, id: doc.id } as Post)
+      const postData = doc.data() as Post
+      // Filter if reported by current user
+      if (postData.reportedBy?.includes(currentUserId)) {
+        return
+      }
+
+      posts.push({ ...postData, id: doc.id } as Post)
     })
 
     const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null
@@ -632,7 +622,7 @@ async function reportPost(postId: string, reportedBy: string, reason: string) {
     // 2. Actualizar el post para añadir al usuario que reportó
     const postRef = doc(db, "posts", postId)
     await updateDoc(postRef, {
-        reportedBy: arrayUnion(reportedBy)
+      reportedBy: arrayUnion(reportedBy)
     })
 
   } catch (e) {
@@ -642,41 +632,41 @@ async function reportPost(postId: string, reportedBy: string, reason: string) {
 }
 
 async function hidePost(userId: string, postId: string) {
-    if (!userId || !postId) return
+  if (!userId || !postId) return
 
-    const userRef = doc(db, "users", userId)
-    try {
-        await runTransaction(db, async (transaction) => {
-            const userDoc = await transaction.get(userRef)
-            if (!userDoc.exists()) return
+  const userRef = doc(db, "users", userId)
+  try {
+    await runTransaction(db, async (transaction) => {
+      const userDoc = await transaction.get(userRef)
+      if (!userDoc.exists()) return
 
-            const currentHidden = userDoc.data().hiddenPosts || []
-            if (!currentHidden.includes(postId)) {
-                transaction.update(userRef, {
-                    hiddenPosts: [...currentHidden, postId]
-                })
-            }
+      const currentHidden = userDoc.data().hiddenPosts || []
+      if (!currentHidden.includes(postId)) {
+        transaction.update(userRef, {
+          hiddenPosts: [...currentHidden, postId]
         })
-    } catch (e) {
-        console.error("Error hiding post: ", e)
-        throw e
-    }
+      }
+    })
+  } catch (e) {
+    console.error("Error hiding post: ", e)
+    throw e
+  }
 }
 
 
 
 
 async function getUserMarketItems(userId: string): Promise<MarketItem[]> {
-    if (!userId) return []
-    try {
-        const itemsRef = collection(db, "market_items")
-        const q = query(itemsRef, where("sellerId", "==", userId), orderBy("createdAt", "desc"))
-        const snapshot = await getDocs(q)
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MarketItem))
-    } catch (e) {
-        console.error("Error getting user market items:", e)
-        return []
-    }
+  if (!userId) return []
+  try {
+    const itemsRef = collection(db, "market_items")
+    const q = query(itemsRef, where("sellerId", "==", userId), orderBy("createdAt", "desc"))
+    const snapshot = await getDocs(q)
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MarketItem))
+  } catch (e) {
+    console.error("Error getting user market items:", e)
+    return []
+  }
 }
 
 export {
