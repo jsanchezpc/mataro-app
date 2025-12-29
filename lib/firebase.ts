@@ -146,7 +146,8 @@ async function createUserIfNotExists(user: User) {
       }
     })
 
-  } catch {
+  } catch (error) {
+    console.error("Error creating user:", error)
   }
 }
 
